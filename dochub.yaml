@@ -1,0 +1,26 @@
+# Метаданные пакета
+$package:
+  iaas: # Идентификатор пакета
+    # Краткое название пакета
+    name: IaaS reverse
+    # Поставщик
+    vendor: Sber
+    # Описание
+    description: >
+      Каталог содержит сущности и представления для отображения технической 
+      архитектуры основанной на данных получаемых по API от IaaS провайдеров.
+    # Версия
+    version: 1.1.0
+    # Зависимости от других пакетов
+    dependencies:
+      dochub: ">=3.8.0"
+      seaf-core: ">=1.2.0"
+
+docs:
+  dochub.welcome.iaas_timeline2024:
+    title: SEAF IaaS Roadmap 2024Q1
+    location: IAAS/SEAF IaaS Roadmap 2024Q1
+    type: mermaid
+    source: docs/SEAF_IAAS_Roadmap_2024.mmd
+imports:
+  - root.yaml
