@@ -498,7 +498,7 @@ entities:
                                     "symbol": "cloud"
                                 }
                             }
-                        ), $nodes));
+                        ), $nodes)) : $nodes;
             /*     END of section    */
             /* Если есть офисы или ЦОДы с VPN, то добавляем символы в ноды */
             $branchnodes := $coffices.$spread().(
