@@ -12,6 +12,7 @@ entities:
           type: object
           properties:
             id:
+              title: Идентификатор пиринга
             name:
               title: Название пиринга
               type: string

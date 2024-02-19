@@ -39,3 +39,46 @@ entities:
                   }
               )
           )
+      table_viewRegistry:
+        type: table
+        headers:
+          - value: name
+            text: Security Group Name
+            width: 300
+          - value: description
+            text: Описание Security Group
+            width: 200
+            sortable: true
+          - value: tenant
+            text: Тенант(Project) в облаке
+            width: 200
+            sortable: true
+          - value: id
+            text: Security Groups ID
+            width: 200
+            sortable: true
+        source: >
+          (
+              $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
+              $distinct($security_groups.$spread().(
+                $security_groups_table := (
+                  [$security_groups.$spread().{
+                              "id": $keys()[0],
+                              "security_groups": $.*
+                          }]
+              )).security_groups)
+          )
+      security_groups_md:
+        type: markdown
+        template: templates/security_groups.md
+        source: >
+          (
+              $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
+              $distinct($security_groups.$spread().(
+                $security_groups_table := (
+                  [$security_groups.$spread().{
+                              "id": $keys()[0],
+                              "security_groups": $.*
+                          }]
+              )).security_groups)
+          )

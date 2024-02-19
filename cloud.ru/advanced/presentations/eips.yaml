@@ -1,0 +1,55 @@
+entities:
+  seaf.ta.reverse.cloud_ru.advanced.eips:
+    presentations:
+      table_view:
+        type: table
+        headers:
+          - value: ext_address
+            text: Внешний адрес
+            width: 200
+            sortable: true
+          - value: int_address
+            text: Внутренний адрес
+            width: 200
+            sortable: true
+          - value: type
+            text: Производетельность
+            width: 200
+            sortable: true
+          - value: port_id
+            text: Идентификатор порта для которого привязан IP
+            width: 200
+            sortable: true
+          - value: tenant
+            text: Тенант(Project) в облаке
+            width: 200
+            sortable: true
+          - value: id
+            text: ID сущности
+            width: 200
+            sortable: true
+        source: >
+          (      
+              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
+              $distinct($eips.$spread().(
+                $eips_table := (
+                  [$eips.$spread().{
+                              "id": $keys()[0],
+                              "eip": $.*
+                          }]
+              )).eip)
+          )
+      eip_md:
+        type: markdown
+        template: templates/eip.md
+        source: >
+          (
+              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
+              $distinct($eips.$spread().(
+                $eips_table := (
+                  [$eips.$spread().{
+                              "id": $keys()[0],
+                              "eip": $.*
+                          }]
+              )).eip)
+          )
