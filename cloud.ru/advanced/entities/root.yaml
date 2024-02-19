@@ -7,7 +7,6 @@ imports:
   - vaults.yaml
   - peerings.yaml
   - backup_policies.yaml
-  - branches.yaml
   - vpn_gateways.yaml
   - vpn_connections.yaml
   - nat_gateways.yaml
