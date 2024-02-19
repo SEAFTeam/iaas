@@ -60,25 +60,11 @@ entities:
         source: >
           (
               $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
-              $distinct($security_groups.$spread().(
+              [$distinct($security_groups.$spread().(
                 $security_groups_table := (
                   [$security_groups.$spread().{
                               "id": $keys()[0],
                               "security_groups": $.*
                           }]
-              )).security_groups)
-          )
-      security_groups_md:
-        type: markdown
-        template: templates/security_groups.md
-        source: >
-          (
-              $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
-              $distinct($security_groups.$spread().(
-                $security_groups_table := (
-                  [$security_groups.$spread().{
-                              "id": $keys()[0],
-                              "security_groups": $.*
-                          }]
-              )).security_groups)
+              )).security_groups)]
           )

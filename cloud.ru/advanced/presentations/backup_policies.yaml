@@ -108,13 +108,13 @@ entities:
         source: >
           (
             $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
-              $distinct($backup_policies.$spread().(
+              [$distinct($backup_policies.$spread().(
                 $backup_policies_table := (
                   [$backup_policies.$spread().{
                               "id": $keys()[0],
                               "backup_policies": $.*
                           }]
-              )).backup_policies)
+              )).backup_policies)]
           )
       backup_policies_md:
         type: markdown
@@ -122,11 +122,11 @@ entities:
         source: >
           (
             $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
-              $distinct($backup_policies.$spread().(
+              [$distinct($backup_policies.$spread().(
                 $backup_policies_table := (
                   [$backup_policies.$spread().{
                               "id": $keys()[0],
                               "backup_policies": $.*
                           }]
-              )).backup_policies)
+              )).backup_policies)]
           )

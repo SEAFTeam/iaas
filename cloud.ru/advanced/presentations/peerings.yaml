@@ -31,11 +31,11 @@ entities:
         source: >
           (      
               $peerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings";
-              $distinct($peerings.$spread().(
+              [$distinct($peerings.$spread().(
                 $peerings_table := (
                   [$peerings.$spread().{
                               "id": $keys()[0],
                               "peerings": $.*
                           }]
-              )).peerings)
+              )).peerings)]
           )

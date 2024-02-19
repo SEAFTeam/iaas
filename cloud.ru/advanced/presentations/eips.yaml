@@ -31,13 +31,13 @@ entities:
         source: >
           (      
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
-              $distinct($eips.$spread().(
+              [$distinct($eips.$spread().(
                 $eips_table := (
                   [$eips.$spread().{
                               "id": $keys()[0],
                               "eip": $.*
                           }]
-              )).eip)
+              )).eip)]
           )
       eip_md:
         type: markdown
@@ -45,11 +45,11 @@ entities:
         source: >
           (
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
-              $distinct($eips.$spread().(
+              [$distinct($eips.$spread().(
                 $eips_table := (
                   [$eips.$spread().{
                               "id": $keys()[0],
                               "eip": $.*
                           }]
-              )).eip)
+              )).eip)]
           )
