@@ -26,6 +26,10 @@ entities:
               title: Спецификация (Flavor)
               type: string
               minLength: 3
+            status:
+              title: Статус
+              type: string
+              minLength: 5
             az:
               title: Зона доступности
               type: string

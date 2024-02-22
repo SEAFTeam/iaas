@@ -537,6 +537,7 @@ if serversExport == True:
                             'id': server['id'],
                             'name': server['name'],
                             'description': server['description'],
+                            'status': server['status'],
                             'flavor': server['flavor']['id'],
                             'os':{'type': server['metadata']['os_type'], 'bit': server['metadata']['os_bit']},
                             'vpc_id': server['metadata']['vpc_id'],
