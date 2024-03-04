@@ -43,7 +43,7 @@ entities:
               $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
               $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
               $cdcs := $."seaf.ta.services.dc";
-              $ccces.$spread().(
+              [$ccces.$spread().(
                   $ha := $count($.*.masters_az) > 1 ? 'Да' : 'Нет';
                   $subnet_id := $.*.subnet_id;
                   $vpc_id := $.*.vpc_id;
@@ -66,7 +66,7 @@ entities:
                       'dc': $dc,
                       'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=' & $id
                   }
-              )
+              )]
           )
       cce_md:
         type: markdown
