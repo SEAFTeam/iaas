@@ -1,0 +1,39 @@
+functions:
+  reverse.enterprise:
+    vapps: >
+        (
+            $domain := $.domain;
+            $vapp_entity_matcher := /.*\.vapps$/;
+            $vdc_entity_matcher := /.*\.vdcs$/;
+            $org_entity_matcher := /.*\.orgs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $vapp_entity := $$.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := $$.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $vapps := $$.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := $$.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := $.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$vapps.$spread().{
+                'id': $keys(),
+                'vapp': *
+            }].(
+                $vapp_id := id;
+                $vdc_id := vapp.vdc_id;
+                $vdc := $vdcs.$spread()[*.id = $vdc_id];
+                $org_id := $vdc.*.org_id;
+                $org := $orgs.$spread()[*.id = $org_id];
+                {
+                    'id': vapp.id,
+                    'name': vapp.name,
+                    'description': vapp.description,
+                    'vdc_name': vapp.vdc_name,
+                    'vdc_id': $vdc_id,
+                    'org_name': $vdc.*.org_name,
+                    'org_id': $org_id,
+                    'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & $org_id,
+                    'entity': $vapp_entity
+                }
+            )]
+        )

@@ -1,0 +1,22 @@
+functions:
+  reverse.enterprise:
+    avs: >
+      (
+          $domain := $.domain;
+          $av_entity_matcher := /.*\.avs$/;
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+          $av_entity := $$.entities.$spread()[$av_entity_matcher($keys())].$keys()[0];
+          $avs := $$.$spread()[$av_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+          [[$avs.$spread().{
+              'id': $keys(),
+              'av': *
+          }].(
+              {
+                  'id': id,
+                  'system_id': av.system_id,
+                  'hosts': av.hosts,
+                  'av_link': '/entities/' & $av_entity & '/card?id=' & id,
+                  'entity': $av_entity
+              }
+          )];
+      )

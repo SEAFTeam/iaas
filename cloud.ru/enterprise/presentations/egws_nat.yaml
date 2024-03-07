@@ -1,0 +1,469 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.egws_nat:
+    presentations:
+      dnat_list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: nat_link
+            width: 200
+          - value: type
+            text: Тип NAT
+            sortable: true
+            align: left
+          - value: enabled
+            text: Статус
+            align: center
+          - value: external_address
+            text: Внешний адрес
+            align: left
+          - value: internal_address
+            text: Внутренний адрес
+            align: left
+          - value: dnat_ext_port
+            text: Внешний порт
+            align: left
+          - value: fw_match
+            text: FW
+            align: left
+          - value: vm_name
+            text: Виртуальная машина
+            align: left
+            link: vm_link
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".egws;
+              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $vms := $eval($fn_vms);
+              $egw := $eval($fn)[id = $id];
+              $nats := $eval($fn_nat)[gw_id = $egw.id][type = 'DNAT'];
+              [$nats ~> | $ |(
+                  $internal_address := internal_address;
+                  $vm := $vms[$internal_address in addresses];
+                  {
+                      'vm_name': $vm.name,
+                      'vm_link': $vm.vm_link,
+                      'enabled': enabled = true ? '✅' : '❌'
+                  }
+              )|]
+          )
+
+      snat_list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: nat_link
+            width: 200
+          - value: type
+            text: Тип NAT
+            sortable: true
+            align: left
+          - value: enabled
+            text: Статус
+            align: center
+          - value: external_address
+            text: Внешний адрес
+            align: left
+          - value: internal_address
+            text: Внутренний адрес
+            align: left
+          - value: snat_dst_address
+            name: Адрес назначения SNAT
+            align: left
+          - value: fw_match
+            text: FW
+            align: left
+          - value: obj_name
+            text: Виртуальная машина/Сеть
+            align: left
+            link: obj_link
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".egws;
+              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $fn_orgnets := $$.functions."reverse.enterprise".orgnets;
+              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
+              $vms := $eval($fn_vms);
+              $egw := $eval($fn)[id = $id];
+              $orgnets := $eval($fn_orgnets)[id in $egw.gatewayinterfaces.network_id];
+              $nats := $eval($fn_nat)[gw_id = $egw.id][type = 'SNAT'];
+              [$nats ~> | $ |(
+                  $internal_address := internal_address;
+                  $matcher := /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/;
+                  $obj := $not($exists($matcher($internal_address))) ? (
+                            $vm := $vms[$internal_address in addresses];
+                            {
+                                'name': $vm.name,
+                                'link': $vm.vm_link
+                            }
+                            ) : (
+                            $orgnets.(
+                                $name := $.name;
+                                $orgnet_link := $.orgnet_link;
+                                $.ipscopes.(
+                                    $gw := $.gateway;
+                                    $eval($fn_ip_matcher, {'cidr': $internal_address, 'ip': $gw}) ?
+                                        {
+                                            'name': $name,
+                                            'link': $orgnet_link
+                                        }
+                                )
+                            )
+                      ); 
+                  {
+                      'obj_name': $obj.name,
+                      'obj_link': $obj.link,
+                      'enabled': enabled = true ? '✅' : '❌'
+                  }
+              )|]
+          )
+
+      dnat_schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".egws;
+              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $fn_vapps := $$.functions."reverse.enterprise".vapps;
+              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
+              $fn_svg_nsx_gateway := $$.functions."reverse.general".svg_nsx_gateway;
+              $fn_svg_vm := $$.functions."reverse.general".svg_vm;
+              $fn_svg_internet := $$.functions."reverse.general".svg_internet;
+              $nat := $eval($fn_nat)[id = $id];
+              $vm := $eval($fn_vms)[$nat.internal_address in addresses];
+              $vapp := $eval($fn_vapps)[id = $vm.vapp_id];
+              $egw := $eval($fn)[id = $nat.gw_id];
+              $symbols := [];
+              $links := [];
+              /* Безусловный блок */
+              $nodes := {$egw.org_id:{'title': 'Организация: ' & $egw.org_name}};
+              $nodes := $append($nodes, {$egw.org_id & '.' & $egw.vdc_id: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := $append($nodes, (
+                      $prefix := $egw.org_id & '.' & $egw.vdc_id;
+                      {
+                          $prefix & '.' & $egw.id: {
+                              'title': $egw.name,
+                              'symbol': 'egw-' & $egw.id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes,
+                  {
+                      'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
+                  }
+              );
+              $links := $append($links, (
+                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $nodes[$matcher($.$keys())].(
+                          {
+                              'from': 'internet',
+                              'to': $keys()[0],
+                              'style': '->',
+                              'title': 'IP: ' & $nat.external_address & ' Port: ' & $nat.dnat_ext_port
+                          }
+                      )
+                  )
+              );
+              $symbols := $append($symbols, (
+                      $icon := $eval($fn_svg_internet);
+                        {
+                            'internet': $icon
+                        }
+                  )
+              );
+              $symbols := $append($symbols, $egw.(
+                      $href := $.egw_link;
+                      $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
+                      {
+                          'egw-' & $.id: $icon
+                      }
+                  )
+              );
+              /* Конец безусловного блока */
+          
+              /* Если виртуалки нет */
+              $nodes := $append($nodes, $not($exists($vm)) ? (
+                      {
+                          $nat.internal_address.$replace('.', ''): {
+                              'title': $nat.internal_address,
+                              'symbol': 'system'
+                          }
+                      }
+                  )
+              );
+              $links := $append($links, $not($exists($vm)) ? (
+                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $from := $nodes[$matcher($.$keys())].$keys()[0];
+                      {
+                          'from': $from,
+                          'to': $nat.internal_address.$replace('.', ''),
+                          'style': '->',
+                          'title': 'IP: ' & $nat.internal_address
+                      }
+                  )
+              );
+              /*  Конец блока если виртуалки нет */
+          
+              /* Если есть соответсвующая виртуальная машина */
+              $nodes := $append($nodes, $exists($vm) ? (
+                      $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+                      $nodes := $append($nodes, $vm.(
+                              $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                              {
+                                  $prefix & '.' & $.id: {
+                                      'title': $.name,
+                                      'symbol': 'vm-' & $.id,
+                                      'hideTitle': true
+                                  }
+                              }
+                          )
+                      )
+                  )
+              );
+              $links := $append($links, $exists($vm) ? (
+                      $matcher_from := $eval('/.*\\.' & $egw.id & '$/');
+                      $from := $nodes[$matcher_from($.$keys())].$keys()[0];
+                      $matcher_to := $eval('/.*\\.' & $vm.id & '$/');
+                      $to := $nodes[$matcher_to($.$keys())].$keys()[0];
+                      {
+                          'from': $from[0],
+                          'to': $to,
+                          'style': '->',
+                          'title': 'IP: ' & $nat.internal_address
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $exists($vm) ? (
+                      $symbols := $append($symbols, $vm.(
+                              $href := $.vm_link;
+                              $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
+                              {
+                                  'vm-' & $.id: $icon
+                              }
+                          )
+                      )
+                  )
+              );
+              /* Конец блока про виртуалку */
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links
+              };
+          )
+
+      snat_schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".egws;
+              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $fn_vapps := $$.functions."reverse.enterprise".vapps;
+              $fn_orgnets := $$.functions."reverse.enterprise".orgnets;
+              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
+              $fn_svg_nsx_gateway := $$.functions."reverse.general".svg_nsx_gateway;
+              $fn_svg_vm := $$.functions."reverse.general".svg_vm;
+              $fn_svg_internet := $$.functions."reverse.general".svg_internet;
+              $fn_svg_block := $$.functions."reverse.general".svg_block;
+              $nat := $eval($fn_nat)[id = $id];
+              $vm := $eval($fn_vms)[$nat.internal_address in addresses];
+              $vapp := $eval($fn_vapps)[id = $vm.vapp_id];
+              $egw := $eval($fn)[id = $nat.gw_id];
+              $orgnets := $eval($fn_orgnets)[id in $egw.gatewayinterfaces.network_id];
+              $symbols := [];
+              $links := [];
+              /* Безусловный блок */
+              $nodes := {$egw.org_id:{'title': 'Организация: ' & $egw.org_name}};
+              $nodes := $append($nodes, {$egw.org_id & '.' & $egw.vdc_id: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := $append($nodes, (
+                      $prefix := $egw.org_id & '.' & $egw.vdc_id;
+                      {
+                          $prefix & '.' & $egw.id: {
+                              'title': $egw.name,
+                              'symbol': 'egw-' & $egw.id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes,
+                  {
+                      'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
+                  }
+              );
+              $links := $append($links, (
+                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $nodes[$matcher($.$keys())].(
+                          {
+                              'from': $keys()[0],
+                              'to': 'internet',
+                              'style': '->',
+                              'title': 'IP: ' & $nat.external_address
+                          }
+                      )
+                  )
+              );
+              $symbols := $append($symbols, (
+                      $icon := $eval($fn_svg_internet);
+                        {
+                            'internet': $icon
+                        }
+                  )
+              );
+              $symbols := $append($symbols, $egw.(
+                      $href := $.egw_link;
+                      $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
+                      {
+                          'egw-' & $.id: $icon
+                      }
+                  )
+              );
+              /* Конец безусловного блока */
+          
+              /* Если виртуалки нет и это не сеть */
+              $cidr_matcher := /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/;
+              $nodes := $append($nodes, $not($exists($vm)) and $not($exists($cidr_matcher($nat.internal_address))) ? (
+                      {
+                          $nat.internal_address.$replace('.', ''): {
+                              'title': $nat.internal_address,
+                              'symbol': 'system'
+                          }
+                      }
+                  )
+              );
+              $links := $append($links, $not($exists($vm)) and $not($exists($cidr_matcher($nat.internal_address))) ? (
+                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $to := $nodes[$matcher($.$keys())].$keys()[0];
+                      {
+                          'from': $nat.internal_address.$replace('.', ''),
+                          'to': $to,
+                          'style': '->',
+                          'title': 'IP: ' & $nat.internal_address
+                      }
+                  )
+              );
+              /*  Конец блока если виртуалки нет и это не сеть */
+              /* Если это сеть */
+              $cidr_matcher := /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/;
+              $nodes := $append($nodes, $cidr_matcher($nat.internal_address) ? (
+                      $orgnet := $orgnets.(
+                          $o := $;
+                          $.ipscopes.(
+                              $gw := $.gateway;
+                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                          )
+                      );
+                      {
+                          $orgnet.org_id & '.' & $orgnet.vdc_id & '.' & $orgnet.id: {
+                              'title': $orgnet.name,
+                              'symbol': 'orgnet-' & $orgnet.id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $links := $append($links, $cidr_matcher($nat.internal_address) ? (
+                      $to_matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $to := $nodes[$to_matcher($.$keys())].$keys()[0];
+                      $orgnet := $orgnets.(
+                          $o := $;
+                          $.ipscopes.(
+                              $gw := $.gateway;
+                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                          )
+                      );
+                      $from_matcher := $eval('/.*\\.' & $orgnet.id & '$/');
+                      $from := $nodes[$from_matcher($.$keys())].$keys()[0];
+                      {
+                          'from': $from,
+                          'to': $to,
+                          'style': '->',
+                          'title': 'IP: ' & $nat.internal_address
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $cidr_matcher($nat.internal_address) ? (
+                      $orgnet := $orgnets.(
+                          $o := $;
+                          $.ipscopes.(
+                              $gw := $.gateway;
+                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                          )
+                      );
+                      $orgnet.(
+                          $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                          $dnssrv := $join($.dns, ', ');
+                          $fencemode := $.fencemode;
+                          $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                          $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                          {
+                              'orgnet-' & $.id: $icon
+                          }
+                      )
+                  )
+              );
+              /*  Конец блока если это сеть */
+          
+              /* Если есть соответсвующая виртуальная машина */
+              $nodes := $append($nodes, $exists($vm) ? (
+                      $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+                      $nodes := $append($nodes, $vm.(
+                              $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                              {
+                                  $prefix & '.' & $.id: {
+                                      'title': $.name,
+                                      'symbol': 'vm-' & $.id,
+                                      'hideTitle': true
+                                  }
+                              }
+                          )
+                      )
+                  )
+              );
+              $links := $append($links, $exists($vm) ? (
+                      $matcher_from := $eval('/.*\\.' & $egw.id & '$/');
+                      $from := $nodes[$matcher_from($.$keys())].$keys()[0];
+                      $matcher_to := $eval('/.*\\.' & $vm.id & '$/');
+                      $to := $nodes[$matcher_to($.$keys())].$keys()[0];
+                      {
+                          'from': $from[0],
+                          'to': $to,
+                          'style': '->',
+                          'title': 'IP: ' & $nat.internal_address
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $exists($vm) ? (
+                      $symbols := $append($symbols, $vm.(
+                              $href := $.vm_link;
+                              $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
+                              {
+                                  'vm-' & $.id: $icon
+                              }
+                          )
+                      )
+                  )
+              );
+              /* Конец блока про виртуалку */
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links
+              };
+          )

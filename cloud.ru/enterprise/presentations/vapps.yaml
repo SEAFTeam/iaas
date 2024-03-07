@@ -1,0 +1,70 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vapps:
+    presentations:
+      card:
+        type: markdown
+        template: templates/vapp_card.md
+        source: >
+          (   
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".vapps;
+              $fn_vappnets := $$.functions."reverse.enterprise".vappnets;
+              $vapp := $eval($fn)[id = $id];
+              $vappnets := $eval($fn_vappnets)[vapp_id = $id];
+              $vapp ~> | $ |{'networks': $vappnets, 'networkexists': $exists($vappnets)} |
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn_vapps := $$.functions."reverse.enterprise".vapps;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $vapp := $eval($fn_vapps)[id = $id];
+              $vms := $eval($fn_vms)[vapp_id = $vapp.id];
+              $nodes := {$vapp.org_id:{'title': 'Организация: ' & $vapp.org_name}};
+              $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id: {'title': 'VDC: ' & $vapp.vdc_name}});
+              $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+              $nodes := $append($nodes, $vms.(
+                      $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                      {
+                          $prefix & '.' & $.id: {
+                              'title': $.name,
+                              'symbol': $.id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $symbols := $vms.(
+                  $fn_svg_vm := $$.functions."reverse.general".svg_vm;
+                  $href := $.vm_link;
+                  $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
+                  {
+                      $.id: $icon
+                  }
+              );
+              {
+                'nodes': $merge($nodes),
+                'symbols': $merge($symbols)
+              };
+          )
+
+      vm_list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование
+            width: 200
+            sortable: true
+            link: vm_link
+          - value: description
+            text: Описание
+            width: 400
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".vms;
+              [$eval($fn)[vapp_id = $id]]
+          )

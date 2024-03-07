@@ -1,0 +1,28 @@
+functions:
+  reverse.general:
+    match_ip_to_subnet: >
+      (
+          $param := $;
+          $matchip := function($cidr, $ip) {(
+                                $mask := $split($cidr, '/')[1];
+                                $subaddr := $split($cidr, '/')[0];
+                                $suboctets := $split($subaddr,'.');
+                                $ipoctets := $split($ip, '.');
+                                $subnstring := $substring(
+                                    $join($suboctets.$formatBase($number($), 2).(
+                                        $tmp := $;
+                                        $join([$length($)..7].('0')) & $tmp
+                                        )
+                                    ), 0, $number($mask)
+                                );
+                                $ipstring := $substring(
+                                    $join($ipoctets.$formatBase($number($), 2).(
+                                        $tmp := $;
+                                        $join([$length($)..7].('0')) & $tmp
+                                        )
+                                    ), 0, $number($mask)
+                                );
+                                $ipstring = $subnstring ? true : false
+                      )};
+          $matchip($param.cidr, $param.ip)
+      )

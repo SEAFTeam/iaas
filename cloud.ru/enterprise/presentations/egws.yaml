@@ -1,0 +1,261 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.egws:
+    presentations:
+      card:
+        type: markdown
+        template: templates/egw_card.md
+        source: >
+          (   
+              $id := $params.id;
+              $egw := $reverse_enterprise_egws($)[id = $id];
+              $egws_nat := $reverse_enterprise_egws_nat($)[gw_id = $id];
+              $nataddresses := $distinct($egws_nat.external_address);
+              $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
+              $addresses := $egw.gatewayinterfaces.subnetparticipation.ipaddress.($ != null ? $);
+              $egw ~> | $ | {'orgnets': $orgnets, 'addresses': $addresses, 'nataddresses': $nataddresses} |
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn_svg_nsx_gateway := $$.functions."reverse.general".svg_nsx_gateway;
+              $fn_svg_block := $$.functions."reverse.general".svg_block;
+              $fn_svg_internet := $$.functions."reverse.general".svg_internet;
+              $egw := $reverse_enterprise_egws($)[id = $id];
+              $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
+              $nodes := {$egw.org_id:{'title': 'Организация: ' & $egw.org_name}};
+              $nodes := $append($nodes, {$egw.org_id & '.' & $egw.vdc_id: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := $append($nodes, $egw.(
+                      $prefix := org_id & '.' & vdc_id;
+                      {
+                          $prefix & '.' & $.id: {
+                              'title': name,
+                              'symbol': 'egw-' & id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $extnets := $egw.(
+                  $.gatewayinterfaces.(
+                      $netid := $.network_id;
+                      $not($netid in $orgnets.id) ? (
+                          $
+                      )
+                  )
+              );
+              $intnets := $egw.(
+                  $.gatewayinterfaces.(
+                      $netid := $.network_id;
+                      $netid in $orgnets.id ? (
+                          $orgnets[id = $netid]
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $extnets.(
+                      {
+                          $.network_id: {
+                              'title': $.name,
+                              'symbol': 'extnet-' & $.network_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $intnets.(
+                      $prefix := $.org_id & '.' & $.vdc_id;
+                      {
+                          $prefix & '.' & $.id: {
+                              'title': $.name,
+                              'symbol': 'orgnet-' & $.id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, 
+                  $exists($extnets) ? 
+                      {
+                          'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
+                      }
+              );
+              $links := [$egw.(
+                  $regexp := $eval('/.*\\.' & $.id & '$/');
+                  $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
+                  $.gatewayinterfaces.(
+                      $ipaddress := $exists($.subnetparticipation.ipaddress) ? $.subnetparticipation.ipaddress.($ != null ? $) : 'Routing' ;
+                      $regexp := $eval('/(.*\\.|^)' & $.network_id & '$/');
+                      $style := $.network_id in $intnets.id or $.network_id in $orgnets.id ? '->' : '-[#AED900]->';
+                      $nodes[$regexp($.$keys())].(
+                          {
+                              'from': $gwnode,
+                              'to': $keys()[0],
+                              'style': $style,
+                              'title': $ipaddress
+                          }
+                      )
+                  )
+              )];
+              $links := $append($links,
+                  $exists($extnets) ? 
+                     $extnets.(
+                          {
+                              'from': $.network_id,
+                              'to': 'internet',
+                              'title': 'Внешняя сеть в интернет',
+                              'style': '->'
+                          }
+                      )
+              );
+              $symbols := [];
+              $symbols := $append($symbols, $egw.(
+                      $href := $.egw_link;
+                      $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
+                      {
+                          'egw-' & $.id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $extnets.(
+                      $netranges := $join($.subnetparticipation.($.ipranges.($.startaddress & '-' & $.endAddress)), ' ');
+                      $gateway := $join($.subnetparticipation.($.gateway), ' ');
+                      $netmask := $join($.subnetparticipation.($.netmask), ' ');
+                      $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'type':'extNet', 'details': $data});
+                      {
+                          'extnet-' & $.network_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $intnets.(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                      {
+                          'orgnet-' & $.id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, 
+                  ($exists($extnets) ? 
+                      ( $icon := $eval($fn_svg_internet);
+                        {
+                            'internet': $icon
+                        }
+                      )
+                  )
+              );
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links
+              };
+          )
+
+      list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование Edge Gateway
+            sortable: true
+            align: left
+            link: egw_link
+            width: 300
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+          - value: type
+            text: Тип Edge Gateway
+            sortable: true
+            align: left
+          - value: gatewayinterfaces
+            text: Интерфейсы
+            align: left
+          - value: vdc_name
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_name
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+        source: >
+          (
+              $domain := $params.domain;
+              $fn := $reverse_enterprise_egws($, $domain);
+          )
+      networks_list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: orgnet_link
+            width: 200
+          - value: iftype
+            text: Тип интерфейса
+            sortable: true
+            align: left
+          - value: connected
+            text: Статус подключения
+            align: left
+          - value: gateway
+            text: Адрес шлюза
+            align: left
+          - value: ipaddress
+            text: IP адрес интерфейса
+            align: left
+          - value: ipranges
+            text: Диапазон адресов
+            align: left
+            width: 300
+          - value: vdc_name
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_name
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".egws;
+              $fn_orgnet := $$.functions."reverse.enterprise".orgnets;
+              $egw := $eval($fn)[id = $id];
+              $orgnets := $eval($fn_orgnet)[id in $egw.gatewayinterfaces.network_id];
+              [$egw.gatewayinterfaces ~> | $ | (
+                  $id := network_id;
+                  $orgnet := $orgnets[id = $id];
+                  {
+                      'name': $orgnet.name,
+                      'description': $orgnet.description,
+                      'connected': connected = true ? '✅' : '❌',
+                      'gateway': $join(subnetparticipation.gateway, '\n'),
+                      'ipaddress': $not(null in subnetparticipation.ipaddress) ? $join(subnetparticipation.ipaddress, '\n') : subnetparticipation.ipaddress.($ != null ? $),
+                      'ipranges': $join(subnetparticipation.ipranges.($.startaddress & ' - ' &  $.endAddress), '\n'),
+                      'vdc_name': $orgnet.vdc_name,
+                      'vdc_link': $orgnet.vdc_link,
+                      'org_name': $orgnet.org_name,
+                      'org_link': $orgnet.org_link
+                  }
+              )|]     
+          )

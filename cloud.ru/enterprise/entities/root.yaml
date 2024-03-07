@@ -1,0 +1,10 @@
+imports:
+  - general/root.yaml
+  - egws.yaml
+  - orgnets.yaml
+  - orgs.yaml
+  - vappnets.yaml
+  - vapps.yaml
+  - vdcs.yaml
+  - vms.yaml
+  - vdcgroups.yaml

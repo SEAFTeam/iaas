@@ -1,0 +1,23 @@
+entities:
+  reverse.general.wafs:
+    title: Web Application Friewall
+    object:
+      waf:
+        route: "/"
+        title: "Web Application Firewall"
+    schema:
+      patternProperties:
+        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор
+              type: string
+            system_id:
+              title: Идентификатор системы КБ в КА ДЗО
+              ref: "#/$rels/kadzo.v2023.kb_systems.kb_systems"
+            domains:
+              title: Доменные имена
+              type: array
+              items:
+                type: string

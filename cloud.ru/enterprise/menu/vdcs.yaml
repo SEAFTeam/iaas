@@ -1,0 +1,15 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+    menu: >
+      (
+          $domain := '';
+          $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+          $entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+          $config := entities."seaf.ta.reverse.general".config;
+          [
+              {
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC',
+                  'link': 'entities/' & $entity & '/list?domain=' & $domain
+              }
+          ]
+      )

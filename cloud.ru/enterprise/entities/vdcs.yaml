@@ -1,0 +1,46 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+    title: Виртуальный датацентр
+    object:
+      vdc:
+        route: "/"
+        title: "Виртуальный датацентр"
+    schema:
+      patternProperties:
+        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор VDC
+              type: string
+            original_id:
+              title: Идентификатор VDC (полный)
+              type: string
+            name:
+              title: Наименование VDC
+              type: string
+            computeProviderScope:
+              title: Область провайдеров вычислительных ресурсов (не уверен что требуется)
+              type: string
+            networkProviderScope:
+              title: Область провайдеров сетевых ресурсов (не уверен что требуется)
+              type: string
+            org_name:
+              title: Наименование организации
+              type: string
+            org_id:
+              title: Идентификатор организации
+              type: string
+            availableNetworks:
+              title: Список доступных сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    title: Идентификатор сети
+                    type: string
+                  name:
+                     title: Наименование сети
+                     type: string
+

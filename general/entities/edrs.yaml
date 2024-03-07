@@ -1,0 +1,23 @@
+entities:
+  reverse.general.edrs:
+    title: EDR Agents on hosts
+    object:
+      edr:
+        route: "/"
+        title: "EDR Agents"
+    schema:
+      patternProperties:
+        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор
+              type: string
+            system_id:
+              title: Идентификатор системы КБ в КА ДЗО
+              ref: "#/$rels/kadzo.v2023.kb_systems.kb_systems"
+            hosts:
+              title: Имена хостов на которых установлен агент
+              type: array
+              items:
+                type: string

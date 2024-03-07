@@ -1,0 +1,132 @@
+entities:
+  seaf.ta.reverse.general.edrs:
+    presentations:
+      list:
+        type: table
+        headers:
+          - value: id
+            text: ID EDR Агента
+            sortable: true
+            align: left
+            link: edr_link
+            width: 300
+          - value: system_id
+            text: Идентификатор системы КБ
+            align: left
+            width: 300
+          - value: hosts
+            text: Хосты
+            sortable: true
+            align: left
+        source: >
+          (
+              $domain := $params.domain;
+              $fn := $$.functions."reverse.enterprise".edrs;
+              $tmp := $eval($fn, {'domain': $domain});
+              $tmp ~> | $ | {'hosts': hosts.$join($, "\n")} |
+          )
+
+      card:
+        type: markdown
+        template: templates/edr_card.md
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".edrs;
+              $edr := $eval($fn)[id = $id];
+              
+          )
+
+      servers:
+        type: table
+        headers:
+          - value: id
+            text: ID
+          - value: name
+            text: Имя сервера
+            sortable: true
+            align: left
+            link: vm_link
+            width: 300
+          - value: vapp
+            text: vApp
+            align: left
+            width: 200
+            link: vapp_link
+          - value: subnet
+            text: Subnet
+            align: left
+            width: 200
+          - value: az
+            text: Зона доступности
+            align: left
+            width: 200
+          - value: flavor
+            text: Спецификация
+            align: left
+          - value: tags
+            text: Теги
+            align: left
+            width: 300
+          - value: vdc
+            text: VDC
+            link: vdc_link
+          - value: tenant
+            text: Тенант
+          - value: dc
+            text: Датацентр
+        source: >
+          (
+              $id := $params.id;
+              $fn := $$.functions."reverse.enterprise".edrs;
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $edr := $eval($fn)[id = $id];
+              $vms := $eval($fn_vms)[name in $edr.hosts];
+          )
+
+      no_edr:
+        type: table
+        headers:
+          - value: id
+            text: ID
+          - value: name
+            text: Имя сервера
+            sortable: true
+            align: left
+            link: vm_link
+            width: 300
+          - value: vapp
+            text: vApp
+            align: left
+            width: 200
+            link: vapp_link
+          - value: subnet
+            text: Subnet
+            align: left
+            width: 200
+          - value: az
+            text: Зона доступности
+            align: left
+            width: 200
+          - value: flavor
+            text: Спецификация
+            align: left
+          - value: tags
+            text: Теги
+            align: left
+            width: 300
+          - value: vdc
+            text: VDC
+            link: vdc_link
+          - value: tenant
+            text: Тенант
+          - value: dc
+            text: Датацентр
+        source: >
+          (
+              $domain := $params.domain;
+              $fn := $$.functions."reverse.enterprise".edrs;
+              $edrs := $eval($fn, {'domain': $domain});
+              $fn_vms := $$.functions."reverse.enterprise".vms;
+              $vms := $eval($fn_vms, {'domain': $domain})[$not(name in $edrs.hosts)];
+          )

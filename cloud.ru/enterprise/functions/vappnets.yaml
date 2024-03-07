@@ -1,0 +1,50 @@
+functions:
+  reverse.enterprise:
+    vappnets: >
+        (
+            $domain := $.domain;
+            $vappnet_entity_matcher := /.*\.vappnets$/;
+            $vapp_entity_matcher := /.*\.vapps$/;
+            $vdc_entity_matcher := /.*\.vdcs$/;
+            $org_entity_matcher := /.*\.orgs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $vappnet_entity := $$.entities.$spread()[$vappnet_entity_matcher($keys())].$keys()[0];
+            $vapp_entity := $$.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := $$.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $vappnets := $$.$spread()[$vappnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vapps := $$.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := $$.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := $.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$vappnets.$spread().{
+                'id': $keys(),
+                'vappnet': *
+            }].(
+                $vapp_id := vappnet.vapp_id;
+                $vapp := $vapps.$spread()[*.id = $vapp_id];
+                $vdc_id := $vapp.*.vdc_id;
+                $vdc := $vdcs.$spread()[*.id = $vdc_id];
+                $org_id := $vdc.*.org_id;
+                $org := $orgs.$spread()[*.id = $org_id];
+                {
+                    'id': id,
+                    'name': vappnet.name,
+                    'description': vappnet.description,
+                    'gateway': vappnet.gateway,
+                    'netmask': vappnet.netmask,
+                    'fencemode': vappnet.fencemode,
+                    'ipscopes': vappnet.ipscopes,
+                    'parentnetwork_id': vappnet.parentnetwork_id,
+                    'dns': vappnet.dns,
+                    'vapp_name': $vapp.*.name,
+                    'vapp_id': vappnet.vapp_id,
+                    'vdc_name': $vdc.*.name,
+                    'vdc_id': $vdc.*.id,
+                    'org_name': $org.*.name,
+                    'org_id': $org.*.id,
+                    'vappnet_link': '/entities/' & $vappnet_entity & '/card?id=' & id,
+                    'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & vappnet.vapp_id,
+                    'entity': $vappnet_entity
+                }
+            )]
+        )

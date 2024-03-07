@@ -1,0 +1,10 @@
+imports:
+  - vms.yaml
+  - network.yaml
+  - vapps.yaml
+  - vdcs.yaml
+  - orgnets.yaml
+  - egws.yaml
+  - edrs.yaml
+  - avs.yaml
+  - wafs.yaml

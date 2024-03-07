@@ -1,0 +1,15 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vms:
+    menu: >
+      (
+          $domain := '';
+          $vm_entity_matcher := /.*\.enterprise\.vms$/;
+          $entity := $$.entities.$spread()[$vm_entity_matcher($keys())].$keys()[0];
+          $config := entities."seaf.ta.reverse.general".config;
+          [
+              {
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/Серверы',
+                  'link': 'entities/' & $entity & '/list?domain=' & $domain
+              }
+          ]
+      )

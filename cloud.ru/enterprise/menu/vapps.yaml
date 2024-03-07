@@ -1,0 +1,30 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vapps:
+    menu: >
+      (
+          $domain := '';
+          $vapps_entity_matcher := /.*\.enterprise\.vapps$/;
+          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
+          $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
+          $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
+          $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
+          $vdcs_entity := $$.entities.$spread()[$vdcs_entity_matcher($keys())].$keys()[0];
+          $vdcs := $$.$spread()[$vdcs_entity_matcher($keys())].*;
+          $vapps_entity := $$.entities.$spread()[$vapps_entity_matcher($keys())].$keys()[0];
+          $vapps := $$.$spread()[$vapps_entity_matcher($keys())].*;
+          $config := entities."seaf.ta.reverse.general".config;
+          $menu := [];
+          $menu := $append($menu, $vapps.$spread().(
+                $id := $.*.id;
+                $name := $.*.name;
+                $vdc_id := $.*.vdc_id;
+                $vdcname := $vdcs.$spread()[$keys() = $vdc_id].*.name;
+                $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org_id;
+                $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+                {
+                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Схемы/Организации/' & $orgname & '/' & $vdcname & '/vApps/' & $name,
+                    'link': 'entities/' & $vapps_entity & '/card?id=' & $id
+                }
+            )
+          );
+      )

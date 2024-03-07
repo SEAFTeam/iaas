@@ -1,0 +1,62 @@
+functions:
+  reverse_enterprise_egws:
+    title: Список edge gateways
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $egw_entity_matcher := /.*\.enterprise\.egws$/;
+            $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
+            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
+            $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
+            $orgnet_entity := dataset.entities.$spread()[$orgnet_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $egws_nat_entity := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
+            $egws_fw_entity := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())].$keys()[0];
+            $egws := dataset.$spread()[$egw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgnets := dataset.$spread()[$orgnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$egws.$spread().{
+                'id': $keys(),
+                'egw': *
+            }].(
+                
+                $vdc_id := egw.vdc_id;
+                $vdc := $vdcs.$spread()[$keys() = $vdc_id];
+                $org_id := $vdc.*.org_id;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                {
+                    'id': id,
+                    'name': egw.name,
+                    'description': egw.description,
+                    'type': egw.type,
+                    'gatewayinterfaces': egw.gatewayinterfaces,
+                    'advancedNetworkingEnabled': egw.advancedNetworkingEnabled,
+                    'distributedRoutingEnabled': egw.distributedRoutingEnabled,
+                    'vdc_name': egw.vdc_name,
+                    'vdc_id': egw.vdc_id,
+                    'org_name': $org.*.name,
+                    'org_id': $org.*.id,
+                    'egw_link': '/entities/' & $egw_entity & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & egw.vdc_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & $org.*.id,
+                    'entity': $egw_entity,
+                    'egws_nat_entity': $egws_nat_entity,
+                    'egws_fw_entity': $egws_fw_entity
+                }
+            )]
+        )

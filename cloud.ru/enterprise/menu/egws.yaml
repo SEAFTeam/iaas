@@ -1,0 +1,15 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.egws:
+    menu: >
+      (
+          $domain := '';
+          $egw_entity_matcher := /.*\.enterprise\.egws$/;
+          $entity := $$.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
+          $config := entities."seaf.ta.reverse.general".config;
+          [
+              {
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/Edge Gateways',
+                  'link': 'entities/' & $entity & '/list?domain=' & $domain
+              }
+          ]
+      )

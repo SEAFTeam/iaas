@@ -1,0 +1,30 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.vapps:
+    title: Виртуальное приложение vApp
+    object:
+      vapp:
+        route: "/"
+        title: "vApp"
+    schema:
+      patternProperties:
+        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор vApp
+              type: string
+            original_id:
+              title: Идентификатор vApp (полный)
+              type: string
+            name:
+              title: Наименование vApp
+              type: string
+            description:
+              title: Описание vApp
+              type: string
+            vdc_id:
+              title: Идентификаторв vdc
+              type: string
+            vdc_name:
+               title: Наименование vdc
+               type: string

@@ -2,8 +2,8 @@ entities:
   seaf.ta.reverse.general:
     # Конфигурация размещения меню
     config:
-      doc_menu: Документы/IAAS
-      arch_menu: Архитектура/IAAS
+      doc_menu: Документы/IaaS
+      arch_menu: Архитектура/IaaS
     presentations:
       readme:
         type: markdown
@@ -111,7 +111,7 @@ entities:
               );
               {
                   'txt': $txt,
-                  'item': $distinct($items),
-                  'links': $distinct($links)
+                  'item': $distinct($items)
+                  /*'links': $distinct($links)*/
               }
           )

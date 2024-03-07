@@ -1,0 +1,55 @@
+functions:
+  reverse_enterprise_orgnets:
+    title: Список Orgnets
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
+            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $orgnet_entity := dataset.entities.$spread()[$orgnet_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $orgnets := dataset.$spread()[$orgnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$orgnets.$spread().{
+                'id': $keys(),
+                'orgnet': *
+            }].(
+                $org_id := orgnet.org_id;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                {
+                    'id': id,
+                    'name': orgnet.name,
+                    'description': orgnet.description,
+                    'type': orgnet.type,
+                    'gateway': orgnet.gateway,
+                    'netmask': orgnet.netmask,
+                    'fencemode': orgnet.fencemode,
+                    'connected': orgnet.connected,
+                    'ipscopes': orgnet.ipscopes,
+                    'netpool_name': orgnet.networkpool,
+                    'netpool_id': orgnet.networkpool_id,
+                    'vdc_name': orgnet.vdc_name,
+                    'vdc_id': orgnet.vdc_id,
+                    'dns': orgnet.dns,
+                    'org_name': $org.*.name,
+                    'org_id': orgnet.org_id,
+                    'orgnet_link': '/entities/' & $orgnet_entity & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & orgnet.vdc_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & orgnet.org_id,
+                    'entity': $orgnet_entity
+                }
+            )]
+        )
