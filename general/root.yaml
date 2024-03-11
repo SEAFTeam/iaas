@@ -2,3 +2,4 @@ imports:
   - menu/root.yaml
   - presentations/root.yaml
   - entities/root.yaml
+  - functions/root.yaml

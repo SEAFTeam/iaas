@@ -21,8 +21,7 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $fn := $$.functions."reverse.enterprise".avs;
-              $tmp := $eval($fn, {'domain': $domain});
+              $tmp := $reverse_general_avs($, $domain);
               $tmp ~> | $ | {'hosts': hosts.$join($, "\n")} |
           )
 
@@ -32,9 +31,7 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".avs;
-              $av := $eval($fn)[id = $id];
-              
+              $av := $reverse_general_avs($)[id = $id];
           )
 
       servers:
@@ -78,10 +75,8 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".avs;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $av := $eval($fn)[id = $id];
-              $vms := $eval($fn_vms)[name in $av.hosts];
+              $av := $reverse.general_avs($)[id = $id];
+              $vms := $reverse_enterprise_vms($)[name in $av.hosts];
           )
 
       no_av:
@@ -125,8 +120,6 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $fn := $$.functions."reverse.enterprise".avs;
-              $avs := $eval($fn, {'domain': $domain});
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $vms := $eval($fn_vms, {'domain': $domain})[$not(name in $avs.hosts)];
+              $avs := $reverse_general_avs($, $domain);
+              $reverse_enterprise_vms($, $domain)[$not(name in $avs.hosts)];
           )

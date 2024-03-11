@@ -21,8 +21,7 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $fn := $$.functions."reverse.enterprise".edrs;
-              $tmp := $eval($fn, {'domain': $domain});
+              $tmp := $reverse_general_edrs($, $domain);
               $tmp ~> | $ | {'hosts': hosts.$join($, "\n")} |
           )
 
@@ -32,9 +31,7 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".edrs;
-              $edr := $eval($fn)[id = $id];
-              
+              $edr := $reverse_general_edrs($)[id = $id];
           )
 
       servers:
@@ -78,10 +75,8 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".edrs;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $edr := $eval($fn)[id = $id];
-              $vms := $eval($fn_vms)[name in $edr.hosts];
+              $edr := $reverse_general_edrs($)[id = $id];
+              $vms := $reverse_enterprise_vms($)[name in $edr.hosts];
           )
 
       no_edr:
@@ -125,8 +120,6 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $fn := $$.functions."reverse.enterprise".edrs;
-              $edrs := $eval($fn, {'domain': $domain});
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $vms := $eval($fn_vms, {'domain': $domain})[$not(name in $edrs.hosts)];
+              $edrs := $reverse_general_edrs($, $domain);
+              $vms := $reverse_enterprise_vms($, $domain)[$not(name in $edrs.hosts)];
           )

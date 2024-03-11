@@ -1,5 +1,5 @@
 entities:
-  reverse.general.edrs:
+  seaf.ta.reverse.general.edrs:
     title: EDR Agents on hosts
     object:
       edr:

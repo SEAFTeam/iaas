@@ -27,4 +27,7 @@ entities:
               type: string
             vdc_name:
                title: Наименование vdc
-               type: string
+               $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

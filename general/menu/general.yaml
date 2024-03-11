@@ -10,15 +10,15 @@ entities:
           },
           {
                       "location": $config.arch_menu & "/Cloud.ru",
-                      "link": "entities/seaf.ta.reverse.general/loc?id=reverse.cloud_ru&txt=Cloud.ru"
+                      "link": "entities/seaf.ta.reverse.general/list_of_content?id=reverse.cloud_ru&txt=Cloud.ru"
           }, 
           {
                       "location": $config.arch_menu & "/Cloud.ru/Advanced",
-                      "link": "entities/seaf.ta.reverse.general/loc?id=reverse.cloud_ru.advanced&txt=Advanced"
+                      "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.advanced&txt=Advanced"
           }, 
           {
                       "location": $config.arch_menu & "/Cloud.ru/Enterprise",
-                      "link": "entities/seaf.ta.reverse.general/loc?id=reverse.cloud_ru.enterprise&txt=Enterprise"
+                      "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.enterprise&txt=Enterprise"
           },
           {
                       "location": $config.doc_menu,

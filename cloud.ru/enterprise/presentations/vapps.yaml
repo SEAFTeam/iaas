@@ -7,10 +7,8 @@ entities:
         source: >
           (   
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".vapps;
-              $fn_vappnets := $$.functions."reverse.enterprise".vappnets;
-              $vapp := $eval($fn)[id = $id];
-              $vappnets := $eval($fn_vappnets)[vapp_id = $id];
+              $vapp := $reverse_enterprise_vapps($)[id = $id];
+              $vappnets := $reverse_enterprise_vappnets($)[vapp_id = $id];
               $vapp ~> | $ |{'networks': $vappnets, 'networkexists': $exists($vappnets)} |
           )
 
@@ -19,30 +17,28 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn_vapps := $$.functions."reverse.enterprise".vapps;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $vapp := $eval($fn_vapps)[id = $id];
-              $vms := $eval($fn_vms)[vapp_id = $vapp.id];
-              $nodes := {$vapp.org_id:{'title': 'Организация: ' & $vapp.org_name}};
-              $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id: {'title': 'VDC: ' & $vapp.vdc_name}});
-              $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+              $vapp := $reverse_enterprise_vapps($)[id = $id];
+              $vms := $reverse_enterprise_vms($)[vapp_id = $vapp.id];
+              $nodes := {$vapp.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_name}};
+              $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1]: {'title': 'VDC: ' & $vapp.vdc_name}});
+              $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
               $nodes := $append($nodes, $vms.(
-                      $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                      $prefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id;
                       {
-                          $prefix & '.' & $.id: {
+                          $prefix & '.' & $.short_id: {
                               'title': $.name,
-                              'symbol': $.id,
+                              'symbol': $.short_id,
                               'hideTitle': true
                           }
                       }
                   )
               );
               $symbols := $vms.(
-                  $fn_svg_vm := $$.functions."reverse.general".svg_vm;
+                  $fn_svg_vm := $$.icons."reverse.general".svg_vm;
                   $href := $.vm_link;
                   $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                   {
-                      $.id: $icon
+                      $.short_id: $icon
                   }
               );
               {
@@ -65,6 +61,37 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".vms;
-              [$eval($fn)[vapp_id = $id]]
+              [$reverse_enterprise_vms($)[vapp_id = $id]]
+          )
+
+      list:
+        type: table
+        headers:
+          - value: name
+            text: Наименование vApp
+            sortable: true
+            align: left
+            link: vapp_link
+            width: 300
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+          - value: vdc_name
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_name
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+        source: >
+          (
+              $domain := $params.domain;
+              $vdc_id := $params.vdc_id;
+              $tmp := $exists($vdc_id) ? [$reverse_enterprise_vapps($, $domain)[vdc_id = $vdc_id]] : [$reverse_enterprise_vapps($, $domain)];
           )

@@ -1,39 +1,50 @@
 functions:
-  reverse.enterprise:
-    vdcs: >
-      (
-          $domain := $.domain;
-          $vapp_entity_matcher := /.*\.vapps$/;
-          $vdc_entity_matcher := /.*\.vdcs$/;
-          $org_entity_matcher := /.*\.orgs$/;
-          $orgnets_entity_matcher := /.*\.orgnets$/;
-          $domain_matcher := $eval('/^' & $domain & '.*/');
-          $vapp_entity := $$.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
-          $vdc_entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
-          $org_entity := $$.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
-          $orgnets_entity := $$.entities.$spread()[$orgnets_entity_matcher($keys())].$keys()[0];
-          $vapps := $$.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-          $vdcs := $$.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-          $orgs := $.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-          [[$vdcs.$spread().{
-              'id': $keys(),
-              'vdc': *
-          }].(
-              $vdc_id := id;
-              {
-                  'id': vdc.id,
-                  'name': vdc.name,
-                  'description': vdc.description,
-                  'vapp_ids': $vapps.$spread()[*.vdc_id = $vdc_id].*.id,
-                  'vapp_names': $vapps.$spread()[*.vdc_id = $vdc_id].*.name,
-                  'availableNetwork_ids': vdc.availableNetworks.id,
-                  'availableNetwork_names': vdc.availableNetworks.name,
-                  'org_name': vdc.org_name,
-                  'org_id': vdc.org_id,
-                  'computeproviderscope': vdc.computeproviderscope,
-                  'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
-                  'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
-                  'entity': $vdc_entity
-              }
-          )]
-      )
+  reverse_enterprise_vdcs:
+    title: Список VDC
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $vapp_entity_matcher := /.*\.enterprise\.vapps$/;
+            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $orgnets_entity_matcher := /.*\.enterprise\.orgnets$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $vapp_entity := dataset.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $orgnets_entity := dataset.entities.$spread()[$orgnets_entity_matcher($keys())].$keys()[0];
+            $vapps := dataset.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$vdcs.$spread().{
+                'id': $keys(),
+                'vdc': *
+            }].(
+                $vdc_id := id;
+                {
+                    'id': id,
+                    'short_id': vdc.id,
+                    'name': vdc.name,
+                    'description': vdc.description,
+                    'vapp_ids': $vapps.$spread()[*.vdc_id = $vdc_id].*.id,
+                    'vapp_names': $vapps.$spread()[*.vdc_id = $vdc_id].*.name,
+                    'availableNetwork_ids': vdc.availableNetworks.id,
+                    'availableNetwork_names': vdc.availableNetworks.name,
+                    'org_name': vdc.org_name,
+                    'org_id': vdc.org_id,
+                    'computeproviderscope': vdc.computeproviderscope,
+                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
+                    'entity': $vdc_entity
+                }
+            )]
+        )

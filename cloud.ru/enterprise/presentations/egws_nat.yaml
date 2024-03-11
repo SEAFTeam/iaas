@@ -36,12 +36,9 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".egws;
-              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $vms := $eval($fn_vms);
-              $egw := $eval($fn)[id = $id];
-              $nats := $eval($fn_nat)[gw_id = $egw.id][type = 'DNAT'];
+              $vms := $reverse_enterprise_vms($);
+              $egw := $reverse_enterprise_egws($)[id = $id];
+              $nats := $reverse_enterprise_egws_nat($)[gw_id = $egw.id][type = 'DNAT'];
               [$nats ~> | $ |(
                   $internal_address := internal_address;
                   $vm := $vms[$internal_address in addresses];
@@ -88,15 +85,10 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".egws;
-              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $fn_orgnets := $$.functions."reverse.enterprise".orgnets;
-              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
-              $vms := $eval($fn_vms);
-              $egw := $eval($fn)[id = $id];
-              $orgnets := $eval($fn_orgnets)[id in $egw.gatewayinterfaces.network_id];
-              $nats := $eval($fn_nat)[gw_id = $egw.id][type = 'SNAT'];
+              $vms := $reverse_enterprise_vms($);
+              $egw := $reverse_enterprise_egws($)[id = $id];
+              $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
+              $nats := $reverse_enterprise_egws_nat($)[gw_id = $egw.id][type = 'SNAT'];
               [$nats ~> | $ |(
                   $internal_address := internal_address;
                   $matcher := /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2}$/;
@@ -112,7 +104,7 @@ entities:
                                 $orgnet_link := $.orgnet_link;
                                 $.ipscopes.(
                                     $gw := $.gateway;
-                                    $eval($fn_ip_matcher, {'cidr': $internal_address, 'ip': $gw}) ?
+                                    $reverse_general_match_ip_to_subnet($internal_address, $gw) ?
                                         {
                                             'name': $name,
                                             'link': $orgnet_link
@@ -133,29 +125,24 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".egws;
-              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $fn_vapps := $$.functions."reverse.enterprise".vapps;
-              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
-              $fn_svg_nsx_gateway := $$.functions."reverse.general".svg_nsx_gateway;
-              $fn_svg_vm := $$.functions."reverse.general".svg_vm;
-              $fn_svg_internet := $$.functions."reverse.general".svg_internet;
-              $nat := $eval($fn_nat)[id = $id];
-              $vm := $eval($fn_vms)[$nat.internal_address in addresses];
-              $vapp := $eval($fn_vapps)[id = $vm.vapp_id];
-              $egw := $eval($fn)[id = $nat.gw_id];
+              $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $nat := $reverse_enterprise_egws_nat($)[id = $id];
+              $vm := $reverse_enterprise_vms($)[$nat.internal_address in addresses];
+              $vapp := $reverse_enterprise_vapps($)[id = $vm.vapp_id];
+              $egw := $reverse_enterprise_egws($)[id = $nat.gw_id];
               $symbols := [];
               $links := [];
               /* Безусловный блок */
-              $nodes := {$egw.org_id:{'title': 'Организация: ' & $egw.org_name}};
-              $nodes := $append($nodes, {$egw.org_id & '.' & $egw.vdc_id: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := {$egw.org_id.$split('.')[-1]:{'title': 'Организация: ' & $egw.org_name}};
+              $nodes := $append($nodes, {$egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1]: {'title': 'VDC: ' & $egw.vdc_name}});
               $nodes := $append($nodes, (
-                      $prefix := $egw.org_id & '.' & $egw.vdc_id;
+                      $prefix := $egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1];
                       {
-                          $prefix & '.' & $egw.id: {
+                          $prefix & '.' & $egw.short_id: {
                               'title': $egw.name,
-                              'symbol': 'egw-' & $egw.id,
+                              'symbol': 'egw-' & $egw.short_id,
                               'hideTitle': true
                           }
                       }
@@ -167,7 +154,7 @@ entities:
                   }
               );
               $links := $append($links, (
-                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher := $eval('/.*\\.' & $egw.short_id & '$/');
                       $nodes[$matcher($.$keys())].(
                           {
                               'from': 'internet',
@@ -189,7 +176,7 @@ entities:
                       $href := $.egw_link;
                       $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
                       {
-                          'egw-' & $.id: $icon
+                          'egw-' & $.short_id: $icon
                       }
                   )
               );
@@ -206,7 +193,7 @@ entities:
                   )
               );
               $links := $append($links, $not($exists($vm)) ? (
-                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher := $eval('/.*\\.' & $egw.short_id & '$/');
                       $from := $nodes[$matcher($.$keys())].$keys()[0];
                       {
                           'from': $from,
@@ -220,13 +207,13 @@ entities:
           
               /* Если есть соответсвующая виртуальная машина */
               $nodes := $append($nodes, $exists($vm) ? (
-                      $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+                      $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
                       $nodes := $append($nodes, $vm.(
-                              $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                              $prefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id;
                               {
-                                  $prefix & '.' & $.id: {
+                                  $prefix & '.' & $.short_id: {
                                       'title': $.name,
-                                      'symbol': 'vm-' & $.id,
+                                      'symbol': 'vm-' & $.short_id,
                                       'hideTitle': true
                                   }
                               }
@@ -235,9 +222,9 @@ entities:
                   )
               );
               $links := $append($links, $exists($vm) ? (
-                      $matcher_from := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher_from := $eval('/.*\\.' & $egw.short_id & '$/');
                       $from := $nodes[$matcher_from($.$keys())].$keys()[0];
-                      $matcher_to := $eval('/.*\\.' & $vm.id & '$/');
+                      $matcher_to := $eval('/.*\\.' & $vm.short_id & '$/');
                       $to := $nodes[$matcher_to($.$keys())].$keys()[0];
                       {
                           'from': $from[0],
@@ -252,7 +239,7 @@ entities:
                               $href := $.vm_link;
                               $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                               {
-                                  'vm-' & $.id: $icon
+                                  'vm-' & $.short_id: $icon
                               }
                           )
                       )
@@ -262,7 +249,11 @@ entities:
               {
                   'nodes': $merge($nodes),
                   'symbols': $merge($symbols),
-                  'links': $links
+                  'links': $links,
+                  'config': {                 
+                      'distance': 120,
+                      'trackWidth': 24
+                  }
               };
           )
 
@@ -271,32 +262,26 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".egws;
-              $fn_nat := $$.functions."reverse.enterprise".egws_nat;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $fn_vapps := $$.functions."reverse.enterprise".vapps;
-              $fn_orgnets := $$.functions."reverse.enterprise".orgnets;
-              $fn_ip_matcher := $$.functions."reverse.general".match_ip_to_subnet;
-              $fn_svg_nsx_gateway := $$.functions."reverse.general".svg_nsx_gateway;
-              $fn_svg_vm := $$.functions."reverse.general".svg_vm;
-              $fn_svg_internet := $$.functions."reverse.general".svg_internet;
-              $fn_svg_block := $$.functions."reverse.general".svg_block;
-              $nat := $eval($fn_nat)[id = $id];
-              $vm := $eval($fn_vms)[$nat.internal_address in addresses];
-              $vapp := $eval($fn_vapps)[id = $vm.vapp_id];
-              $egw := $eval($fn)[id = $nat.gw_id];
-              $orgnets := $eval($fn_orgnets)[id in $egw.gatewayinterfaces.network_id];
+              $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $fn_svg_block := $$.icons."reverse.general".svg_block;
+              $nat := $reverse_enterprise_egws_nat($)[id = $id];
+              $vm := $reverse_enterprise_vms($)[$nat.internal_address in addresses];
+              $vapp := $reverse_enterprise_vapps($)[id = $vm.vapp_id];
+              $egw := $reverse_enterprise_egws($)[id = $nat.gw_id];
+              $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
               $symbols := [];
               $links := [];
               /* Безусловный блок */
-              $nodes := {$egw.org_id:{'title': 'Организация: ' & $egw.org_name}};
-              $nodes := $append($nodes, {$egw.org_id & '.' & $egw.vdc_id: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := {$egw.org_id.$split('.')[-1]:{'title': 'Организация: ' & $egw.org_name}};
+              $nodes := $append($nodes, {$egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1]: {'title': 'VDC: ' & $egw.vdc_name}});
               $nodes := $append($nodes, (
-                      $prefix := $egw.org_id & '.' & $egw.vdc_id;
+                      $prefix := $egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1];
                       {
-                          $prefix & '.' & $egw.id: {
+                          $prefix & '.' & $egw.short_id: {
                               'title': $egw.name,
-                              'symbol': 'egw-' & $egw.id,
+                              'symbol': 'egw-' & $egw.short_id,
                               'hideTitle': true
                           }
                       }
@@ -308,7 +293,7 @@ entities:
                   }
               );
               $links := $append($links, (
-                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher := $eval('/.*\\.' & $egw.short_id & '$/');
                       $nodes[$matcher($.$keys())].(
                           {
                               'from': $keys()[0],
@@ -330,7 +315,7 @@ entities:
                       $href := $.egw_link;
                       $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
                       {
-                          'egw-' & $.id: $icon
+                          'egw-' & $.short_id: $icon
                       }
                   )
               );
@@ -348,7 +333,7 @@ entities:
                   )
               );
               $links := $append($links, $not($exists($vm)) and $not($exists($cidr_matcher($nat.internal_address))) ? (
-                      $matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher := $eval('/.*\\.' & $egw.short_id & '$/');
                       $to := $nodes[$matcher($.$keys())].$keys()[0];
                       {
                           'from': $nat.internal_address.$replace('.', ''),
@@ -366,29 +351,29 @@ entities:
                           $o := $;
                           $.ipscopes.(
                               $gw := $.gateway;
-                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                              $reverse_general_match_ip_to_subnet($nat.internal_address, $gw) ? $o
                           )
                       );
                       {
-                          $orgnet.org_id & '.' & $orgnet.vdc_id & '.' & $orgnet.id: {
+                          $orgnet.org_id.$split('.')[-1] & '.' & $orgnet.vdc_id.$split('.')[-1] & '.' & $orgnet.short_id: {
                               'title': $orgnet.name,
-                              'symbol': 'orgnet-' & $orgnet.id,
+                              'symbol': 'orgnet-' & $orgnet.short_id,
                               'hideTitle': true
                           }
                       }
                   )
               );
               $links := $append($links, $cidr_matcher($nat.internal_address) ? (
-                      $to_matcher := $eval('/.*\\.' & $egw.id & '$/');
+                      $to_matcher := $eval('/.*\\.' & $egw.short_id & '$/');
                       $to := $nodes[$to_matcher($.$keys())].$keys()[0];
                       $orgnet := $orgnets.(
                           $o := $;
                           $.ipscopes.(
                               $gw := $.gateway;
-                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                              $reverse_general_match_ip_to_subnet($nat.internal_address, $gw) ? $o
                           )
                       );
-                      $from_matcher := $eval('/.*\\.' & $orgnet.id & '$/');
+                      $from_matcher := $eval('/.*\\.' & $orgnet.short_id & '$/');
                       $from := $nodes[$from_matcher($.$keys())].$keys()[0];
                       {
                           'from': $from,
@@ -403,7 +388,7 @@ entities:
                           $o := $;
                           $.ipscopes.(
                               $gw := $.gateway;
-                              $eval($fn_ip_matcher, {'cidr': $nat.internal_address, 'ip': $gw}) ? $o
+                              $reverse_general_match_ip_to_subnet($nat.internal_address, $gw) ? $o
                           )
                       );
                       $orgnet.(
@@ -413,7 +398,7 @@ entities:
                           $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
                           $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
                           {
-                              'orgnet-' & $.id: $icon
+                              'orgnet-' & $.short_id: $icon
                           }
                       )
                   )
@@ -422,13 +407,13 @@ entities:
           
               /* Если есть соответсвующая виртуальная машина */
               $nodes := $append($nodes, $exists($vm) ? (
-                      $nodes := $append($nodes, {$vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id: {'title': 'vApp: ' & $vapp.name}});
+                      $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
                       $nodes := $append($nodes, $vm.(
-                              $prefix := $vapp.org_id & '.' & $vapp.vdc_id & '.' & $vapp.id;
+                              $prefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id;
                               {
-                                  $prefix & '.' & $.id: {
+                                  $prefix & '.' & $.short_id: {
                                       'title': $.name,
-                                      'symbol': 'vm-' & $.id,
+                                      'symbol': 'vm-' & $.short_id,
                                       'hideTitle': true
                                   }
                               }
@@ -437,9 +422,9 @@ entities:
                   )
               );
               $links := $append($links, $exists($vm) ? (
-                      $matcher_from := $eval('/.*\\.' & $egw.id & '$/');
+                      $matcher_from := $eval('/.*\\.' & $egw.short_id & '$/');
                       $from := $nodes[$matcher_from($.$keys())].$keys()[0];
-                      $matcher_to := $eval('/.*\\.' & $vm.id & '$/');
+                      $matcher_to := $eval('/.*\\.' & $vm.short_id & '$/');
                       $to := $nodes[$matcher_to($.$keys())].$keys()[0];
                       {
                           'from': $from[0],
@@ -454,7 +439,7 @@ entities:
                               $href := $.vm_link;
                               $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                               {
-                                  'vm-' & $.id: $icon
+                                  'vm-' & $.short_id: $icon
                               }
                           )
                       )
@@ -464,6 +449,10 @@ entities:
               {
                   'nodes': $merge($nodes),
                   'symbols': $merge($symbols),
-                  'links': $links
+                  'links': $links,
+                  'config': {                 
+                      'distance': 120,
+                      'trackWidth': 24
+                  }
               };
           )

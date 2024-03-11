@@ -5,8 +5,6 @@ imports:
   - orgnets.yaml
   - egws.yaml
   - vappnets.yaml
-  - edrs.yaml
-  - avs.yaml
-  - wafs.yaml
   - egws_fw.yaml
   - egws_nat.yaml
+  - orgs.yaml

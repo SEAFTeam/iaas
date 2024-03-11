@@ -1,5 +1,5 @@
 entities:
-  reverse.general.wafs:
+  seaf.ta.reverse.general.wafs:
     title: Web Application Friewall
     object:
       waf:

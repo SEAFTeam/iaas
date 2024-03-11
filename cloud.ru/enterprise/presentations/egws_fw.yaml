@@ -42,14 +42,10 @@ entities:
         source: >
           (
               $id := $params.id;
-              $fn := $$.functions."reverse.enterprise".egws;
-              $fn_fw := $$.functions."reverse.enterprise".egws_fw;
-              $fn_vms := $$.functions."reverse.enterprise".vms;
-              $fn_orgnets := $$.functions."reverse.enterprise".orgnets;
-              $vms := $eval($fn_vms);
-              $orgnets := $eval($fn_orgnets);
-              $egw := $eval($fn)[id = $id];
-              $fw := $eval($fn_fw)[gw_id = $egw.id];
+              $vms := $reverse_enterprise_vms($);
+              $orgnets := $reverse_enterprise_orgnets($);
+              $egw := $reverse_enterprise_egws($)[id = $id];
+              $fw := $reverse_enterprise_egws_fw($)[gw_id = $egw.id];
               [$fw ~> | $ |(
                   $ipmatcher := /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/;
                   $src := source;

@@ -55,13 +55,6 @@ entities:
             text: Subnet
             align: left
             width: 200
-          - value: az
-            text: Зона доступности
-            align: left
-            width: 200
-          - value: flavor
-            text: Спецификация
-            align: left
           - value: tags
             text: Теги
             align: left
@@ -69,15 +62,14 @@ entities:
           - value: vdc
             text: VDC
             link: vdc_link
-          - value: tenant
-            text: Тенант
           - value: dc
             text: Датацентр
         source: > 
           (
               $domain := $params.domain;
+              $vdc_id := $params.vdc_id;
               $dataset := $$;
-              $tmp := $reverse_enterprise_vms($dataset, $domain);
+              $tmp := $exists($vdc_id) ? [$reverse_enterprise_vms($dataset, $domain)[vdc_id = $vdc_id]] : [$reverse_enterprise_vms($dataset, $domain)];
               $tmp ~> | $ | {'edr': (edr = true ? '✅' : '❌'), 'av': (av = true ? '✅' : '❌')  } |
           )
 

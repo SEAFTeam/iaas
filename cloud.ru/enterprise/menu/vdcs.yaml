@@ -3,13 +3,23 @@ entities:
     menu: >
       (
           $domain := '';
-          $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
-          $entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+          $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
+          $vdcs_entity := $$.entities.$spread()[$vdcs_entity_matcher($keys())].$keys()[0];
+          $vdcs := $$.$spread()[$vdcs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
-          [
+          $static := [
               {
                   'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC',
-                  'link': 'entities/' & $entity & '/list?domain=' & $domain
-              }
-          ]
+                  'link': 'entities/' & $vdcs_entity & '/list?domain=' & $domain
+              }];
+          $dynamic := $vdcs.$spread().(
+                $id := $keys()[0];
+                $name := $.*.name;
+                $orgname := $.*.org_name;
+                {
+                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $name,
+                    'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
+                }
+          );
+          $append($static, $dynamic)
       )

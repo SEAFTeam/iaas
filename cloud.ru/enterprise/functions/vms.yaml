@@ -44,6 +44,7 @@ functions:
                 $edr := vm.name in $edrs.**.hosts ? true : false;
                 {
                     'id': id,
+                    'short_id': vm.id,
                     'name': vm.name,
                     'description': vm.description,
                     'os_type': vm.os.type,
@@ -62,6 +63,7 @@ functions:
                     'az': 'Здесь нет зоны доступности',
                     'tags': $join(vm.tags.($.key & ': ' & $.value), "\n"),
                     'vdc': vm.vdc_name,
+                    'vdc_id': vm.vdc_id,
                     'org': $vdc.*.org_name,
                     'tenant': 'Нет тенанта',
                     'dc': vm.DC,

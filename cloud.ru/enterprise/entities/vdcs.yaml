@@ -30,7 +30,7 @@ entities:
               type: string
             org_id:
               title: Идентификатор организации
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
             availableNetworks:
               title: Список доступных сетей
               type: array
@@ -39,8 +39,13 @@ entities:
                 properties:
                   id:
                     title: Идентификатор сети
-                    type: string
+                    oneOf:
+                      - type: string
+                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.orgnets.orgnet"
                   name:
                      title: Наименование сети
                      type: string
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
 

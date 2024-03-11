@@ -1,5 +1,5 @@
 entities:
-  reverse.general.avs:
+  seaf.ta.reverse.general.avs:
     title: Antivirus Software
     object:
       av:

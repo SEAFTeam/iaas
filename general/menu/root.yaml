@@ -1,2 +1,4 @@
 imports:
   - general.yaml
+  - avs.yaml
+  - edrs.yaml

@@ -1,0 +1,33 @@
+functions:
+  reverse_enterprise_orgs:
+    title: Список организаций
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$orgs.$spread().{
+                'id': $keys(),
+                'org': *
+            }].(
+                { 
+                    'id': id,
+                    'short_id': org.id,
+                    'name': org.name,
+                    'description': org.description,
+                    'org_link': '/entities/' & $org_entity & '/schema?id=' & id,
+                    'entity': $org_entity
+                }
+            )]
+        )

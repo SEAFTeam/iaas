@@ -41,6 +41,7 @@ functions:
                 $org := $orgs.$spread()[$keys() = $org_id];
                 {
                     'id': id,
+                    'short_id': egw.id,
                     'name': egw.name,
                     'description': egw.description,
                     'type': egw.type,
@@ -50,7 +51,7 @@ functions:
                     'vdc_name': egw.vdc_name,
                     'vdc_id': egw.vdc_id,
                     'org_name': $org.*.name,
-                    'org_id': $org.*.id,
+                    'org_id': $org_id,
                     'egw_link': '/entities/' & $egw_entity & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & egw.vdc_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & $org.*.id,

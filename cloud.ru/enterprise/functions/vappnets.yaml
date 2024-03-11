@@ -1,33 +1,44 @@
 functions:
-  reverse.enterprise:
-    vappnets: >
+  reverse_enterprise_vappnets:
+    title: Список vAppNetworks
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
         (
-            $domain := $.domain;
-            $vappnet_entity_matcher := /.*\.vappnets$/;
-            $vapp_entity_matcher := /.*\.vapps$/;
-            $vdc_entity_matcher := /.*\.vdcs$/;
-            $org_entity_matcher := /.*\.orgs$/;
+            $domain := domain;
+            $vappnet_entity_matcher := /.*\.enterprise\.vappnets$/;
+            $vapp_entity_matcher := /.*\.enterprise\.vapps$/;
+            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $vappnet_entity := $$.entities.$spread()[$vappnet_entity_matcher($keys())].$keys()[0];
-            $vapp_entity := $$.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
-            $vdc_entity := $$.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
-            $org_entity := $$.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
-            $vappnets := $$.$spread()[$vappnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vapps := $$.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcs := $$.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $orgs := $.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vappnet_entity := dataset.entities.$spread()[$vappnet_entity_matcher($keys())].$keys()[0];
+            $vapp_entity := dataset.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
+            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $vappnets := dataset.$spread()[$vappnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vapps := dataset.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             [[$vappnets.$spread().{
                 'id': $keys(),
                 'vappnet': *
             }].(
                 $vapp_id := vappnet.vapp_id;
-                $vapp := $vapps.$spread()[*.id = $vapp_id];
+                $vapp := $vapps.$spread()[$keys() = $vapp_id];
                 $vdc_id := $vapp.*.vdc_id;
-                $vdc := $vdcs.$spread()[*.id = $vdc_id];
+                $vdc := $vdcs.$spread()[$keys() = $vdc_id];
                 $org_id := $vdc.*.org_id;
-                $org := $orgs.$spread()[*.id = $org_id];
+                $org := $orgs.$spread()[$keys() = $org_id];
                 {
                     'id': id,
+                    'short_id': vappnet.id,
                     'name': vappnet.name,
                     'description': vappnet.description,
                     'gateway': vappnet.gateway,

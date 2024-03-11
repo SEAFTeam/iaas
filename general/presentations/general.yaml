@@ -21,7 +21,7 @@ entities:
         type: mermaid
         template: templates/schema.mmd
 
-      loc:
+      list_of_content:
         type: markdown
         template: templates/list_of_contents.md
         source: >
@@ -58,7 +58,9 @@ entities:
               $menu := $functions.(
                   $item := $;
                   $matcher := /^(.*)$/;
+                  $enterprise_matcher := /.*(\/Реестры\/.*|\/Организации\/[a-zA-Z0-9\s-_]+\/[a-zA-Z0-9\s_-]+$)/;
                   $items := $eval($item)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
+                  $items := $txt = 'Enterprise' ? $items[$enterprise_matcher(location)] : $items;
                   $items.({
                     'location': $matcher($.location).groups[0],
                     'link': '"/' & $.link & '"'
@@ -111,7 +113,7 @@ entities:
               );
               {
                   'txt': $txt,
-                  'item': $distinct($items)
-                  /*'links': $distinct($links)*/
+                  'item': $distinct($items),
+                  'links': $distinct($links)
               }
           )

@@ -69,7 +69,9 @@ entities:
               title: Идентификаторы сетей
               type: array
               items:
-                type: string
+                anyOf:
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
             disks:
               title: Диски
               type: array
@@ -109,16 +111,16 @@ entities:
                     type: string
             vdc_id:
               title: Virtual Datacenter ID
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
             vdc_name:
               title: Virtual Datacenter Name
               type: string
             vapp_id:
               title: vApp ID
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vapps.vapp"
             tenant:
               title: Тенант
               type: string
             DC:
-              title: Датацентр (провайдер)
-              type: string
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

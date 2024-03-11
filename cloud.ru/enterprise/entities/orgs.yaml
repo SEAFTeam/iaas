@@ -22,3 +22,6 @@ entities:
             description:
               title: Описание организации
               type: string
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

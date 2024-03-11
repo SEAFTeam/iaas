@@ -27,7 +27,7 @@ entities:
               type: string
             vdc_id:
               title: Идентификатор vdc
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
             vdc_name:
               title: Наименование vdc
               type: string
@@ -84,6 +84,9 @@ entities:
                               startaddress:
                                 title: Начало диапазона
                                 type: string
-                              endAddress:
+                              endaddress:
                                 title: Конец диапазона
                                 type: string
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

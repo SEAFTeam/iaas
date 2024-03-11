@@ -44,7 +44,9 @@ entities:
               type: string
             parentnetwork_id:
               title: Идентификатор вышестоящей сети
-              type: string
+              oneOf:
+                - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
+                - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet"
             ipscopes:
               title: Границы сетей
               type: array
@@ -72,3 +74,6 @@ entities:
                         endaddress:
                           title: Конечный адрес
                           type: string
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

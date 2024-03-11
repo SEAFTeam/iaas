@@ -9,3 +9,4 @@ imports:
   - wafs.yaml
   - egws_fw.yaml
   - egws_nat.yaml
+  - orgs.yaml

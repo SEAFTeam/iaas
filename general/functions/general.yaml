@@ -1,8 +1,17 @@
 functions:
-  reverse.general:
-    match_ip_to_subnet: >
+  reverse_general_match_ip_to_subnet:
+    title: Принадлежность адреса к сети
+    params:
+      - alias: cidr
+        type: string
+        title: CIDR сети
+        required: true  # Признак обязательности параметра функции
+      - alias: ip
+        type: string
+        title: IP Адрес
+        required: false  # Признак обязательности параметра функции
+    code: >
       (
-          $param := $;
           $matchip := function($cidr, $ip) {(
                                 $mask := $split($cidr, '/')[1];
                                 $subaddr := $split($cidr, '/')[0];
@@ -24,5 +33,5 @@ functions:
                                 );
                                 $ipstring = $subnstring ? true : false
                       )};
-          $matchip($param.cidr, $param.ip)
+          $matchip(cidr, ip)
       )

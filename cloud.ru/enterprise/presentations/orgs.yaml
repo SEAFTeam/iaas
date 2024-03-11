@@ -1,0 +1,38 @@
+entities:
+  seaf.ta.reverse.cloud_ru.enterprise.orgs:
+    presentations:
+      schema:
+        type: plantuml
+        template: templates/root.puml
+        source: >
+          (
+              $id := $params.id;
+              $org := $reverse_enterprise_orgs($)[id = $id];
+              $txt := 'VDC и VDC группы в организации';
+              $vdcs := $reverse_enterprise_vdcs($)[org_id = $id];
+              $items := {
+                          'title': $org.name
+              };
+              $items := $append($items, $vdcs.(
+                    $current_item := $.name;
+                    $current_link := $.vdc_link;
+                    {
+                        'title': $current_item,
+                        'link': $current_link
+                    }
+                  )
+              );
+              $links := $vdcs.(
+                  $from := $org.name;
+                  $to := $.name;
+                  {
+                      "from": $from,
+                      "to": $to
+                  }
+              );
+              {
+                  'txt': $txt,
+                  'item': $distinct($items),
+                  'links': $distinct($links)
+              }
+          )

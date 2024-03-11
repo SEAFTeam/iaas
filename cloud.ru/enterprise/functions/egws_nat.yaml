@@ -29,6 +29,7 @@ functions:
                     $egw := $egws[$keys() = $gw_id];
                     {
                         'id': id,
+                        'short_id': nat.id,
                         'gw_id': nat.gw_id,
                         'name': nat.name,
                         'description': nat.description,

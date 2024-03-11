@@ -49,6 +49,7 @@ functions:
                                 $port_profile := $;
                                 {
                                     'id': $context.id,
+                                    'short_id': $context.fw.id,
                                     'gw_id': $context.fw.gw_id,
                                     'name': $context.fw.name,
                                     'description': $context.fw.description,

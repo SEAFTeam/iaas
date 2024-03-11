@@ -31,6 +31,7 @@ functions:
                 $org := $orgs.$spread()[$keys() = $org_id];
                 {
                     'id': id,
+                    'short_id': orgnet.id,
                     'name': orgnet.name,
                     'description': orgnet.description,
                     'type': orgnet.type,
