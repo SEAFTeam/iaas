@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.orgs:
     title: Организации
-    object:
+    objects:
       org:
         route: "/"
-        title: "Организация"
+        title: Организация
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object

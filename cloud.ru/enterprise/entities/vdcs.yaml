@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vdcs:
     title: Виртуальный датацентр
-    object:
+    objects:
       vdc:
         route: "/"
-        title: "Виртуальный датацентр"
+        title: Виртуальный датацентр
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -42,6 +43,7 @@ entities:
                     oneOf:
                       - type: string
                       - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.orgnets.orgnet"
+                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.vappnets.vappnet"
                   name:
                      title: Наименование сети
                      type: string

@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vms:
     title: Виртуальная машина VmWare
-    object:
+    objects:
       vm:
         route: "/"
-        title: "Виртуальная машина VmWare"
+        title: Виртуальная машина VmWare
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object

@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vdcgroups:
     title: Группа VDC
-    object:
+    objects:
       vdcgroup:
         route: "/"
-        title: "Группа VDC"
+        title: Группа VDC
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -19,19 +20,25 @@ entities:
             name:
               title: Наименование VDC
               type: string
-            computeProviderScope:
-              title: Область провайдеров вычислительных ресурсов (не уверен что требуется)
+            networkprovidertype:
+              title: Тип сетевого устройства
               type: string
-            networkProviderScope:
-              title: Область провайдеров сетевых ресурсов (не уверен что требуется)
+            type:
+              title: Тип (внешняя/внутренняя)
               type: string
-            org_name:
-              title: Наименование организации
+            networkpoolid:
+              title: Идентификатор пула сетей
               type: string
+            localegress:
+              title: Local Egress
+              type: boolean
+            dfwenabled:
+              title: Distributed FW Enabled
+              type: boolean
             org_id:
               title: Идентификатор организации
-              type: string
-            availableNetworks:
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
+            networks:
               title: Список доступных сетей
               type: array
               items:
@@ -39,8 +46,32 @@ entities:
                 properties:
                   id:
                     title: Идентификатор сети
-                    type: string
+                    oneOf:
+                      - type: string
+                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.orgnets.orgnet"
+                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.vappnets.vappnet"
                   name:
                      title: Наименование сети
                      type: string
+            vdcs:
+              title: Список VDC
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    title: Идентификатор VDC
+                    $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.vdcs.vdc"
+                  name:
+                    title: Наименование VDC
+                    type: string
+                  org_id:
+                    title: Идентификатор организации
+                    $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
+                  org_name:
+                    title: Идентификатор организации
+                    type: string
+            DC:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
 

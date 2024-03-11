@@ -1,27 +1,28 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+  seaf.ta.reverse.cloud_ru.enterprise.vdcgroups:
     menu: >
       (
           $domain := '';
-          $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
-          $vdcs_entity := $$.entities.$spread()[$vdcs_entity_matcher($keys())].$keys()[0];
-          $vdcs := $$.$spread()[$vdcs_entity_matcher($keys())].*;
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
           $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
           $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
+          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
+          $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
+          $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC',
-                  'link': 'entities/' & $vdcs_entity & '/list?domain=' & $domain
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC Groups',
+                  'link': 'entities/' & $vdcgroups_entity & '/list?domain=' & $domain
               }];
-          $dynamic := $vdcs.$spread()[$not($keys() in $vdcgroups.*.vdcs.id)].(
+          $dynamic := $vdcgroups.$spread().(
                 $id := $keys()[0];
                 $name := $.*.name;
-                $orgname := $.*.org_name;
+                $org_id := $.*.org_id;
+                $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
                 {
                     'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $name,
-                    'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
+                    'link': 'entities/' & $vdcgroups_entity & '/card?id=' & $id
                 }
           );
           $append($static, $dynamic)

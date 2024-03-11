@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.egws:
     title: Edge Gateways
-    object:
+    objects:
       egw:
         route: "/"
-        title: "Edge Gateway"
+        title: Edge Gateway
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -31,6 +32,12 @@ entities:
             vdc_name:
               title: Наименование vdc
               type: string
+            vdcgroup_id:
+              title: Идентификатор VDC Group
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcgroups.vdcgroup"
+            vdcgroup_name:
+              title: Наименование VDC Group
+              type: string
             advancedNetworkingEnabled:
               title: advancedNetworkingEnabled
               type: boolean
@@ -48,7 +55,7 @@ entities:
                     type: string
                   network_id:
                     title: Идентификатор сети
-                    type: string
+                    $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
                   iftype:
                     title: Тип интерфейса
                     enum:

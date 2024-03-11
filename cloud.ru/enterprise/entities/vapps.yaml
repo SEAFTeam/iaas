@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vapps:
     title: Виртуальное приложение vApp
-    object:
+    objects:
       vapp:
         route: "/"
-        title: "vApp"
+        title: vApp
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -24,10 +25,10 @@ entities:
               type: string
             vdc_id:
               title: Идентификаторв vdc
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
             vdc_name:
                title: Наименование vdc
-               $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+               type: string
             DC:
               title: Услуга IaaS
               $ref: "#/$rels/seaf.ta.services.dc.dc"

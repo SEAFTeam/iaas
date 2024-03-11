@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.orgnets:
     title: Сети организации
-    object:
+    objects:
       orgnet:
         route: "/"
-        title: "Сеть организации"
+        title: Сеть организации
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -33,7 +34,9 @@ entities:
               type: string
             parentnetwork:
               title: Родительская сеть
-              type: string
+              oneOf:
+                - type: string
+                - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
             networkpool_id:
               title: Идентификатор сетевого пула
               type: string
@@ -42,7 +45,7 @@ entities:
               type: string
             org_id:
               title: Идентификатор организации
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
             vdc_id:
               title: Идентификатор vdc
               $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"

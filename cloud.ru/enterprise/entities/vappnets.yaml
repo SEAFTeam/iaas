@@ -1,11 +1,12 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vappnets:
     title: Сети vApp
-    object:
+    objects:
       vappnet:
         route: "/"
         title: "Сети vApp"
     schema:
+      type: object
       patternProperties:
         "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
           type: object
@@ -21,7 +22,7 @@ entities:
               type: string
             vapp_id:
               title: Идентификатор vApp
-              type: string
+              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vapps.vapp"
             gateway:
               title: Шлюз сети vApp
               type: string
@@ -47,6 +48,7 @@ entities:
               oneOf:
                 - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
                 - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet"
+                - type: string
             ipscopes:
               title: Границы сетей
               type: array
