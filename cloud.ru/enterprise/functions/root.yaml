@@ -8,3 +8,4 @@ imports:
   - egws_fw.yaml
   - egws_nat.yaml
   - orgs.yaml
+  - vdcgroups.yaml

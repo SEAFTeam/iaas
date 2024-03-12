@@ -196,7 +196,14 @@ entities:
           (
               $domain := $params.domain;
               $vdc_id := $params.vdc_id;
-              $tmp := $exists($vdc_id) ? [$reverse_enterprise_egws($, $domain)[vdc_id = $vdc_id]] : [$reverse_enterprise_egws($, $domain)];
+              $vdcgroup_id := $params.vdcgroup_id;
+              $tmp := $exists($vdc_id) ? (
+                          [$reverse_enterprise_egws($, $domain)[vdc_id = $vdc_id]]
+              ) : (
+                      $exists($vdcgroup_id) ? (
+                          [$reverse_enterprise_egws($, $domain)[vdcgroup_id = $vdcgroup_id]]
+                  ) : ([$reverse_enterprise_egws($, $domain)])
+              );
               $tmp ~> | $ | {'interfaces': gatewayinterfaces.subnetparticipation.ipaddress}|
           )
 

@@ -48,8 +48,7 @@ entities:
                     title: Идентификатор сети
                     oneOf:
                       - type: string
-                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.orgnets.orgnet"
-                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.vappnets.vappnet"
+                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
                   name:
                      title: Наименование сети
                      type: string
@@ -61,7 +60,7 @@ entities:
                 properties:
                   id:
                     title: Идентификатор VDC
-                    $ref: "#/rels/seaf.ta.reverse.cloud_ru/enterprise.vdcs.vdc"
+                    $ref: "#/rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
                   name:
                     title: Наименование VDC
                     type: string

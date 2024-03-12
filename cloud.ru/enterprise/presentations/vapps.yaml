@@ -19,15 +19,32 @@ entities:
               $id := $params.id;
               $vapp := $reverse_enterprise_vapps($)[id = $id];
               $vms := $reverse_enterprise_vms($)[vapp_id = $vapp.id];
+              $vdc := $reverse_enterprise_vdcs($)[id = $vapp.vdc_id];
+              $vdcgroups := $reverse_enterprise_vdcgroups($)[$vdc.id in vdc_ids];
+              $vappnets := $reverse_enterprise_vappnets($)[$id = vapp_id];
               $nodes := {$vapp.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_name}};
-              $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1]: {'title': 'VDC: ' & $vapp.vdc_name}});
-              $nodes := $append($nodes, {$vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
+              $baseprefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1];
+              $nodes := $append($nodes, {$baseprefix: {'title': 'VDC: ' & $vapp.vdc_name}});
+              $nodes := $append($nodes, {$baseprefix & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
               $nodes := $append($nodes, $vms.(
-                      $prefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1] & '.' & $vapp.short_id;
+                      $prefix := $baseprefix & '.' & $vapp.short_id;
+                      $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
+                      $prefix := $count($subnets) = 1 ?  $prefix & '.' & $subnets.short_id : $prefix;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.name,
                               'symbol': $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vappnets.(
+                      $prefix := $baseprefix & '.' & $vapp.short_id;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.name,
+                              'symbol': 'vappnet-' & $.short_id,
                               'hideTitle': true
                           }
                       }
@@ -41,9 +58,38 @@ entities:
                       $.short_id: $icon
                   }
               );
+              $symbols := $append($symbols, 
+                  $vappnets.(
+                      $fn_svg_vappnet_header := $$.icons."reverse.general".svg_vappnet_header;
+                      $href := $.vappnet_link;
+                      $icon := $eval($fn_svg_vappnet_header, {'name': $.name, 'href': $href});
+                      {
+                          'vappnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $links := [$vms.(
+                  $vm := $;
+                  $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
+                  $count($subnets) > 1 ? (
+                      $vmregexp := $eval('/.*\\.' & $.short_id & '$/');
+                      $vmnode := $nodes[$vmregexp($.$keys())].$keys()[0];
+                      $subnets.(
+                          $subnetregexp := $eval('/.*\\.' & $.short_id & '$/');
+                          $subnetnode := $nodes[$subnetregexp($.$keys())].$keys()[0];
+                          {
+                              'from': $vmnode,
+                              'to': $subnetnode,
+                              'style': '-',
+                              'title': 'Directly connected'
+                          }
+                      )
+                  )
+              )];
               {
-                'nodes': $merge($nodes),
-                'symbols': $merge($symbols)
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links
               };
           )
 
@@ -93,5 +139,16 @@ entities:
           (
               $domain := $params.domain;
               $vdc_id := $params.vdc_id;
-              $tmp := $exists($vdc_id) ? [$reverse_enterprise_vapps($, $domain)[vdc_id = $vdc_id]] : [$reverse_enterprise_vapps($, $domain)];
+              $vdcgroup_id := $params.vdcgroup_id;
+              $tmp := $exists($vdc_id) ? (
+                  [$reverse_enterprise_vapps($, $domain)[vdc_id = $vdc_id]]
+              ) : (
+                  $exists($vdcgroup_id) ? (
+                      $vdcgroup := $reverse_enterprise_vdcgroups($, $domain)[id = $vdcgroup_id];
+                      $vdcs := $reverse_enterprise_vdcs($, $domain)[id in $vdcgroup.vdc_ids];
+                      [$reverse_enterprise_vapps($, $domain)[vdc_id in $vdcs.id]]
+                  ) : (
+                      [$reverse_enterprise_vapps($, $domain)]
+                  )
+              );
           )

@@ -44,6 +44,8 @@ functions:
                     'netpool_id': orgnet.networkpool_id,
                     'vdc_name': orgnet.vdc_name,
                     'vdc_id': orgnet.vdc_id,
+                    'vdcgroup_name': orgnet.vdcgroup_name,
+                    'vdcgroup_id': orgnet.vdcgroup_id,
                     'dns': orgnet.dns,
                     'org_name': $org.*.name,
                     'org_id': orgnet.org_id,

@@ -6,6 +6,9 @@ entities:
           $orgnets_entity_matcher := /.*\.enterprise\.orgnets$/;
           $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
           $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
+          $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+          $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
+          $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
           $orgnets_entity := $$.entities.$spread()[$orgnets_entity_matcher($keys())].$keys()[0];
           $orgnets := $$.$spread()[$orgnets_entity_matcher($keys())].*;
           $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
@@ -19,23 +22,58 @@ entities:
                   'link': 'entities/' & $orgnets_entity & '/list?domain=' & $domain
               }
           ];
-          $dynamic := $orgnets.$spread().(
+          $dynamic_vdc := $orgnets.$spread()[$not($keys() in $vdcgroups.*.networks.id)].(
               $id := $keys()[0];
               $name := $.*.name;
               $org_id := $.*.org_id;
               $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
               $vdc_id := $.*.vdc_id;
               $vdcname := $vdcs.$spread()[$keys() = $vdc_id].*.name;
+              $vdc_id in $vdcgroups.*.vdcs.id ? (
+                  $vdcgroups.$spread()[$vdc_id in *.vdcs.id].(
+                      $vdcgname := $.*.name;
+                      [
+                          {
+                            'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
+                            'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                          },
+                          {
+                            'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
+                            'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
+                          }
+                      ]
+                  )
+              ) : (
+                  [
+                      {
+                        'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
+                        'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                      },
+                      {
+                        'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
+                        'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
+                      }
+                  ]
+              )
+          );
+          $dynamic_vdcgroup := $orgnets.$spread()[$keys() in $vdcgroups.*.networks.id].(
+              $id := $keys()[0];
+              $name := $.*.name;
+              $org_id := $.*.org_id;
+              $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+              $vdcgroup_id := $.*.vdcgroup_id;
+              $vdcgroupname := $vdcgroups.$spread()[$keys() = $vdcgroup_id].*.name;
               [
                   {
-                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
-                    'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации/' & $name,
+                    'link': 'entities/' & $orgnets_entity & '/schema_vdcgroup?id=' & $id
                   },
                   {
-                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
-                    'link': 'entities/' & $orgnets_entity & '/list?id=' & $vdc_id
+                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации',
+                    'link': 'entities/' & $orgnets_entity & '/list?vdcgroup_id=' & $vdcgroup_id
                   }
               ]
           );
+          $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
           $append($static, $distinct($dynamic))
       )

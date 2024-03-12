@@ -1,0 +1,46 @@
+functions:
+  reverse_enterprise_vdcgroups:
+    title: Список VDC Groups
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
+            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcgroups_entity := dataset.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
+            $vdcgroups := dataset.$spread()[$vdcgroups_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$vdcgroups.$spread().{
+                'id': $keys(),
+                'vdcgroup': *
+            }].(
+                $vdcgroup_id := id;
+                $orgid := vdcgroup.org_id;
+                $org := $orgs.$spread()[$keys() = $orgid];
+                {
+                    'id': id,
+                    'short_id': vdcgroup.id,
+                    'name': vdcgroup.name,
+                    'description': vdcgroup.description,
+                    'vdc_ids': vdcgroup.vdcs.id,
+                    'vdc_names': vdcgroup.vdcs.name,
+                    'network_ids': vdcgroup.networks.id,
+                    'network_names': vdcgroup.networks.name,
+                    'org_name': $org.*.name,
+                    'org_id': vdcgroup.org_id,
+                    'vdcgroup_link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
+                    'entity': $vdcgroups_entity
+                }
+            )]
+        )

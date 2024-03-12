@@ -50,6 +50,8 @@ functions:
                     'distributedRoutingEnabled': egw.distributedRoutingEnabled,
                     'vdc_name': egw.vdc_name,
                     'vdc_id': egw.vdc_id,
+                    'vdcgroup_name': egw.vdcgroup_name,
+                    'vdcgroup_id': egw.vdcgroup_id,
                     'org_name': $org.*.name,
                     'org_id': $org_id,
                     'egw_link': '/entities/' & $egw_entity & '/card?id=' & id,

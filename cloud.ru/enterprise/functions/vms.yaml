@@ -60,6 +60,7 @@ functions:
                     'av': $av,
                     'edr': $edr,
                     'subnet': $subnets,
+                    'subnet_ids': vm.subnet_ids,
                     'az': 'Здесь нет зоны доступности',
                     'tags': $join(vm.tags.($.key & ': ' & $.value), "\n"),
                     'vdc': vm.vdc_name,

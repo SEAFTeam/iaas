@@ -4,4 +4,6 @@ imports:
   - vdcs.yaml
   - orgnets.yaml
   - egws.yaml
+  - egws_nat.yaml
   - orgs.yaml
+  - vdcgroups.yaml

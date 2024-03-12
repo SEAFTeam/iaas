@@ -50,11 +50,11 @@ entities:
               [
                   {
                       'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
-                      'link': 'entities/' & $egws_entity & '/schema?id=' & $id
+                      'link': 'entities/' & $egws_entity & '/schema_vdcgroup?id=' & $id
                   },
                   {
                       'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
-                      'link': 'entities/' & $egws_entity & '/list?vdc_id=' & $vdcgroup_id
+                      'link': 'entities/' & $egws_entity & '/list?vdcgroup_id=' & $vdcgroup_id
                   }     
               ]
           );

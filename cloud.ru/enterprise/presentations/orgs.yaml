@@ -10,6 +10,7 @@ entities:
               $org := $reverse_enterprise_orgs($)[id = $id];
               $txt := 'VDC и VDC группы в организации';
               $vdcs := $reverse_enterprise_vdcs($)[org_id = $id];
+              $vdcgroups := $reverse_enterprise_vdcgroups($)[org_id = $id];
               $items := {
                           'title': $org.name
               };
@@ -22,13 +23,49 @@ entities:
                     }
                   )
               );
-              $links := $vdcs.(
-                  $from := $org.name;
-                  $to := $.name;
-                  {
-                      "from": $from,
-                      "to": $to
-                  }
+              $items := $append($items, $vdcgroups.(
+                    $current_item := $.name;
+                    $current_link := $.vdcgroup_link;
+                    {
+                        'title': $current_item,
+                        'link': $current_link
+                    }
+                  )
+              );
+              $links := [];
+              $links := $append($links, 
+                  $vdcgroups.(
+                      $from := $org.name;
+                      $to := $.name;
+                      {
+                          "from": $from,
+                          "to": $to
+                      }
+                  )
+              );
+              $links := $append($links, 
+                  $vdcgroups.(
+                      $from := $.name;
+                      $vdcgroups.vdc_names.(
+                          $to := $;
+                          {
+                              "from": $from,
+                              "to": $to
+                          }
+                      )
+                  )
+              );
+              $links := $append($links, 
+                  $vdcs.(
+                      $not($.name in $links.to) ? (
+                          $from := $org.name;
+                          $to := $.name;
+                          {
+                              "from": $from,
+                              "to": $to
+                          }
+                      )
+                  )
               );
               {
                   'txt': $txt,

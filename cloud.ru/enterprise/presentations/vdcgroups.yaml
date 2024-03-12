@@ -1,19 +1,19 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+  seaf.ta.reverse.cloud_ru.enterprise.vdcgroups:
     presentations:
       list:
         type: table
         headers:
           - value: name
-            text: Имя сервера
+            text: Наименование VDC Group
             sortable: true
             align: left
-            link: vdc_link
+            link: vdcgroup_link
             width: 300
-          - value: vapp_names
-            text: vApps
+          - value: vdc_names
+            text: VDC's
             align: left
-          - value: availableNetwork_names
+          - value: network_names
             text: Сети
             align: left
           - value: org_name
@@ -23,17 +23,17 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $reverse_enterprise_vdcs($, $domain) ~> | $ | {'vapp_names': $join(vapp_names, '\n'), 'availableNetwork_names': $join(availableNetwork_names, '\n')} |
+              $reverse_enterprise_vdcgroups($, $domain) ~> | $ | {'vdc_names': $join(vdc_names, '\n'), 'network_names': $join(network_names, '\n')} |
           )
 
       card:
         type: markdown
-        template: templates/vdc_card.md
+        template: templates/vdcgroup_card.md
         source: >
           (
               $id := $params.id;
-              $vdc := $reverse_enterprise_vdcs($)[id = $id];
-              $vdc ~> | $ | {'vapp_names': $join(vapp_names, '\n'), 'availableNetwork_names': $join(availableNetwork_names, '\n'), 'vapps': $exists(vapp_names), 'networks': $exists(availableNetwork_names), 'vdcg': $exists(vdcgroups) } |
+              $vdc := $reverse_enterprise_vdcgroups($)[id = $id];
+              $vdc ~> | $ | {'vdc_names': $join(vdc_names, '\n'), 'network_names': $join(network_names, '\n'), 'vdcs': $exists(vdc_ids), 'networks': $exists(network_ids)} |
           )
 
       schema:
@@ -44,17 +44,29 @@ entities:
               $fn_svg_block := $$.icons."reverse.general".svg_block;
               $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
               $fn_svg_internet := $$.icons."reverse.general".svg_internet;
-              $egws := $reverse_enterprise_egws($)[vdc_id = $id];
-              $vdc := $reverse_enterprise_vdcs($)[id = $id];
-              $vapps := $reverse_enterprise_vapps($)[vdc_id = $vdc.id];
+              $egws := $reverse_enterprise_egws($)[vdcgroup_id = $id];
+              $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $id];
+              $vdcs := $reverse_enterprise_vdcs($)[id in $vdcgroup.vdc_ids];
+              $vapps := $reverse_enterprise_vapps($)[vdc_id in $vdcs.id];
               $vms := $reverse_enterprise_vms($)[vapp_id in $vapps.id];
+              $vdcgorgnets := $reverse_enterprise_orgnets($)[vdcgroup_id = $vdcgroup.id];
+              $vdcorgnets := $reverse_enterprise_orgnets($)[vdc_id in $vdcs.id];
               $vappnets := $reverse_enterprise_vappnets($)[vapp_id in $vapps.id];
-              $orgnets := $reverse_enterprise_orgnets($)[vdc_id = $vdc.id or id in $vappnets.parentnetwork_id];
-              $vdcgroups := $reverse_enterprise_vdcgroups($)[$id in vdc_ids];
-              $nodes := {$vdc.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vdc.org_name}};
-              $nodes := $append($nodes, {$vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id: {'title': 'VDC: ' & $vdc.name}});
+              $org := $reverse_enterprise_orgs($)[id = $vdcgroup.org_id];
+              $nodes := {$vdcgroup.org_id.$split('.')[-1]:{'title': 'Организация: ' & $org.name}};
+              $nodes := $append($nodes, {$vdcgroup.org_id.$split('.')[-1] & '.' & $vdcgroup.short_id: {'title': 'VDC Group: ' & $vdcgroup.name}});
+              $baseprefix := $vdcgroup.org_id.$split('.')[-1] & '.' & $vdcgroup.short_id;
+              $nodes := $append($nodes, $vdcs.(
+                      {
+                          $baseprefix & '.' & $.short_id: {
+                              'title': 'VDC: ' & $.name
+                          }
+                      }
+                  )
+              );
               $nodes := $append($nodes, $vapps.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
+                      $vdc_shortid := $.vdc_id.$split('.')[-1];
+                      $prefix := $baseprefix & '.' & $vdc_shortid;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.name,
@@ -64,8 +76,9 @@ entities:
                       }
                   )
               );
-              $nodes := $append($nodes, $orgnets.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
+              $nodes := $append($nodes, $vdcorgnets.(
+                      $vdc_shortid := $.vdc_id.$split('.')[-1];
+                      $prefix := $baseprefix & '.' & $vdc_shortid;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.name,
@@ -75,10 +88,25 @@ entities:
                       }
                   )
               );
+              $nodes := $append($nodes, $vdcgorgnets.(
+                      $id := $.id;
+                      $tmp := $;
+                      $net_in_vdcs := $vdcs[$id in availableNetwork_ids]; /* В этих видиси доступна данная сеточка */
+                      $net_in_vdcs.(
+                          $prefix := $baseprefix & '.' & $.short_id;
+                          {
+                              $prefix & '.' & $tmp.short_id: {
+                                  'title': $tmp.name,
+                                  'symbol': 'orgnet-' & $tmp.short_id,
+                                  'hideTitle': true
+                              }
+                          }
+                      )
+                  )
+              );
               $nodes := $append($nodes, $egws.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
                       {
-                          $prefix & '.' & $.short_id: {
+                          $baseprefix & '.' & $.short_id: {
                               'title': $.name,
                               'symbol': 'egw-' & $.short_id,
                               'hideTitle': true
@@ -141,10 +169,16 @@ entities:
               $links := $append($links,
                   [$vapps.(
                       $vapp_id := $.id;
+                      $vapp := $;
                       $regexp := $eval('/.*\\.' & $.short_id & '/');
                       $vappnode := $nodes[$regexp($.$keys())].$keys()[0];
                       $vappnets[vapp_id = $vapp_id].(
-                          $regexp := $eval('/.*\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                          $vdc := $vdcs[id = $vapp.vdc_id];
+                          $regexp := $vdc.id in $vdcgroup.vdc_ids ? (
+                              $eval('/.*\\.' & $vapp.vdc_id.$split('.')[-1] & '\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                          ) : (
+                              $eval('/.*\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                          );
                           $nodes[$regexp($.$keys())].(
                               {
                                   'from': $vappnode,
@@ -154,6 +188,24 @@ entities:
                               }
                           )
                       )
+                  )]
+              );
+              $links := $append($links,
+                  [$vdcgorgnets.(
+                      $orgnet_id := $.id;
+                      $orgnet := $;
+                      $regexp := $eval('/.*\\.' & $.short_id & '/');
+                      $orgnetnodes := $nodes[$regexp($.$keys())].$keys()[0];
+                      $map($orgnetnodes, function($v, $i, $a){
+                          $i+1 < $count($a) ? (
+                            {
+                                'from': $v,
+                                'to': $a[$i+1],
+                                'style': '-[#000000]-',
+                                'title': 'Orgnet shared with VDCs'
+                            }
+                          )
+                      })
                   )]
               );
               $links := $append($links,
@@ -180,12 +232,23 @@ entities:
                       }
                   )
               );
-              $symbols := $append($symbols, $orgnets.(
+              $symbols := $append($symbols, $vdcorgnets.(
                       $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
                       $dnssrv := $join($.dns, ', ');
                       $fencemode := $.fencemode;
                       $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
                       $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                      {
+                          'orgnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vdcgorgnets.(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'vdcgorgNet', 'details': $data});
                       {
                           'orgnet-' & $.short_id: $icon
                       }
@@ -229,21 +292,22 @@ entities:
               };
           )
 
-      vapps:
+      vdcs:
         type: table
         headers:
           - value: name
-            text: Наименование vApp
+            text: Наименование VDC
             sortable: true
             align: left
-            link: vapp_link
+            link: vdc_link
           - value: description
             text: Описание
             align: left
         source: >
           (
               $id := $params.id;
-              [$reverse_enterprise_vapps($)[vdc_id = $id]]
+              $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $id];
+              [$reverse_enterprise_vdcs($)[id in $vdcgroup.vdc_ids]]
           )
 
       networks:
@@ -260,22 +324,6 @@ entities:
         source: >
           (
               $id := $params.id;
-              [$reverse_enterprise_orgnets($)[vdc_id = $id]]
-          )
-
-      vdcgroups:
-        type: table
-        headers:
-          - value: name
-            text: Наименование VDC Group
-            sortable: true
-            align: left
-            link: vdcgroup_link
-          - value: description
-            text: Описание
-            align: left
-        source: >
-          (
-              $id := $params.id;
-              [$reverse_enterprise_vdcgroups($)[$id in vdc_ids]]
+              $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $id];
+              [$reverse_enterprise_orgnets($)[id in $vdcgroup.network_ids]]
           )

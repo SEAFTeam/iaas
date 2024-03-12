@@ -17,6 +17,7 @@ functions:
             $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $orgnets_entity_matcher := /.*\.enterprise\.orgnets$/;
+            $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
             $domain_matcher := $eval('/^' & $domain & '.*/');
             $vapp_entity := dataset.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
             $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
@@ -25,11 +26,20 @@ functions:
             $vapps := dataset.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcgroups_entity := dataset.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
+            $vdcgroups := dataset.$spread()[$vdcgroups_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             [[$vdcs.$spread().{
                 'id': $keys(),
                 'vdc': *
             }].(
                 $vdc_id := id;
+                $parent_vdcgroups := $vdcgroups.$spread()[$vdc_id in *.vdcs.id].(
+                    {
+                        'id': $.*.id,
+                        'name': $.*.name,
+                        'link': '/entities/' & $vdcgroups_entity & '/card?id=' & $.*.id
+                    }
+                );
                 {
                     'id': id,
                     'short_id': vdc.id,
@@ -39,6 +49,7 @@ functions:
                     'vapp_names': $vapps.$spread()[*.vdc_id = $vdc_id].*.name,
                     'availableNetwork_ids': vdc.availableNetworks.id,
                     'availableNetwork_names': vdc.availableNetworks.name,
+                    'vdcgroups': $parent_vdcgroups,
                     'org_name': vdc.org_name,
                     'org_id': vdc.org_id,
                     'computeproviderscope': vdc.computeproviderscope,

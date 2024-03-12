@@ -1,15 +1,10 @@
-# Virtual Datacenter (VDC)
+# Virtual Datacenter Group (VDC Group)
 ***  
 **Наименование**: {{name}}
 
 | Наименование | Организация  |
 |--------------|--------------|
 | {{name}}     | {{org_name}} |
-
-{{#vdcg}}
-# VDC Groups
-![Реестр](@entity/{{entity}}/vdcgroups?id={{id}})
-{{/vdcg}}
 
 {{#description}}
 ## Описание
@@ -21,10 +16,10 @@
 ![Реестр](@entity/{{entity}}/networks?id={{id}})
 {{/networks}}
 
-{{#vapps}}
-## vApps
-![Реестр](@entity/{{entity}}/vapps?id={{id}})
-{{/vapps}}
+{{#vdcs}}
+## VDCs
+![Реестр](@entity/{{entity}}/vdcs?id={{id}})
+{{/vdcs}}
 
 ## Схема
 
