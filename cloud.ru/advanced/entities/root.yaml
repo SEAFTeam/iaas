@@ -15,4 +15,3 @@ imports:
   - security_groups.yaml
   - cces.yaml
   - dmss.yaml
-  - links.yaml

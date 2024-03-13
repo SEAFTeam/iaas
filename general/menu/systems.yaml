@@ -1,0 +1,19 @@
+entities:
+  seaf.ta.reverse.general:
+    menu: >
+      (
+          $root_menu := entities."seaf.ta.reverse".config.main_menu;
+          $systems := $$.components.$spread()[*.type = 'service'];
+          $components := $$.components.$spread()[*.type = 'component'];
+          $links := $$."seaf.ta.reverse.general.links";
+          $available_systems := $distinct($links.$spread().(
+              $app_id := $.*.app_id;
+              $system_path := $split($app_id, '.')[-1];
+              $regexp := $eval("/" & $system_path & "$/");
+              $systems[$match($keys()[0], $regexp)];
+          ));
+          [$available_systems.({
+              "link": "entities/seaf.ta.reverse.general.systems/systems_ta?id=" & $keys()[0],
+              "location": $root_menu & "/Системы/" & $.*.title
+          })]
+      )

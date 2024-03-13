@@ -261,7 +261,7 @@ entities:
         type: smartants
         source: >
           (
-              $id := $params.id;
+              $id := $params.id; /* sber.berezka.egws_nat.9e9aaabb-ecda-4f88-8d25-98cd528e6563 */
               $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
               $fn_svg_vm := $$.icons."reverse.general".svg_vm;
               $fn_svg_internet := $$.icons."reverse.general".svg_internet;
@@ -270,14 +270,17 @@ entities:
               $vm := $reverse_enterprise_vms($)[$nat.internal_address in addresses];
               $vapp := $reverse_enterprise_vapps($)[id = $vm.vapp_id];
               $egw := $reverse_enterprise_egws($)[id = $nat.gw_id];
+              $org := $reverse_enterprise_orgs($)[id = $egw.org_id];
               $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
               $symbols := [];
               $links := [];
               /* Безусловный блок */
-              $nodes := {$egw.org_id.$split('.')[-1]:{'title': 'Организация: ' & $egw.org_name}};
-              $nodes := $append($nodes, {$egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1]: {'title': 'VDC: ' & $egw.vdc_name}});
+              $nodes := {$egw.org_id.$split('.')[-1]:{'title': 'Организация: ' & $org.name}};
+              $baseprefix := $exists($egw.vdc_id) and $egw.vdc_id != null ? ($egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1]) : ($egw.org_id.$split('.')[-1] & '.' & $egw.vdcgroup_id.$split('.')[-1]);
+              $basename := $exists($egw.vdc_id) and $egw.vdc_id != null ? ('VDC: ' & $egw.vdc_name) : ('VDC Group: ' & $egw.vdcgroup_name);
+              $nodes := $append($nodes, {$baseprefix: {'title': $basename}});
               $nodes := $append($nodes, (
-                      $prefix := $egw.org_id.$split('.')[-1] & '.' & $egw.vdc_id.$split('.')[-1];
+                      $prefix := $baseprefix;
                       {
                           $prefix & '.' & $egw.short_id: {
                               'title': $egw.name,

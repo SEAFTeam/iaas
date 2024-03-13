@@ -9,4 +9,3 @@ imports:
   - subnets.yaml
   - vpcs.yaml
   - vpn_gateways.yaml
-  - systems.yaml
