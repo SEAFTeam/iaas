@@ -1,0 +1,41 @@
+entities:
+  seaf.ta.reverse.cloud_ru.advanced.peerings:
+    presentations:
+      table_view:
+        type: table
+        headers:
+          - value: name
+            text:  Название пиринга
+            width: 200
+            sortable: true
+          - value: request_vpc
+            text: Источник VPC ID
+            width: 200
+            sortable: true
+          - value: accept_vpc
+            text: Назначение VPC ID
+            width: 200
+            sortable: true
+          - value: description
+            text: Описание
+            width: 200
+            sortable: true
+          - value: status
+            text: Состояние
+            width: 200
+            sortable: true
+          - value: tenant
+            text: Тенант(Project) в облаке
+            width: 200
+            sortable: true
+        source: >
+          (      
+              $peerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings";
+              [$distinct($peerings.$spread().(
+                $peerings_table := (
+                  [$peerings.$spread().{
+                              "id": $keys()[0],
+                              "peerings": $.*
+                          }]
+              )).peerings)]
+          )
