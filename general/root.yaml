@@ -3,3 +3,4 @@ imports:
   - presentations/root.yaml
   - entities/root.yaml
   - functions/root.yaml
+  - datasets/root.yaml

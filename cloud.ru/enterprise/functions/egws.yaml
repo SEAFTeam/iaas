@@ -19,10 +19,14 @@ functions:
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
             $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
+            $dcs_entity_matcher := /.*\.services\.dc$/;
+            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
-            $orgnet_entity := dataset.entities.$spread()[$orgnet_entity_matcher($keys())].$keys()[0];
-            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
+            $egw_entity_full := dataset.entities.$spread()[$egw_entity_matcher($keys())];
+            $egw_entity := $egw_entity_full.$keys()[0];
+            $vdc_entity_full := dataset.entities.$spread()[$vdc_entity_matcher($keys())];
+            $vdc_entity := $vdc_entity_full.$keys()[0];
             $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
             $egws_nat_entity := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
             $egws_fw_entity := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())].$keys()[0];
@@ -37,8 +41,10 @@ functions:
                 
                 $vdc_id := egw.vdc_id;
                 $vdc := $vdcs.$spread()[$keys() = $vdc_id];
-                $org_id := $egw.org_id;
+                $org_id := egw.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
+                $orgname := $org.*.name;
+                $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
                     'id': id,
                     'short_id': egw.id,
@@ -58,8 +64,11 @@ functions:
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & egw.vdc_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & $org.*.id,
                     'entity': $egw_entity,
+                    'entity_type': 'vCloud Director Entity',
+                    'entity_name': $egw_entity_full.*.title,
                     'egws_nat_entity': $egws_nat_entity,
-                    'egws_fw_entity': $egws_fw_entity
+                    'egws_fw_entity': $egws_fw_entity,
+                    'DC': $dc.$keys()[0]
                 }
             )]
         )

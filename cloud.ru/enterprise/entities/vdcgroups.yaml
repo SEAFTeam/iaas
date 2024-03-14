@@ -70,7 +70,4 @@ entities:
                   org_name:
                     title: Идентификатор организации
                     type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"
 

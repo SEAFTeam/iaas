@@ -15,7 +15,7 @@ entities:
               title: ID прикладного компонента
               $ref: "#/$rels/components.component"
             reverse_ta_id:
-              title: ID технологического компонента
+              title: ID технического компонента
               type: array
               items:
                 anyOf:
@@ -24,3 +24,8 @@ entities:
                   - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.advanced.rdss.rds"
                   - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.advanced.cces.cce"
                   - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.advanced.elbs.elb"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.advanced.vpcs.vpc"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vms.vm"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vapps.vapp"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"

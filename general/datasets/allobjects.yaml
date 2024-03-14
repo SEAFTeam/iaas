@@ -1,0 +1,20 @@
+datasets:
+  seaf.ta.reverse.general.allobjects:
+    source: >
+      (
+          $adv_entity_matcher := /.*\.advanced\..*$/; 
+          $ent_entity_matcher := /.*\.enterprise\..*$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
+          $advs := $$.$spread()[$adv_entity_matcher($keys())];
+          $ents := $$.$spread()[$ent_entity_matcher($keys())];
+          $allobjects := $append($advs, $ents);
+          $egws := $reverse_enterprise_egws($);
+          [$allobjects.$spread().(
+                  $type_id :=  $keys()[0];
+                  $type := $$.entities.$spread()[$keys() = $type_id];
+                  
+              )
+          ]
+      )

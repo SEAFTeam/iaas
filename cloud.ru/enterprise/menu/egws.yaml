@@ -7,6 +7,9 @@ entities:
           $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
           $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
           $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
           $egws_entity := $$.entities.$spread()[$egws_entity_matcher($keys())].$keys()[0];
@@ -18,7 +21,7 @@ entities:
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/Шлюзы (Edge Gateway)',
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Шлюзы (Edge Gateway)',
                   'link': 'entities/' & $egws_entity & '/list?domain=' & $domain
               }
           ];
@@ -27,15 +30,17 @@ entities:
               $name := $.*.name;
               $vdcname := $.*.vdc_name;
               $vdc_id := $.*.vdc_id;
-              $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org_id;
-              $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+              $org_id := $.*.org_id;
+              $org := $orgs.$spread()[$keys() = $org_id];
+              $orgname := $org.*.name;
+              $dc := $dcs.$spread()[$keys() = $org.*.DC];
               [
                   {
-                      'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
                       'link': 'entities/' & $egws_entity & '/schema?id=' & $id
                   },
                   {
-                      'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
                       'link': 'entities/' & $egws_entity & '/list?vdc_id=' & $vdc_id
                   }     
               ]
@@ -45,15 +50,17 @@ entities:
               $name := $.*.name;
               $vdcgroupname := $.*.vdcgroup_name;
               $vdcgroup_id := $.*.vdcgroup_id;
-              $org_id := $vdcgroups.$spread()[$keys() = $vdcgroup_id].*.org_id;
-              $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+              $org_id := $.*.org_id;
+              $org := $orgs.$spread()[$keys() = $org_id];
+              $orgname := $org.*.name;
+              $dc := $dcs.$spread()[$keys() = $org.*.DC];
               [
                   {
-                      'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
                       'link': 'entities/' & $egws_entity & '/schema_vdcgroup?id=' & $id
                   },
                   {
-                      'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
                       'link': 'entities/' & $egws_entity & '/list?vdcgroup_id=' & $vdcgroup_id
                   }     
               ]

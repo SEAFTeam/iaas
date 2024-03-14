@@ -40,7 +40,4 @@ entities:
                   name:
                      title: Наименование сети
                      type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"
 

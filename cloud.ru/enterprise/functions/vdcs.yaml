@@ -18,6 +18,9 @@ functions:
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $orgnets_entity_matcher := /.*\.enterprise\.orgnets$/;
             $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+            $dcs_entity_matcher := /.*\.services\.dc$/;
+            $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+            $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
             $domain_matcher := $eval('/^' & $domain & '.*/');
             $vapp_entity := dataset.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
             $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];

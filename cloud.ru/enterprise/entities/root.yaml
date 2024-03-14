@@ -1,5 +1,4 @@
 imports:
-  - general/root.yaml
   - egws.yaml
   - orgnets.yaml
   - orgs.yaml
@@ -8,3 +7,4 @@ imports:
   - vdcs.yaml
   - vms.yaml
   - vdcgroups.yaml
+  - egws_nat.yaml

@@ -7,7 +7,10 @@ entities:
           $vms_entity_matcher := /.*\.enterprise\.vms$/;
           $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
           $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
           $vdcs_entity := $$.entities.$spread()[$vdcs_entity_matcher($keys())].$keys()[0];
@@ -27,10 +30,12 @@ entities:
               $vms := $reverse_enterprise_vms($dataset, $domain)[vdc_id = $id];
               $name := $.*.name;
               $org_id := $.*.org_id;
-              $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+              $org := $orgs.$spread()[$keys() = $org_id];
+              $orgname := $org.*.name;
+              $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $exists($vms) ? (
                   {
-                      'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $name & '/VMs',
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $name & '/VMs',
                       'link': 'entities/' & $vms_entity & '/list?vdc_id=' & $id
                   }
               )
@@ -40,12 +45,14 @@ entities:
               $vms := $reverse_enterprise_vms($dataset, $domain)[vdc_id = $id];
               $name := $.*.name;
               $org_id := $.*.org_id;
-              $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+              $org := $orgs.$spread()[$keys() = $org_id];
+              $orgname := $org.*.name;
+              $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $vdcgroup := $vdcgroups.$spread()[$id in *.vdcs.id];
               $exists($vms) ? (
                   $vdcgroup.$spread().(
                       {
-                          'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name & '/VMs',
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name & '/VMs',
                           'link': 'entities/' & $vms_entity & '/list?vdc_id=' & $id
                       }
                   )

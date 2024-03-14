@@ -14,6 +14,9 @@ functions:
         (
             $domain := domain;
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
+            $dcs_entity_matcher := /.*\.services\.dc$/;
+            $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+            $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
             $domain_matcher := $eval('/^' & $domain & '.*/');
             $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
             $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];

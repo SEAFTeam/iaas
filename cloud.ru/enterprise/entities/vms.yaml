@@ -122,6 +122,3 @@ entities:
             tenant:
               title: Тенант
               type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"

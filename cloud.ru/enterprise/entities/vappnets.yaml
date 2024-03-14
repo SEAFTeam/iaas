@@ -76,6 +76,3 @@ entities:
                         endaddress:
                           title: Конечный адрес
                           type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"

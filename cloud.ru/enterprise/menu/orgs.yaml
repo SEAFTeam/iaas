@@ -4,15 +4,21 @@ entities:
       (
           $domain := '';
           $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
           $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
           $menu := $orgs.$spread().(
-                $id := $keys()[0];
-                $name := $.*.name;
-                {
-                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $name ,
-                    'link': 'entities/' & $orgs_entity & '/schema?id=' & $id
-                }
+              $id := $keys()[0];
+              $org := $;
+              $dc := $dcs.$spread()[$keys() = $org.*.DC];
+              $name := $.*.name;
+              {
+                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $name ,
+                  'link': 'entities/' & $orgs_entity & '/schema?id=' & $id
+              }
           )
       )

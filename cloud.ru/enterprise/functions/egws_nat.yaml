@@ -15,11 +15,17 @@ functions:
                 $domain := domain;
                 $egw_entity_matcher := /.*\.enterprise\.egws$/;
                 $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
+                $dcs_entity_matcher := /.*\.services\.dc$/;
+                $org_entity_matcher := /.*\.enterprise\.orgs$/;
+                $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+                $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
                 $domain_matcher := $eval('/^' & $domain & '.*/');
                 $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
-                $egws_nat_entity := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
+                $egws_nat_entity_full := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())];
+                $egws_nat_entity := $egws_nat_entity_full.$keys()[0];
                 $egws := dataset.$spread()[$egw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
                 $egws_nat := dataset.$spread()[$egws_nat_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+                $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
                 [[$egws_nat.$spread().{
                     'id': $keys(),
                     'nat': *
@@ -27,6 +33,10 @@ functions:
             
                     $gw_id := nat.gw_id;
                     $egw := $egws[$keys() = $gw_id];
+                    $org_id := $egw.*.org_id;
+                    $org := $orgs.$spread()[$keys() = $org_id];
+                    $orgname := $org.*.name;
+                    $dc := $dcs.$spread()[$keys() = $org.*.DC];
                     {
                         'id': id,
                         'short_id': nat.id,
@@ -43,9 +53,14 @@ functions:
                         'fw_match': nat.fw_match,
                         'egw_name': $egw.*.name,
                         'egw_id': $egw.$keys()[0],
+                        'org_id': $org_id,
+                        'org_name': $orgname,
                         'nat_link': '/entities/' & $egws_nat_entity & '/' & $lowercase(nat.type) & '_schema?id=' & id,
                         'egw_link': '/entities/' & $egw_entity & '/card?id=' & $egw.*.id,
-                        'entity': $egws_nat_entity
+                        'entity': $egws_nat_entity,
+                        'entity_type': 'vCloud Director Entity',
+                        'entity_name': $egws_nat_entity_full.*.title,
+                        'DC': $dc.$keys()[0]
                     }
                 )]
             )

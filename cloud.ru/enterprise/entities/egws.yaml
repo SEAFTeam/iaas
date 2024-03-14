@@ -94,6 +94,3 @@ entities:
                               endaddress:
                                 title: Конец диапазона
                                 type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"

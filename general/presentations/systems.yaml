@@ -26,38 +26,35 @@ entities:
             sortable: true
             align: left
             width: 200
-          - value: vpc
-            text: VPC
-            align: left
-            width: 150
-          - value: az
-            text: Зона доступности
-            align: left
-          - value: tenant
-            text: Тенант
           - value: dc
             text: Датацентр
             width: 200
         source: >
           (
-              $systems := $.components.$spread()[*.sber.type = 'service'];
-              $links := $."seaf.ta.reverse.cloud_ru.advanced.links";
+              $systems := $.components.$spread()[*.type = 'service'];
+              $links := $."seaf.ta.reverse.general.links";
+              $cdcs := $."seaf.ta.services.dc";
+              $adv_entity_matcher := /.*\.advanced\..*$/; 
+              $ent_entity_matcher := /.*\.enterprise\..*$/;
+              $dcs_entity_matcher := /.*\.services\.dc$/;
+              $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+              $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
+              $advs := $$.$spread()[$adv_entity_matcher($keys())];
+              $ents := $$.$spread()[$ent_entity_matcher($keys())];
+              $entities := $append($advs, $ents);
               $system := $systems[$keys()[0] = $params.id];
               $regexp := $exists($system) = true ? $eval("/" & $split($system.$keys()[0], '.')[-1] & "\\./");
-              $components := $.components.$spread()[*.sber.type = 'component'][$regexp($keys()[0])];
-              $cdcs := $."seaf.ta.services.dc";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+              $components := $.components.$spread()[*.type = 'component'][$regexp($keys()[0])];
               $tech_components := $components.$spread().(
                   $app_id := $keys()[0];
                   $links.$spread()[*.app_id = $app_id].*.reverse_ta_id
               );
               $tech_components.(
                   $id := $;
-                  $entities := $$.$spread()[$split($keys()[0], '.')[-2] = "advanced"];
-                  $object := $entities.(
-                    $entity := $keys()[0];
-                    $type := $$.entities.$spread()[$keys()[0] = $entity].*.title;
-                    $.*.$spread()[$keys()[0] = $id].(
+                  $entities.(
+                      $entity := $keys()[0];
+                      $type := $$.entities.$spread()[$keys()[0] = $entity].*.title;
+                      $.*.$spread()[$keys()[0] = $id].(
                           $vpc_id := $.*.vpc_id;
                           $vpc := $cvpcs.$spread()[*.id = $vpc_id].*.name;
                           $dc_id := $.*.DC;
@@ -70,7 +67,7 @@ entities:
                               'tenant': $.*.tenant,
                               'dc': $dc
                           }
-                    )
+                      )
                   )
               )
           )

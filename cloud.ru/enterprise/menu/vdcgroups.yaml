@@ -4,9 +4,12 @@ entities:
       (
           $domain := '';
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
+          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
           $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
-          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
           $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
@@ -19,9 +22,11 @@ entities:
                 $id := $keys()[0];
                 $name := $.*.name;
                 $org_id := $.*.org_id;
-                $orgname := $orgs.$spread()[$keys() = $org_id].*.name;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                $orgname := $org.*.name;
+                $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
-                    'location': $config.arch_menu & '/Cloud.ru/Enterprise/Организации/' & $orgname & '/' & $name,
+                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $name,
                     'link': 'entities/' & $vdcgroups_entity & '/card?id=' & $id
                 }
           );

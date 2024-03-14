@@ -15,17 +15,27 @@ functions:
                 $domain := domain;
                 $egw_entity_matcher := /.*\.enterprise\.egws$/;
                 $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
+                $dcs_entity_matcher := /.*\.services\.dc$/;
+                $org_entity_matcher := /.*\.enterprise\.orgs$/;
                 $domain_matcher := $eval('/^' & $domain & '.*/');
+                $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+                $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
                 $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
-                $egws_fw_entity := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())].$keys()[0];
+                $egws_fw_entity_full := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())];
+                $egws_fw_entity := $egws_fw_entity_full.$keys()[0];
                 $egws := dataset.$spread()[$egw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
                 $egws_fw := dataset.$spread()[$egws_fw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+                $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
                 [[$egws_fw.$spread().{
                     'id': $keys(),
                     'fw': *
                 }].(
-                    $gw_id := nat.gw_id;
+                    $gw_id := fw.gw_id;
                     $egw := $egws[$keys() = $gw_id];
+                    $org_id := $egw.*.org_id;
+                    $org := $orgs.$spread()[$keys() = $org_id];
+                    $orgname := $org.*.name;
+                    $dc := $dcs.$spread()[$keys() = $org.*.DC];
                     $context := $;
                     $src := $not($exists(fw.sourceFirewallGroups.*)) ? 'Any' : $append(
                             ($not(null in fw.sourceFirewallGroups.**.members) ? fw.sourceFirewallGroups.**.members), 
@@ -63,9 +73,14 @@ functions:
                                     'port': $port_profile.port,
                                     'egw_name': $egw.*.name,
                                     'egw_id': $egw.$keys()[0],
+                                    'org_id': $org_id,
+                                    'org_name': $orgname,
                                     'fw_link': '/entities/' & $egws_fw_entity & '/card?id=' & id,
                                     'egw_link': '/entities/' & $egw_entity & '/card?id=' & $egw.*.id,
-                                    'entity': $egws_fw_entity
+                                    'entity': $egws_fw_entity,
+                                    'entity_type': 'vCloud Director Entity',
+                                    'entity_name': $egws_fw_entity_full.*.title,
+                                    'DC': $dc.$keys()[0]
                                 }
                             )
                         )

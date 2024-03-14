@@ -29,6 +29,3 @@ entities:
             vdc_name:
                title: Наименование vdc
                type: string
-            DC:
-              title: Услуга IaaS
-              $ref: "#/$rels/seaf.ta.services.dc.dc"
