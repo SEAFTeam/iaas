@@ -1,6 +1,5 @@
 imports:
   - backup_policies.yaml
-  - main.yaml
   - cces.yaml
   - dmss.yaml
   - elbs.yaml

@@ -2,16 +2,17 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.ecss:
     menu: >
       (
+          $config := entities."seaf.ta.reverse.general".config;
           $count($$."seaf.ta.reverse.cloud_ru.advanced.ecss") > 0 ? [
             {
               /* Размещение в пользовательском меню */
-              "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Реестры/Elastic Cloud Servers",
+              "location": $config.arch_menu & "/Cloud.ru/Advanced/Реестры/Elastic Cloud Servers",
               /* URI представления context см. ниже.*/
               "link": "entities/seaf.ta.reverse.cloud_ru.advanced.ecss/table_view"
             },
             {
               /* Размещение в пользовательском меню */
-              "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Схемы/Servers in VPC",
+              "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Servers in VPC",
               /* URI представления context см. ниже.*/
               "link": "entities/seaf.ta.reverse.cloud_ru.advanced.ecss/servers_diagram"
             }

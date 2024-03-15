@@ -2,9 +2,10 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.cces:
     menu: >
       (
+          $config := entities."seaf.ta.reverse.general".config;
           $count($$."seaf.ta.reverse.cloud_ru.advanced.cces") > 0 ? [{
                       /* Размещение в пользовательском меню */
-                      "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Реестры/Cloud Container Engines",
+                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Реестры/Cloud Container Engines",
                       /* URI представления context см. ниже.*/
                       "link": "entities/seaf.ta.reverse.cloud_ru.advanced.cces/table_view"
           }];

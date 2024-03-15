@@ -3,7 +3,6 @@ entities:
     menu: >
       (
           $config := entities."seaf.ta.reverse.general".config;
-          $root_menu := entities."seaf.ta.reverse".config.main_menu;
           $systems := $$.components.$spread()[*.type = 'service'];
           $components := $$.components.$spread()[*.type = 'component'];
           $links := $$."seaf.ta.reverse.general.links";
