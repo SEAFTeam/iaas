@@ -116,6 +116,23 @@ entities:
                   )
               );
               $externalNetworks := $egws.($.gatewayinterfaces[iftype = 'uplink']);
+              $externalNetworksDistinctIds := $distinct($externalNetworks.network_id);
+              $externalNetworks := $externalNetworksDistinctIds.(
+                  $id := $;
+                  $unique := $count($externalNetworks[network_id = id]) = 1 ? $externalNetworks[network_id = id];
+                  $notunique :=  $count($externalNetworks[network_id = id]) > 1 ? (
+                      $nets := $externalNetworks[network_id = id];
+                      {
+                          'name': $nets[0].name,
+                          'network_id': $nets[0].network_id,
+                          'iftype': $nets[0].iftype,
+                          'usefordefaultroute': $nets[0].usefordefaultroute,
+                          'connected': $nets[0].connected,
+                          'subnetparticipation': $nets.subnetparticipation
+                      }
+                  );
+                  $append($unique, $notunique) 
+              );
               $nodes := $append($nodes, $externalNetworks.(
                           {
                               $.network_id.$split('.')[-1]: {
@@ -263,7 +280,7 @@ entities:
                   )
               );
               $symbols := $append($symbols, $externalNetworks.(
-                      $netranges := $join($.subnetparticipation.($.ipranges.($.startaddress & '-' & $.endAddress)), ' ');
+                      $netranges := $join($.subnetparticipation.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
                       $gateway := $join($.subnetparticipation.($.gateway), ' ');
                       $netmask := $join($.subnetparticipation.($.netmask), ' ');
                       $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
