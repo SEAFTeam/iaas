@@ -66,7 +66,8 @@ functions:
                     'entity_name': $egw_entity_full.*.title,
                     'egws_nat_entity': $egws_nat_entity,
                     'egws_fw_entity': $egws_fw_entity,
-                    'DC': $dc.$keys()[0]
+                    'DC': $dc.$keys()[0],
+                    'dc_name': $dc.*.dc_name
                 }
             )]
         )

@@ -44,11 +44,12 @@ functions:
                     'org_name': $org.*.name,
                     'org_id': vdcgroup.org_id,
                     'link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
-                    'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
+                    'org_link': '/entities/' & $org_entity & '/card?id=' & $orgid,
                     'entity': $vdcgroups_entity,
                     'entity_type': 'vCloud Director Entity',
                     'entity_name': $vdcgroups_entity_full.*.title,
-                    'DC': $dc.$keys()[0]
+                    'DC': $dc.$keys()[0],
+                    'dc_name': $dc.*.dc_name
                 }
             )]
         )

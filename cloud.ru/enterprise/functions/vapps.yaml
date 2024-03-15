@@ -52,7 +52,8 @@ functions:
                     'entity': $vapp_entity,
                     'entity_type': 'vCloud Director Entity',
                     'entity_name': $vapp_entity_full.*.title,
-                    'DC': $dc.$keys()[0]
+                    'DC': $dc.$keys()[0],
+                    'dc_name': $dc.*.dc_name
                 }
             )]
         )

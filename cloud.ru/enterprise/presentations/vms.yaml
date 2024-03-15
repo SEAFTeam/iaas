@@ -4,13 +4,11 @@ entities:
       list:
         type: table
         headers:
-          - value: id
-            text: ID
           - value: name
             text: Имя сервера
             sortable: true
             align: left
-            link: vm_link
+            link: link
             width: 300
           - value: os_type
             text: ОС
@@ -62,7 +60,7 @@ entities:
           - value: vdc
             text: VDC
             link: vdc_link
-          - value: dc
+          - value: dc_name
             text: Датацентр
         source: > 
           (
