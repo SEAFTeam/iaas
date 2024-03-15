@@ -8,7 +8,7 @@ entities:
             text: Наименование сети
             sortable: true
             align: left
-            link: nat_link
+            link: link
             width: 200
           - value: type
             text: Тип NAT
@@ -44,7 +44,7 @@ entities:
                   $vm := $vms[$internal_address in addresses];
                   {
                       'vm_name': $vm.name,
-                      'vm_link': $vm.vm_link,
+                      'vm_link': $vm.link,
                       'enabled': enabled = true ? '✅' : '❌'
                   }
               )|]
@@ -57,7 +57,7 @@ entities:
             text: Наименование сети
             sortable: true
             align: left
-            link: nat_link
+            link: link
             width: 200
           - value: type
             text: Тип NAT
@@ -96,12 +96,12 @@ entities:
                             $vm := $vms[$internal_address in addresses];
                             {
                                 'name': $vm.name,
-                                'link': $vm.vm_link
+                                'link': $vm.link
                             }
                             ) : (
                             $orgnets.(
                                 $name := $.name;
-                                $orgnet_link := $.orgnet_link;
+                                $orgnet_link := $.link;
                                 $.ipscopes.(
                                     $gw := $.gateway;
                                     $reverse_general_match_ip_to_subnet($internal_address, $gw) ?
@@ -173,7 +173,7 @@ entities:
                   )
               );
               $symbols := $append($symbols, $egw.(
-                      $href := $.egw_link;
+                      $href := $.link;
                       $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
                       {
                           'egw-' & $.short_id: $icon
@@ -236,7 +236,7 @@ entities:
               );
               $symbols := $append($symbols, $exists($vm) ? (
                       $symbols := $append($symbols, $vm.(
-                              $href := $.vm_link;
+                              $href := $.link;
                               $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                               {
                                   'vm-' & $.short_id: $icon
@@ -315,7 +315,7 @@ entities:
                   )
               );
               $symbols := $append($symbols, $egw.(
-                      $href := $.egw_link;
+                      $href := $.link;
                       $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
                       {
                           'egw-' & $.short_id: $icon
@@ -399,7 +399,7 @@ entities:
                           $dnssrv := $join($.dns, ', ');
                           $fencemode := $.fencemode;
                           $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
-                          $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                          $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.link, 'type':'orgNet', 'details': $data});
                           {
                               'orgnet-' & $.short_id: $icon
                           }
@@ -439,7 +439,7 @@ entities:
               );
               $symbols := $append($symbols, $exists($vm) ? (
                       $symbols := $append($symbols, $vm.(
-                              $href := $.vm_link;
+                              $href := $.link;
                               $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                               {
                                   'vm-' & $.short_id: $icon

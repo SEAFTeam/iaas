@@ -17,7 +17,7 @@ entities:
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Шлюзы (Edge Gateway)',
+                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/Шлюзы (Edge Gateway)',
                   'link': 'entities/' & $egws_entity & '/list?domain=' & $domain
               }
           ];

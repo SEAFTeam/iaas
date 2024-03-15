@@ -8,7 +8,7 @@ entities:
             text: Наименование правила
             sortable: true
             align: left
-            link: fw_link
+            link: link
             width: 200
           - value: description
             text: Описание
@@ -51,13 +51,13 @@ entities:
                   $src := source;
                   $dst := destination;
                   $src_resolved := $ipmatcher($src) ? 
-                      $vms[$src in addresses].{'name': name, 'link': vm_link} :
+                      $vms[$src in addresses].{'name': name, 'link': link} :
                           $src = 'Any' ? {'name': 'Any', 'link': ''} :
-                              $orgnets[id = $src].{'name': name, 'link': orgnet_link};
+                              $orgnets[id = $src].{'name': name, 'link': link};
                   $dst_resolved := $ipmatcher($dst) ? 
-                      $vms[$dst in addresses].{'name': name, 'link': vm_link} :
+                      $vms[$dst in addresses].{'name': name, 'link': link} :
                           $dst = 'Any' ? {'name': 'Any', 'link': ''} :
-                              $orgnets[id = $dst].{'name': name, 'link': orgnet_link};
+                              $orgnets[id = $dst].{'name': name, 'link': link};
                   {
                       'source': $src_resolved.name,
                       'src_link': $src_resolved.link,

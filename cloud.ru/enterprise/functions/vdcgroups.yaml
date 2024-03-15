@@ -43,7 +43,7 @@ functions:
                     'network_names': vdcgroup.networks.name,
                     'org_name': $org.*.name,
                     'org_id': vdcgroup.org_id,
-                    'vdcgroup_link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
+                    'link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
                     'entity': $vdcgroups_entity,
                     'entity_type': 'vCloud Director Entity',

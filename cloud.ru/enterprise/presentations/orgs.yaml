@@ -1,6 +1,15 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.orgs:
     presentations:
+      card:
+        type: markdown
+        template: templates/org_card.md
+        source: >
+          (
+              $id := $params.id;
+              $org := $reverse_enterprise_orgs($)[id = $id];
+          )
+
       schema:
         type: plantuml
         template: templates/root.puml
@@ -16,7 +25,7 @@ entities:
               };
               $items := $append($items, $vdcs.(
                     $current_item := $.name;
-                    $current_link := $.vdc_link;
+                    $current_link := $.link;
                     {
                         'title': $current_item,
                         'link': $current_link
@@ -25,7 +34,7 @@ entities:
               );
               $items := $append($items, $vdcgroups.(
                     $current_item := $.name;
-                    $current_link := $.vdcgroup_link;
+                    $current_link := $.link;
                     {
                         'title': $current_item,
                         'link': $current_link

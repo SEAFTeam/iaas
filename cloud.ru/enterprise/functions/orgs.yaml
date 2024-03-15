@@ -31,7 +31,7 @@ functions:
                     'short_id': org.id,
                     'name': org.name,
                     'description': org.description,
-                    'org_link': '/entities/' & $org_entity & '/schema?id=' & id,
+                    'link': '/entities/' & $org_entity & '/schema?id=' & id,
                     'entity': $org_entity,
                     'entity_type': 'vCloud Director Entity',
                     'entity_name': $org_entity_full.*.title,

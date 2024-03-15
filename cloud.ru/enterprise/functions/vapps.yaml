@@ -46,7 +46,7 @@ functions:
                     'vdc_id': $vdc_id,
                     'org_name': $vdc.*.org_name,
                     'org_id': $org_id,
-                    'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & id,
+                    'link': '/entities/' & $vapp_entity & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & $org_id,
                     'entity': $vapp_entity,

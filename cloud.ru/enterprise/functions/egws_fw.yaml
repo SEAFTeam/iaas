@@ -74,7 +74,7 @@ functions:
                                     'egw_id': $egw.$keys()[0],
                                     'org_id': $org_id,
                                     'org_name': $orgname,
-                                    'fw_link': '/entities/' & $egws_fw_entity & '/card?id=' & id,
+                                    'link': '/entities/' & $egws_fw_entity & '/card?id=' & id,
                                     'egw_link': '/entities/' & $egw_entity & '/card?id=' & $egw.*.id,
                                     'entity': $egws_fw_entity,
                                     'entity_type': 'vCloud Director Entity',

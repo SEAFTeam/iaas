@@ -74,7 +74,7 @@ functions:
                     'org': $vdc.*.org_name,
                     'org_id': $vdc.*.org_id,
                     'tenant': 'Нет тенанта',
-                    'vm_link': '/entities/' & $vm_entity & '/card?id=' & id,
+                    'link': '/entities/' & $vm_entity & '/card?id=' & id,
                     'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & $vapp_id,
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
                     'entity': $vm_entity,

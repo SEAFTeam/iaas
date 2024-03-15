@@ -54,7 +54,7 @@ functions:
                     'dns': orgnet.dns,
                     'org_name': $org.*.name,
                     'org_id': orgnet.org_id,
-                    'orgnet_link': '/entities/' & $orgnet_entity & '/card?id=' & id,
+                    'link': '/entities/' & $orgnet_entity & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & orgnet.vdc_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & orgnet.org_id,
                     'entity': $orgnet_entity,

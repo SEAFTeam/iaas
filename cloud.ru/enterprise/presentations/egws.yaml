@@ -111,7 +111,7 @@ entities:
               );
               $symbols := [];
               $symbols := $append($symbols, $egw.(
-                      $href := $.egw_link;
+                      $href := $.link;
                       $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $href});
                       {
                           'egw-' & $.short_id: $icon
@@ -134,7 +134,7 @@ entities:
                       $dnssrv := $join($.dns, ', ');
                       $fencemode := $.fencemode;
                       $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
-                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.link, 'type':'orgNet', 'details': $data});
                       {
                           'orgnet-' & $.short_id: $icon
                       }
@@ -301,7 +301,7 @@ entities:
                       $fencemode := $join($vapp_nets.($.fencemode), ' ');
                       $vmscount := $count($vms[vapp_id = $vapp_id]);
                       $data := {'Vm`s in vapp': $string($vmscount), 'Networks': $netranges, 'Fence mode': $fencemode};
-                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.vapp_link, 'type':'vApp', 'details': $data});
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.link, 'type':'vApp', 'details': $data});
                       {
                           'vapp-' & $.short_id: $icon
                       }
@@ -312,7 +312,7 @@ entities:
                       $dnssrv := $join($.dns, ', ');
                       $fencemode := $.fencemode;
                       $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
-                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'orgNet', 'details': $data});
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.link, 'type':'orgNet', 'details': $data});
                       {
                           'orgnet-' & $.short_id: $icon
                       }
@@ -323,14 +323,14 @@ entities:
                       $dnssrv := $join($.dns, ', ');
                       $fencemode := $.fencemode;
                       $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
-                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.orgnet_link, 'type':'vdcgorgNet', 'details': $data});
+                      $icon := $eval($fn_svg_block, {'name': $.name, 'description': $.description, 'href': $.link, 'type':'vdcgorgNet', 'details': $data});
                       {
                           'orgnet-' & $.short_id: $icon
                       }
                   )
               );
               $symbols := $append($symbols, $egws.(
-                      $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $.egw_link});
+                      $icon := $eval($fn_svg_nsx_gateway, {'name': $.name, 'href': $.link});
                       {
                           'egw-' & $.short_id: $icon
                       }
@@ -374,7 +374,7 @@ entities:
             text: Наименование Edge Gateway
             sortable: true
             align: left
-            link: egw_link
+            link: link
             width: 300
           - value: description
             text: Описание

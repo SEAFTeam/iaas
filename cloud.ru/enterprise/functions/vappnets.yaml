@@ -56,7 +56,7 @@ functions:
                     'vdc_id': $vdc.*.id,
                     'org_name': $org.*.name,
                     'org_id': $org.*.id,
-                    'vappnet_link': '/entities/' & $vappnet_entity & '/card?id=' & id,
+                    'link': '/entities/' & $vappnet_entity & '/card?id=' & id,
                     'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & vappnet.vapp_id,
                     'entity': $vappnet_entity,
                     'entity_type': 'vCloud Director Entity',

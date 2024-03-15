@@ -52,7 +52,7 @@ entities:
               );
               $symbols := $vms.(
                   $fn_svg_vm := $$.icons."reverse.general".svg_vm;
-                  $href := $.vm_link;
+                  $href := $.link;
                   $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
                   {
                       $.short_id: $icon
@@ -61,7 +61,7 @@ entities:
               $symbols := $append($symbols, 
                   $vappnets.(
                       $fn_svg_vappnet_header := $$.icons."reverse.general".svg_vappnet_header;
-                      $href := $.vappnet_link;
+                      $href := $.link;
                       $icon := $eval($fn_svg_vappnet_header, {'name': $.name, 'href': $href});
                       {
                           'vappnet-' & $.short_id: $icon
@@ -100,7 +100,7 @@ entities:
             text: Наименование
             width: 200
             sortable: true
-            link: vm_link
+            link: link
           - value: description
             text: Описание
             width: 400
@@ -117,7 +117,7 @@ entities:
             text: Наименование vApp
             sortable: true
             align: left
-            link: vapp_link
+            link: link
             width: 300
           - value: description
             text: Описание

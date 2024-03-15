@@ -58,7 +58,7 @@ functions:
                     'org_name': vdc.org_name,
                     'org_id': vdc.org_id,
                     'computeproviderscope': vdc.computeproviderscope,
-                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
+                    'link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
                     'entity': $vdc_entity,
                     'entity_type': 'vCloud Director Entity',
