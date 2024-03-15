@@ -27,19 +27,33 @@ entities:
               $vdcname := $.*.vdc_name;
               $vdc_id := $.*.vdc_id;
               $org_id := $.*.org_id;
+              $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
+              $vdcgroupname := $vdcgroup.*.name;
               $org := $orgs.$spread()[$keys() = $org_id];
               $orgname := $org.*.name;
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
-              [
-                  {
-                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
-                      'link': 'entities/' & $egws_entity & '/schema?id=' & $id
-                  },
-                  {
-                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
-                      'link': 'entities/' & $egws_entity & '/list?vdc_id=' & $vdc_id
-                  }     
-              ]
+              $exists($vdcgroup) ? 
+                  [
+                      {
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
+                          'link': 'entities/' & $egws_entity & '/schema_vdcgroup?id=' & $id
+                      },
+                      {
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
+                          'link': 'entities/' & $egws_entity & '/list?vdcgroup_id=' & $vdcgroup.*.id
+                      }     
+                  ]
+                  :
+                    [
+                        {
+                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
+                            'link': 'entities/' & $egws_entity & '/schema?id=' & $id
+                        },
+                        {
+                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
+                            'link': 'entities/' & $egws_entity & '/list?vdc_id=' & $vdc_id
+                        }     
+                    ]
           );
           $dynamic_vdcgroup := $egws.$spread()[*.vdc_id = null].(
               $id := $keys()[0];
