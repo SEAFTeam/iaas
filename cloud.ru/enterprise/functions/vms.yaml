@@ -38,16 +38,17 @@ functions:
                 'vm': *
             }].(
                 $disks := $join(vm.disks.(*.device & ' - ' & *.type & ' - ' & *.size & 'Gb'), '\n');
-                $addresses := $count(vm.addresses) > 1 ? $join(vm.addresses.($), ', ') : vm.addresses;
+                $addresses := $count(vm.addresses) > 1 ? $join(vm.addresses.($ != null ? $), ', ') : vm.addresses;
                 $vapp_id := vm.vapp_id;
                 $vapp := $vapps.$spread()[$keys() = $vapp_id];
-                $subnets := $count(vm.subnets) > 1 ? $join(vm.subnets.($), ', ') : vm.subnets;
+                $subnets := $count(vm.subnets) > 1 ? $join(vm.subnets.($ != null ? $), ', ') : vm.subnets;
                 $vdc_id := vm.vdc_id;
                 $vdc := $vdcs.$spread()[$keys() = $vdc_id];
                 $av := vm.name in $avs.**.hosts ? true : false;
                 $edr := vm.name in $edrs.**.hosts ? true : false;
                 $org := $orgs.$spread()[$keys() = $vdc.*.org_id];
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $tags := $join(vm.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
                 {
                     'id': id,
                     'short_id': vm.id,
@@ -68,7 +69,7 @@ functions:
                     'subnet': $subnets,
                     'subnet_ids': vm.subnet_ids,
                     'az': 'Здесь нет зоны доступности',
-                    'tags': $join(vm.tags.($.key & ': ' & $.value), "\n"),
+                    'tags': $tags,
                     'vdc': vm.vdc_name,
                     'vdc_id': vm.vdc_id,
                     'org': $vdc.*.org_name,
