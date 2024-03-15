@@ -2,7 +2,7 @@ entities:
   seaf.ta.reverse.cloud_ru.enterprise.egws_nat:
     title: Edge Gateway NAT Rules
     objects:
-      egw:
+      egw_nat:
         route: "/"
         title: Edge Gateway NAT Rule
     schema:
@@ -16,7 +16,7 @@ entities:
               type: string
             gw_id:
               title: Идентификатор Edge Gateway
-              type: string
+              $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.egws.egw'
             name:
               title: Наименование NAT Rule
               type: string

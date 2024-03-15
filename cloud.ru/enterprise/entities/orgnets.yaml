@@ -34,6 +34,7 @@ entities:
               type: string
             parentnetwork:
               title: Родительская сеть
+              type: array
               oneOf:
                 - type: string
                 - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
@@ -63,9 +64,9 @@ entities:
             fencemode:
               title: Тип изоляции
               enum:
-                - bridged
-                - isolated
-                - natRouted
+                - 'bridged'
+                - 'isolated'
+                - 'natRouted'
             ipscopes:
               title: Границы сетей
               type: array

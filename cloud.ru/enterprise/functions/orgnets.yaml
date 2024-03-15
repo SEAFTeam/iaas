@@ -13,13 +13,13 @@ functions:
     code: >
         (
             $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
             $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
             $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
-            $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
             $orgnet_entity_full := dataset.entities.$spread()[$orgnet_entity_matcher($keys())];
             $orgnet_entity := $orgnet_entity_full.$keys()[0];
             $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
@@ -33,6 +33,7 @@ functions:
             }].(
                 $org_id := orgnet.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
+                $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
                     'id': id,
                     'short_id': orgnet.id,
@@ -59,7 +60,7 @@ functions:
                     'entity': $orgnet_entity,
                     'entity_type': 'vCloud Director Entity',
                     'entity_name': $orgnet_entity_full.*.title,
-                    'DC': $dc
+                    'DC': $dc.$keys()[0]
                 }
             )]
         )

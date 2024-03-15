@@ -13,6 +13,7 @@ functions:
     code: >
         (
             $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
             $egw_entity_matcher := /.*\.enterprise\.egws$/;
             $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
             $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
@@ -20,13 +21,10 @@ functions:
             $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
             $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
             $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
             $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-            $domain_matcher := $eval('/^' & $domain & '.*/');
             $egw_entity_full := dataset.entities.$spread()[$egw_entity_matcher($keys())];
             $egw_entity := $egw_entity_full.$keys()[0];
-            $vdc_entity_full := dataset.entities.$spread()[$vdc_entity_matcher($keys())];
-            $vdc_entity := $vdc_entity_full.$keys()[0];
+            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
             $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
             $egws_nat_entity := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
             $egws_fw_entity := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())].$keys()[0];

@@ -13,13 +13,12 @@ functions:
         code: >
             (
                 $domain := domain;
+                $domain_matcher := $eval('/^' & $domain & '.*/');
                 $egw_entity_matcher := /.*\.enterprise\.egws$/;
                 $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
                 $dcs_entity_matcher := /.*\.services\.dc$/;
                 $org_entity_matcher := /.*\.enterprise\.orgs$/;
-                $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
                 $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-                $domain_matcher := $eval('/^' & $domain & '.*/');
                 $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
                 $egws_nat_entity_full := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())];
                 $egws_nat_entity := $egws_nat_entity_full.$keys()[0];

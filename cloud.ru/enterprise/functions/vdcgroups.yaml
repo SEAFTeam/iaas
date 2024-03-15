@@ -13,15 +13,16 @@ functions:
     code: >
         (
             $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
             $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
-            $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
             $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
             $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcgroups_entity := dataset.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
+            $vdcgroups_entity_full := dataset.entities.$spread()[$vdcgroups_entity_matcher($keys())];      
+            $vdcgroups_entity := $vdcgroups_entity_full.$keys()[0];
             $vdcgroups := dataset.$spread()[$vdcgroups_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             [[$vdcgroups.$spread().{
                 'id': $keys(),
@@ -30,7 +31,8 @@ functions:
                 $vdcgroup_id := id;
                 $orgid := vdcgroup.org_id;
                 $org := $orgs.$spread()[$keys() = $orgid];
-                {
+                $dc := $dcs.$spread()[$keys() = $org.*.DC];      
+            {
                     'id': id,
                     'short_id': vdcgroup.id,
                     'name': vdcgroup.name,
@@ -43,7 +45,10 @@ functions:
                     'org_id': vdcgroup.org_id,
                     'vdcgroup_link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
                     'org_link': '/entities/' & $org_entity & '/card?id=' & vdc.org_id,
-                    'entity': $vdcgroups_entity
+                    'entity': $vdcgroups_entity,
+                    'entity_type': 'vCloud Director Entity',
+                    'entity_name': $vdcgroups_entity_full.*.title,
+                    'DC': $dc.$keys()[0]
                 }
             )]
         )

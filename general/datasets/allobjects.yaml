@@ -1,5 +1,6 @@
 datasets:
   seaf.ta.reverse.general.allobjects:
+    title: All reverse objects
     source: >
       (
           $adv_entity_matcher := /.*\.advanced\..*$/; 
@@ -8,13 +9,13 @@ datasets:
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $advs := $$.$spread()[$adv_entity_matcher($keys())];
-          $ents := $$.$spread()[$ent_entity_matcher($keys())];
-          $allobjects := $append($advs, $ents);
-          $egws := $reverse_enterprise_egws($);
-          [$allobjects.$spread().(
-                  $type_id :=  $keys()[0];
-                  $type := $$.entities.$spread()[$keys() = $type_id];
-                  
-              )
-          ]
+          $enterprise := $append($enterprise, $reverse_enterprise_egws($));
+          $enterprise := $append($enterprise, $reverse_enterprise_orgnets($));
+          $enterprise := $append($enterprise, $reverse_enterprise_orgs($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vappnets($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vapps($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vdcgroups($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vdcs($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vms($));
+          $allobjects := $append($advs, $enterprise);
       )
