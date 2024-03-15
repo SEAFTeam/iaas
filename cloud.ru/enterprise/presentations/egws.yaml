@@ -408,7 +408,10 @@ entities:
                           [$reverse_enterprise_egws($, $domain)[vdc_id = $vdc_id]]
               ) : (
                       $exists($vdcgroup_id) ? (
-                          [$reverse_enterprise_egws($, $domain)[vdcgroup_id = $vdcgroup_id]]
+                          $direct := [$reverse_enterprise_egws($, $domain)[vdcgroup_id = $vdcgroup_id]];
+                          $vdcgroups := $reverse_enterprise_vdcgroups($, $domain)[id = $vdcgroup_id];
+                          $indirect := [$reverse_enterprise_egws($, $domain)[vdc_id in $vdcgroups.vdc_ids]];
+                          $append($direct, $indirect)
                   ) : ([$reverse_enterprise_egws($, $domain)])
               );
               $tmp ~> | $ | {'interfaces': gatewayinterfaces.subnetparticipation.ipaddress}|
