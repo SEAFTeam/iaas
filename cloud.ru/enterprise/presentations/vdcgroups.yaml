@@ -119,9 +119,9 @@ entities:
               $externalNetworksDistinctIds := $distinct($externalNetworks.network_id);
               $externalNetworks := $externalNetworksDistinctIds.(
                   $id := $;
-                  $unique := $count($externalNetworks[network_id = id]) = 1 ? $externalNetworks[network_id = id];
-                  $notunique :=  $count($externalNetworks[network_id = id]) > 1 ? (
-                      $nets := $externalNetworks[network_id = id];
+                  $unique := $count($externalNetworks[network_id = $id]) = 1 ? $externalNetworks[network_id = $id];
+                  $notunique :=  $count($externalNetworks[network_id = $id]) > 1 ? (
+                      $nets := $externalNetworks[network_id = $id];
                       {
                           'name': $nets[0].name,
                           'network_id': $nets[0].network_id,
