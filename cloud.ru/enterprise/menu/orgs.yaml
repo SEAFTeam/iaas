@@ -7,8 +7,6 @@ entities:
           $dcs_entity_matcher := /.*\.services\.dc$/;
           $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
-          $dcs_entity_matcher := /.*\.services\.dc$/;
-          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
           $menu := $orgs.$spread().(

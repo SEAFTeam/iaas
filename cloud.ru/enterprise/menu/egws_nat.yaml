@@ -9,15 +9,10 @@ entities:
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
           $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
           $dcs_entity_matcher := /.*\.services\.dc$/;
-          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
           $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
-          $egws_entity := $$.entities.$spread()[$egws_entity_matcher($keys())].$keys()[0];
           $egws := $$.$spread()[$egws_entity_matcher($keys())].*;
-          $vdcs_entity := $$.entities.$spread()[$vdcs_entity_matcher($keys())].$keys()[0];
           $vdcs := $$.$spread()[$vdcs_entity_matcher($keys())].*;
-          $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
           $egws_nat_entity := $$.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
           $egws_nat := $$.$spread()[$egws_nat_entity_matcher($keys())].*;

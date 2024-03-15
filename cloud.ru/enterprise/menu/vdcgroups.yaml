@@ -6,11 +6,9 @@ entities:
           $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
           $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
           $dcs_entity_matcher := /.*\.services\.dc$/;
-          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $vdcgroups_entity := $$.entities.$spread()[$vdcgroups_entity_matcher($keys())].$keys()[0];
           $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
-          $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
           $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
