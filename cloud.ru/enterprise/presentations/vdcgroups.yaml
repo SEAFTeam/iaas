@@ -47,6 +47,7 @@ entities:
               $egws := $reverse_enterprise_egws($)[vdcgroup_id = $id];
               $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $id];
               $vdcs := $reverse_enterprise_vdcs($)[id in $vdcgroup.vdc_ids];
+              $egws := $reverse_enterprise_egws($)[vdcgroup_id = $id or vdc_id in $vdcs.id];
               $vapps := $reverse_enterprise_vapps($)[vdc_id in $vdcs.id];
               $vms := $reverse_enterprise_vms($)[vapp_id in $vapps.id];
               $vdcgorgnets := $reverse_enterprise_orgnets($)[vdcgroup_id = $vdcgroup.id];
