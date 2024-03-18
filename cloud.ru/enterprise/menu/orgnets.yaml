@@ -23,7 +23,7 @@ entities:
           ];
           $dynamic_vdc := $orgnets.$spread()[$not($keys() in $vdcgroups.*.networks.id)].(
               $id := $keys()[0];
-              $name := $replace($.*.name, '/', '\/');
+              $name := $replace($.*.name, '/', ' ');
               $org_id := $.*.org_id;
               $org := $orgs.$spread()[$keys() = $org_id];
               $orgname := $org.*.name;
@@ -59,7 +59,7 @@ entities:
           );
           $dynamic_vdcgroup := $orgnets.$spread()[$keys() in $vdcgroups.*.networks.id].(
               $id := $keys()[0];
-              $name := $replace($.*.name, '/', '\/');
+              $name := $replace($.*.name, '/', ' ');
               $org_id := $.*.org_id;
               $org := $orgs.$spread()[$keys() = $org_id];
               $orgname := $org.*.name;
