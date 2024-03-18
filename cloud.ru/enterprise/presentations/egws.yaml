@@ -219,6 +219,7 @@ entities:
                       )
                   )
               );
+              $nodes := $distinct($nodes);
               $nodes := $append($nodes, $egws.(
                       {
                           $baseprefix & '.' & $.short_id: {
