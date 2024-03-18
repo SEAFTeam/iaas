@@ -29,11 +29,11 @@
 Для того чтобы корректно произвести выгрузку и заполнить сущности не генерируемые автоматически вам потребуется:
 - Создать объект сущности ЦОД базовой метамодели технической архитектуры (**seaf.ta.services.dc**), идентификатор данного объекта необходимо ввести в атрибут DC для заполняемых вручную объектов и использовать в скрипте для выгрузки данных.
 - Создать объект сущности Офис базовой метамодели технической архитектуры (**seaf.ta.services.office**), идентификатор данного объекта используется в сущности VPN Connection.
-- Заполнить объект сущности Связь (**seaf.ta.reverse.cloud_ru.advanced.links**) и привязать Прикладные компоненты к Техническим компонентам в метамодели расширения IaaS.Reverse.
+- Заполнить объект сущности Связь (**seaf.ta.reverse.general.links**) и привязать Прикладные компоненты к Техническим компонентам в метамодели расширения IaaS.Reverse.
 
 Пример заполнения объекта сущности Связь
 ```yaml
-seaf.ta.reverse.cloud_ru.advanced.links:
+seaf.ta.reverse.general.links:
     sber.berezka.links.home_cinema.auth:
        app_id: sber.berezka.home_cinema.auth
        reverse_ta_id:
@@ -96,25 +96,26 @@ dms = False                             # Distributed Message Server
 ```
 ## Сущности
 
-| №  | **Объект**          | **Наименование сущности**                          | **Описание**                                                                          |
-|----|---------------------|----------------------------------------------------|---------------------------------------------------------------------------------------|
-| 1  | **backup_policies** | 	seaf.ta.reverse.cloud_ru.advanced.backup_policies | 	Политики РК (расписания и привязка к vaults)                                         |
-| 2  | **cces**            | 	seaf.ta.reverse.cloud_ru.advanced.cces	           | Кластеры kubernetes                                                                   |
-| 3  | **dmss**            | 	seaf.ta.reverse.cloud_ru.advanced.dmss	           | Распределенные сервисы сообщений                                                      |
-| 4  | **eips**            | 	seaf.ta.reverse.cloud_ru.advanced.eips	           | Elastic IPs                                                                           |
-| 5  | **elbs**            | 	seaf.ta.reverse.cloud_ru.advanced.elbs	           | Elastic Load Balancers                                                                |
-| 6  | **nat_gateways**    | 	seaf.ta.reverse.cloud_ru.advanced.nat_gateways	   | Nat Gateways                                                                          |
-| 7  | **peerings**        | 	seaf.ta.reverse.cloud_ru.advanced.peerings	       | VPC Peerings                                                                          |
-| 8  | **rdss**            | 	seaf.ta.reverse.cloud_ru.advanced.rdss	           | Relational Database Services                                                          |
-| 9  | **security_groups** | 	seaf.ta.reverse.cloud_ru.advanced.security_groups | Группы безопасности                                                                   |
-| 10 | **ecss**            | 	seaf.ta.reverse.cloud_ru.advanced.ecss            | Elastic Cloud Servers                                                                 |
-| 11 | **subnets**         | 	seaf.ta.reverse.cloud_ru.advanced.subnets         | VPC Subnets                                                                           |
-| 12 | **vaults**          | 	seaf.ta.reverse.cloud_ru.advanced.vaults          | Хранилища РК                                                                          |
-| 13 | **vpcs**            | 	seaf.ta.reverse.cloud_ru.advanced.vpcs            | VPC                                                                                   |
-| 14 | **vpn_connections** | 	seaf.ta.reverse.cloud_ru.advanced.vpn_connections | VPN соединения (заполняется вручную, нет API)                                         |
-| 15 | **vpn_gateways**    | 	seaf.ta.reverse.cloud_ru.advanced.vpn_gateways    | VPN шлюзы (заполняется вручную, нет API)                                              |
-| 16 | **links**           | seaf.ta.reverse.cloud_ru.advanced.links            | Сущность-связь прикладного компонента к техническому компоненту (заполняется вручную) |
+| №   | **Объект**          | **Наименование сущности**                          | **Описание**                                                                          |
+|-----|---------------------|----------------------------------------------------|---------------------------------------------------------------------------------------|
+| 1   | **backup_policies** | 	seaf.ta.reverse.cloud_ru.advanced.backup_policies | 	Политики РК (расписания и привязка к vaults)                                         |
+| 2   | **cces**            | 	seaf.ta.reverse.cloud_ru.advanced.cces	           | Кластеры kubernetes                                                                   |
+| 3   | **dmss**            | 	seaf.ta.reverse.cloud_ru.advanced.dmss	           | Распределенные сервисы сообщений                                                      |
+| 4   | **eips**            | 	seaf.ta.reverse.cloud_ru.advanced.eips	           | Elastic IPs                                                                           |
+| 5   | **elbs**            | 	seaf.ta.reverse.cloud_ru.advanced.elbs	           | Elastic Load Balancers                                                                |
+| 6   | **nat_gateways**    | 	seaf.ta.reverse.cloud_ru.advanced.nat_gateways	   | Nat Gateways                                                                          |
+| 7   | **peerings**        | 	seaf.ta.reverse.cloud_ru.advanced.peerings	       | VPC Peerings                                                                          |
+| 8   | **rdss**            | 	seaf.ta.reverse.cloud_ru.advanced.rdss	           | Relational Database Services                                                          |
+| 9   | **security_groups** | 	seaf.ta.reverse.cloud_ru.advanced.security_groups | Группы безопасности                                                                   |
+| 10  | **ecss**            | 	seaf.ta.reverse.cloud_ru.advanced.ecss            | Elastic Cloud Servers                                                                 |
+| 11  | **subnets**         | 	seaf.ta.reverse.cloud_ru.advanced.subnets         | VPC Subnets                                                                           |
+| 12  | **vaults**          | 	seaf.ta.reverse.cloud_ru.advanced.vaults          | Хранилища РК                                                                          |
+| 13  | **vpcs**            | 	seaf.ta.reverse.cloud_ru.advanced.vpcs            | VPC                                                                                   |
+| 14  | **vpn_connections** | 	seaf.ta.reverse.cloud_ru.advanced.vpn_connections | VPN соединения (заполняется вручную, нет API)                                         |
+| 15  | **vpn_gateways**    | 	seaf.ta.reverse.cloud_ru.advanced.vpn_gateways    | VPN шлюзы (заполняется вручную, нет API)                                              |
+| 16(*) | **links**           | seaf.ta.reverse.cloud_ru.advanced.links            | Сущность-связь прикладного компонента к техническому компоненту (заполняется вручную) |
 
+(*) - Сущность для связи с прикладными или техническими компонентами
 
 ## Схема
-![Метамодель](@entity/seaf.ta.reverse.general/metamodel)
+![Метамодель](@entity/seaf.ta.reverse.general/metamodel_huawei)

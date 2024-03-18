@@ -4,22 +4,16 @@ entities:
     config:
       doc_menu: Документы/IaaS
       arch_menu: Архитектура/IaaS
+
     presentations:
-      readme:
-        type: markdown
-        template: ../../README.md
 
-      readme_cloud_ru:
-        type: markdown
-        template: ../../cloud.ru/README.md
-
-      readme_cloud_advanced:
-        type: markdown
-        template: ../../cloud.ru/advanced/README.md
-
-      metamodel:
+      metamodel_huawei:
         type: mermaid
-        template: templates/schema.mmd
+        template: templates/schema_huawei.mmd
+
+      metamodel_vcloud:
+        type: mermaid
+        template: templates/schema_vcloud.mmd
 
       list_of_content:
         type: markdown
