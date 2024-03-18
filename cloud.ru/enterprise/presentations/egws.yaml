@@ -40,7 +40,7 @@ entities:
               );
               $extnets := $egw.(
                   $.gatewayinterfaces.(
-                      $netid := $.network_id.$split('.')[-1];
+                      $netid := ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id);
                       $not($netid in $orgnets.short_id) ? (
                           $
                       )
@@ -48,7 +48,7 @@ entities:
               );
               $intnets := $egw.(
                   $.gatewayinterfaces.(
-                      $netid := $.network_id.$split('.')[-1];
+                      $netid := ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id);
                       $netid in $orgnets.short_id ? (
                           $orgnets[short_id = $netid]
                       )
@@ -58,7 +58,7 @@ entities:
                       {
                           $.network_id.$split('.')[-1]: {
                               'title': $.name,
-                              'symbol': 'extnet-' & $.network_id.$split('.')[-1],
+                              'symbol': 'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                               'hideTitle': true
                           }
                       }
@@ -102,7 +102,7 @@ entities:
                   $exists($extnets) ? 
                      $extnets.(
                           {
-                              'from': $.network_id.$split('.')[-1],
+                              'from': ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                               'to': 'internet',
                               'title': 'Внешняя сеть в интернет',
                               'style': '->'
@@ -125,7 +125,7 @@ entities:
                       $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
                       $icon := $eval($fn_svg_block, {'name': $.name, 'type':'extNet', 'details': $data});
                       {
-                          'extnet-' & $.network_id.$split('.')[-1]: $icon
+                          'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id): $icon
                       }
                   )
               );
@@ -216,9 +216,9 @@ entities:
               $externalNetworks := $egws.($.gatewayinterfaces[iftype = 'uplink']);
               $nodes := $append($nodes, $externalNetworks.(
                           {
-                              $.network_id.$split('.')[-1]: {
+                              ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id): {
                                   'title': $.name,
-                                  'symbol': 'extnet-' & $.network_id.$split('.')[-1],
+                                  'symbol': 'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                                   'hideTitle': true
                               }
                           }          
@@ -235,7 +235,7 @@ entities:
                   $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                   $.gatewayinterfaces.(
                     $ipaddress := $.subnetparticipation.ipaddress;
-                    $regexp := $eval('/.*\\.' & $.network_id.$split('.')[-1] & '/');
+                    $regexp := $eval('/.*\\.' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id) & '/');
                     $nodes[$regexp($.$keys())].(
                         {
                             'from': $gwnode,
@@ -253,7 +253,7 @@ entities:
                       $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                       $.gatewayinterfaces.(
                           $ipaddress := $.subnetparticipation.ipaddress;
-                          $regexp := $eval('/^' & $.network_id.$split('.')[-1] & '$/');
+                          $regexp := $eval('/^' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id) & '$/');
                           $nodes[$regexp($.$keys())].(
                               {
                                   'from': $gwnode,
@@ -287,7 +287,7 @@ entities:
                   $exists($externalNetworks) ? 
                      $externalNetworks.(
                           {
-                              'from': $.network_id.$split('.')[-1],
+                              'from': ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                               'to': 'internet',
                               'title': 'Внешняя сеть в интернет',
                               'style': '->'
@@ -343,7 +343,7 @@ entities:
                       $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
                       $icon := $eval($fn_svg_block, {'name': $.name, 'type':'extNet', 'details': $data});
                       {
-                          'extnet-' & $.network_id.$split('.')[-1]: $icon
+                          'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id): $icon
                       }
                   )
               );

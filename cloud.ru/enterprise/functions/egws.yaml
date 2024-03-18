@@ -17,6 +17,7 @@ functions:
             $egw_entity_matcher := /.*\.enterprise\.egws$/;
             $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
             $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
+            $vdcgroup_entity_matcher := /.*\.enterprise\.vdcgroups$/;
             $org_entity_matcher := /.*\.enterprise\.orgs$/;
             $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
             $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
@@ -32,6 +33,7 @@ functions:
             $orgnets := dataset.$spread()[$orgnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcgroups := dataset.$spread()[$vdcgroup_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
             [[$egws.$spread().{
                 'id': $keys(),
                 'egw': *
@@ -43,6 +45,10 @@ functions:
                 $org := $orgs.$spread()[$keys() = $org_id];
                 $orgname := $org.*.name;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $vdcgroup := egw.vdcgroup_id = null ? (
+                    $tmp := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
+                    $exists($tmp) ? {'id': $tmp.$keys()[0], 'name': $tmp.*.name } : {'id': null, 'name': null};
+                ) : ({'id': egw.vdcgroup_id, 'name': egw.vdcgroup_name});
                 {
                     'id': id,
                     'short_id': egw.id,
@@ -54,8 +60,8 @@ functions:
                     'distributedRoutingEnabled': egw.distributedRoutingEnabled,
                     'vdc_name': egw.vdc_name,
                     'vdc_id': egw.vdc_id,
-                    'vdcgroup_name': egw.vdcgroup_name,
-                    'vdcgroup_id': egw.vdcgroup_id,
+                    'vdcgroup_name': $vdcgroup.name,
+                    'vdcgroup_id': $vdcgroup.id,
                     'org_name': $org.*.name,
                     'org_id': egw.org_id,
                     'link': '/entities/' & $egw_entity & '/card?id=' & id,

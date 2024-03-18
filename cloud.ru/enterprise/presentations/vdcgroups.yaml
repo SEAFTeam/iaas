@@ -135,9 +135,9 @@ entities:
               );
               $nodes := $append($nodes, $externalNetworks.(
                           {
-                              $.network_id.$split('.')[-1]: {
+                              ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id): {
                                   'title': $.name,
-                                  'symbol': 'extnet-' & $.network_id.$split('.')[-1],
+                                  'symbol': 'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                                   'hideTitle': true
                               }
                           }          
@@ -154,7 +154,7 @@ entities:
                   $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                   $.gatewayinterfaces.(
                     $ipaddress := $.subnetparticipation.ipaddress;
-                    $regexp := $eval('/.*\\.' & $.network_id.$split('.')[-1] & '/');
+                    $regexp := $eval('/.*\\.' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id) & '/');
                     $nodes[$regexp($.$keys())].(
                         {
                             'from': $gwnode,
@@ -172,7 +172,7 @@ entities:
                       $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                       $.gatewayinterfaces.(
                           $ipaddress := $.subnetparticipation.ipaddress;
-                          $regexp := $eval('/^' & $.network_id.$split('.')[-1] & '$/');
+                          $regexp := $eval('/^' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id) & '$/');
                           $nodes[$regexp($.$keys())].(
                               {
                                   'from': $gwnode,
@@ -193,9 +193,9 @@ entities:
                       $vappnets[vapp_id = $vapp_id].(
                           $vdc := $vdcs[id = $vapp.vdc_id];
                           $regexp := $vdc.id in $vdcgroup.vdc_ids ? (
-                              $eval('/.*\\.' & $vapp.vdc_id.$split('.')[-1] & '\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                              $eval('/.*\\.' & $vapp.vdc_id.$split('.')[-1] & '\\.' & ($.parentnetwork_id != null ? ($.parentnetwork_id.$split('.')[-1]) : $.parentnetwork_id) & '/');
                           ) : (
-                              $eval('/.*\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                              $eval('/.*\\.' & ($.parentnetwork_id != null ? ($.parentnetwork_id.$split('.')[-1]) : $.parentnetwork_id) & '/');
                           );
                           $nodes[$regexp($.$keys())].(
                               {
@@ -230,7 +230,7 @@ entities:
                   $exists($externalNetworks) ? 
                      $externalNetworks.(
                           {
-                              'from': $.network_id.$split('.')[-1],
+                              'from': ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id),
                               'to': 'internet',
                               'title': 'Внешняя сеть в интернет',
                               'style': '->'
@@ -286,7 +286,7 @@ entities:
                       $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
                       $icon := $eval($fn_svg_block, {'name': $.name, 'type':'extNet', 'details': $data});
                       {
-                          'extnet-' & $.network_id.$split('.')[-1]: $icon
+                          'extnet-' & ($.network_id != null ? ($.network_id.$split('.')[-1]) : $.network_id): $icon
                       }
                   )
               );
