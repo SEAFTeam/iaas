@@ -26,6 +26,7 @@ datasets:
               $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.dc_name;
               {
               "name": server.name,
+              "status": server.status,
               "os_type": server.os.type,
               "os_bit": server.os.bit,
               "cpu_qty": server.cpu.cores,

@@ -107,6 +107,7 @@ entities:
               {
                 'id': $id,
                 'name': $cserver.*.name,
+                'status': $cserver.*.status,
                 'description': $cserver.*.description,
                 'system': $system.*.title,
                 'system_id': $system.$keys()[0],
@@ -131,6 +132,10 @@ entities:
             align: left
             link: link
             width: 150
+          - value: status
+            text: Статус
+            sortable: true
+            align: center
           - value: os_type
             text: ОС
             sortable: true
