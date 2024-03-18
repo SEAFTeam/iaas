@@ -6,7 +6,6 @@ datasets:
             $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
             $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
             $cdcs := $."seaf.ta.services.dc";
-            $matchfunc := $.functions."seaf.ta.reverse".match_ip_to_subnet;
             [[$cservers.$spread().{
               "id": $keys()[0],
               "server": $.*
@@ -26,6 +25,7 @@ datasets:
               $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.dc_name;
               {
               "name": server.name,
+              "status": server.status,
               "os_type": server.os.type,
               "os_bit": server.os.bit,
               "cpu_qty": server.cpu.cores,

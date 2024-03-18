@@ -78,3 +78,55 @@ entities:
                 $append($srv_backup, $disk_vault);
             );
           )
+      table_view:
+        type: table
+        headers:
+          - value: name
+            text: Название политики РК
+            width: 300
+            sortable: true
+          - value: description
+            text: Описание Security Group
+            width: 200
+            sortable: true
+          - value: operation_type
+            text: Назначение политики РК
+            width: 200
+            sortable: true
+          - value: enabled
+            text: Статус политики РК
+            width: 200
+            sortable: true
+          - value: tenant
+            text: Тенант(Project) в облаке
+            width: 200
+            sortable: true
+          - value: id
+            text: Идентификатор политики РК
+            width: 200
+            sortable: true
+        source: >
+          (
+            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
+              [$distinct($backup_policies.$spread().(
+                $backup_policies_table := (
+                  [$backup_policies.$spread().{
+                              "id": $keys()[0],
+                              "backup_policies": $.*
+                          }]
+              )).backup_policies)]
+          )
+      backup_policies_md:
+        type: markdown
+        template: templates/backup_policy.md
+        source: >
+          (
+            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
+              [$distinct($backup_policies.$spread().(
+                $backup_policies_table := (
+                  [$backup_policies.$spread().{
+                              "id": $keys()[0],
+                              "backup_policies": $.*
+                          }]
+              )).backup_policies)]
+          )

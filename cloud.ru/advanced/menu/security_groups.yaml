@@ -1,0 +1,12 @@
+entities:
+  seaf.ta.reverse.cloud_ru.advanced.security_groups:
+    menu: >
+      (
+          $config := entities."seaf.ta.reverse.general".config;
+          $count($$."seaf.ta.reverse.cloud_ru.advanced.security_groups") > 0 ? [{
+                      /* Размещение в пользовательском меню */
+                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Реестры/Security Groups", 
+                      /* URI представления context см. ниже.*/
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.security_groups/table_viewRegistry"
+          }];
+      )

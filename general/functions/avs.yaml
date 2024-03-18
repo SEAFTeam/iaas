@@ -1,0 +1,32 @@
+functions:
+  reverse_general_avs:
+    title: Список АВПО
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $av_entity_matcher := /.*\.avs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $av_entity := dataset.entities.$spread()[$av_entity_matcher($keys())].$keys()[0];
+            $avs := dataset.$spread()[$av_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$avs.$spread().{
+                'id': $keys(),
+                'av': *
+            }].(
+                {
+                    'id': id,
+                    'system_id': av.system_id,
+                    'hosts': av.hosts,
+                    'av_link': '/entities/' & $av_entity & '/card?id=' & id,
+                    'entity': $av_entity
+                }
+            )];
+        )

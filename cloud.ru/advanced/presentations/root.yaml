@@ -1,8 +1,10 @@
 imports:
   - ecss.yaml
+  - eips.yaml
   - subnets.yaml
   - vpcs.yaml
   - rdss.yaml
+  - peerings.yaml
   - backup_policies.yaml
   - vpn_gateways.yaml
   - nat_gateways.yaml
@@ -10,4 +12,3 @@ imports:
   - security_groups.yaml
   - cces.yaml
   - dmss.yaml
-  - systems.yaml

@@ -1,0 +1,21 @@
+datasets:
+  seaf.ta.reverse.general.allobjects:
+    title: All reverse objects
+    source: >
+      (
+          $adv_entity_matcher := /.*\.advanced\..*$/; 
+          $ent_entity_matcher := /.*\.enterprise\..*$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
+          $advs := $$.$spread()[$adv_entity_matcher($keys())];
+          $enterprise := $append($enterprise, $reverse_enterprise_egws($));
+          $enterprise := $append($enterprise, $reverse_enterprise_orgnets($));
+          $enterprise := $append($enterprise, $reverse_enterprise_orgs($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vappnets($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vapps($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vdcgroups($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vdcs($));
+          $enterprise := $append($enterprise, $reverse_enterprise_vms($));
+          $allobjects := $append($advs, $enterprise);
+      )

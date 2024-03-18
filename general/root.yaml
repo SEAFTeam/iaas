@@ -1,3 +1,7 @@
 imports:
   - menu/root.yaml
   - presentations/root.yaml
+  - entities/root.yaml
+  - functions/root.yaml
+  - datasets/root.yaml
+  - docs/root.yaml

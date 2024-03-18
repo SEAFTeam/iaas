@@ -1,12 +1,14 @@
 imports:
-  - main.yaml
+  - backup_policies.yaml
   - cces.yaml
   - dmss.yaml
   - elbs.yaml
   - nat_gateways.yaml
+  - peerings.yaml
   - rdss.yaml
+  - eips.yaml
   - ecss.yaml
+  - security_groups.yaml
   - subnets.yaml
   - vpcs.yaml
   - vpn_gateways.yaml
-  - systems.yaml
