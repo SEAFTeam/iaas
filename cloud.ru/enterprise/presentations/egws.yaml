@@ -154,7 +154,7 @@ entities:
                   'symbols': $merge($symbols),
                   'links': $links,
                   'config': {                 
-                      'distance': 120,
+                      'distance': 200,
                       'trackWidth': 24
                   }
               };
@@ -377,7 +377,7 @@ entities:
                   'symbols': $merge($symbols),
                   'links': $links,
                   'config': {                 
-                      'distance': 120,
+                      'distance': 200,
                       'trackWidth': 24
                   }
               };

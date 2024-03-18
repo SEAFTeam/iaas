@@ -36,7 +36,7 @@ entities:
                       [
                           {
                             'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
-                            'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                            'link': 'entities/' & $orgnets_entity & '/schema_vdcgroup?id=' & $id
                           },
                           {
                             'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
