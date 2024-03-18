@@ -203,7 +203,7 @@ entities:
                       )
                   )
               );
-              $nodes := $append($nodes, $egwgorgnets.(
+              $nodes := $append($nodes, $egworgnets.(
                       $id := $.id;
                       $tmp := $;
                       $net_in_vdcs := $vdcs[$id in availableNetwork_ids]; /* В этих видиси доступна данная сеточка */
