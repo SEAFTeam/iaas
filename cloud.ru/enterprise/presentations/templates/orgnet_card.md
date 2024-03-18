@@ -34,6 +34,12 @@
 ***
 
 ## Схема сети
+{{^vdcgroup_id}}
+{{#vdc_id}}
 ![Схема](@entity/{{entity}}/schema?id={{id}})
+{{/vdc_id}}
+{{/vdcgroup_id}}
 
-
+{{#vdcgroup_id}}
+![Схема](@entity/{{entity}}/schema_vdcgroup?id={{id}})
+{{/vdcgroup_id}}
