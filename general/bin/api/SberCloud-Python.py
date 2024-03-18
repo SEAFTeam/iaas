@@ -342,7 +342,7 @@ if cceExport == True:
                 'subnet_id': cce['spec']['hostNetwork']['subnet'],
                 'addresses': addresses,
                 'security_groups': cce['spec']['hostNetwork']['SecurityGroup'],
-                'container_network': cce['spec']['containerNetwork']['cidr'],
+                'container_network': cce['spec']['containerNetwork']['cidr'] if cce['spec']['containerNetwork'].get('cidr') is not None else '',
                 'service_network': cce['spec']['serviceNetwork']['IPv4CIDR'],
                 'authentication': cce['spec']['authentication']['mode'],
                 'masters_az': master_az,
