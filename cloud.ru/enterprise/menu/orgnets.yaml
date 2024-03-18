@@ -35,11 +35,11 @@ entities:
                       $vdcgname := $.*.name;
                       [
                           {
-                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
+                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
                             'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
                           },
                           {
-                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
+                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
                             'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
                           }
                       ]
@@ -47,11 +47,11 @@ entities:
               ) : (
                   [
                       {
-                        'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
+                        'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
                         'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
                       },
                       {
-                        'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
+                        'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
                         'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
                       }
                   ]
@@ -68,11 +68,11 @@ entities:
               $vdcgroupname := $vdcgroups.$spread()[$keys() = $vdcgroup_id].*.name;
               [
                   {
-                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации/' & $name,
+                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации/' & $name,
                     'link': 'entities/' & $orgnets_entity & '/schema_vdcgroup?id=' & $id
                   },
                   {
-                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации',
+                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации',
                     'link': 'entities/' & $orgnets_entity & '/list?vdcgroup_id=' & $vdcgroup_id
                   }
               ]

@@ -15,7 +15,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $name := $.*.name;
               {
-                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $name ,
+                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $name ,
                   'link': 'entities/' & $orgs_entity & '/schema?id=' & $id
               }
           )

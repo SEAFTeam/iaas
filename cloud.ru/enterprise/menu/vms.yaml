@@ -31,7 +31,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $exists($vms) ? (
                   {
-                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $name & '/VMs',
+                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $name & '/VMs',
                       'link': 'entities/' & $vms_entity & '/list?vdc_id=' & $id
                   }
               )
@@ -48,7 +48,7 @@ entities:
               $exists($vms) ? (
                   $vdcgroup.$spread().(
                       {
-                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name & '/VMs',
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name & '/VMs',
                           'link': 'entities/' & $vms_entity & '/list?vdc_id=' & $id
                       }
                   )

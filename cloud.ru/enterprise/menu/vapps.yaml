@@ -29,11 +29,11 @@ entities:
                   $vdcgroup.$spread().(
                       [
                           {
-                              'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $vdcname & '/vApps/' & $name,
+                              'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $vdcname & '/vApps/' & $name,
                               'link': 'entities/' & $vapps_entity & '/card?id=' & $id
                           },
                           {
-                              'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $vdcname & '/vApps',
+                              'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $vdcname & '/vApps',
                               'link': 'entities/' & $vapps_entity & '/list?vdc_id=' & $vdc_id
                           }
                       ]
@@ -41,11 +41,11 @@ entities:
               ) : (
                   [
                       {
-                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/vApps/' & $name,
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/vApps/' & $name,
                           'link': 'entities/' & $vapps_entity & '/card?id=' & $id
                       },
                       {
-                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/vApps',
+                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/vApps',
                           'link': 'entities/' & $vapps_entity & '/list?vdc_id=' & $vdc_id
                       }
                   ]

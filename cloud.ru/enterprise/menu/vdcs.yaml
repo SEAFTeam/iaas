@@ -26,7 +26,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $orgname := $.*.org_name;
               {
-                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $name,
+                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $name,
                   'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
               }
           );
@@ -40,7 +40,7 @@ entities:
               $orgname := $.*.org_name;
               $vdcgroup.$spread().(
                 {
-                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.dc_name & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name,
+                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name,
                     'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
                 }
               )
