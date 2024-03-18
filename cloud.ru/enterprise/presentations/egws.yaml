@@ -172,8 +172,8 @@ entities:
               $egws := $reverse_enterprise_egws($)[id = $id];
               $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $egws.vdcgroup_id];
               $vdcs := $reverse_enterprise_vdcs($)[id in $vdcgroup.vdc_ids];
-              $vdcgorgnets := $reverse_enterprise_orgnets($)[vdcgroup_id in $vdcgroup.id];
-              $vdcorgnets := $reverse_enterprise_orgnets($)[id in $egws.gatewayinterfaces.network_id];
+              $vdcgorgnets := $reverse_enterprise_orgnets($)[vdcgrop_id in $vdcgroup.id];
+              $egworgnets := $reverse_enterprise_orgnets($)[id in $egws.gatewayinterfaces.network_id];
               $vappnets := $reverse_enterprise_vappnets($)[vapp_id in $vapps.id];
               $org := $reverse_enterprise_orgs($)[id = $vdcgroup.org_id];
               $nodes := {$vdcgroup.org_id.$split('.')[-1]:{'title': 'Организация: ' & $org.name}};
@@ -188,6 +188,22 @@ entities:
                   )
               );
               $nodes := $append($nodes, $vdcgorgnets.(
+                      $id := $.id;
+                      $tmp := $;
+                      $net_in_vdcs := $vdcs[$id in availableNetwork_ids]; /* В этих видиси доступна данная сеточка */
+                      $net_in_vdcs.(
+                          $prefix := $baseprefix & '.' & $.short_id;
+                          {
+                              $prefix & '.' & $tmp.short_id: {
+                                  'title': $tmp.name,
+                                  'symbol': 'orgnet-' & $tmp.short_id,
+                                  'hideTitle': true
+                              }
+                          }
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $egwgorgnets.(
                       $id := $.id;
                       $tmp := $;
                       $net_in_vdcs := $vdcs[$id in availableNetwork_ids]; /* В этих видиси доступна данная сеточка */
@@ -307,7 +323,7 @@ entities:
                       }
                   )
               );
-              $symbols := $append($symbols, $vdcorgnets.(
+              $symbols := $append($symbols, $egworgnets.(
                       $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
                       $dnssrv := $join($.dns, ', ');
                       $fencemode := $.fencemode;
@@ -414,7 +430,7 @@ entities:
                           $append($direct, $indirect)
                   ) : ([$reverse_enterprise_egws($, $domain)])
               );
-              $tmp ~> | $ | {'interfaces': gatewayinterfaces.subnetparticipation.ipaddress}|
+              $distinct($tmp ~> | $ | {'interfaces': gatewayinterfaces.subnetparticipation.ipaddress}|)
           )
 
       networks_list:
