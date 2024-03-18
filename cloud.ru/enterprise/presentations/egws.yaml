@@ -172,7 +172,7 @@ entities:
               $egws := $reverse_enterprise_egws($)[id = $id];
               $vdcgroup := $reverse_enterprise_vdcgroups($)[id = $egws.vdcgroup_id];
               $vdcs := $reverse_enterprise_vdcs($)[id in $vdcgroup.vdc_ids];
-              $vdcgorgnets := $reverse_enterprise_orgnets($)[id in $egws.gatewayinterfaces.network_id];
+              $vdcgorgnets := $reverse_enterprise_orgnets($)[vdcgroup_id in $vdcgroup.id];
               $vdcorgnets := $reverse_enterprise_orgnets($)[id in $egws.gatewayinterfaces.network_id];
               $vappnets := $reverse_enterprise_vappnets($)[vapp_id in $vapps.id];
               $org := $reverse_enterprise_orgs($)[id = $vdcgroup.org_id];
