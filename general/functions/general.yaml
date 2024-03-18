@@ -1,0 +1,88 @@
+functions:
+  reverse_general_match_ip_to_subnet:
+    title: Принадлежность адреса к сети
+    params:
+      - alias: cidr
+        type: string
+        title: CIDR сети
+        required: true  # Признак обязательности параметра функции
+      - alias: ip
+        type: string
+        title: IP Адрес
+        required: false  # Признак обязательности параметра функции
+    code: >
+      (
+          $matchip := function($cidr, $ip) {(
+                                $mask := $split($cidr, '/')[1];
+                                $subaddr := $split($cidr, '/')[0];
+                                $suboctets := $split($subaddr,'.');
+                                $ipoctets := $split($ip, '.');
+                                $subnstring := $substring(
+                                    $join($suboctets.$formatBase($number($), 2).(
+                                        $tmp := $;
+                                        $join([$length($)..7].('0')) & $tmp
+                                        )
+                                    ), 0, $number($mask)
+                                );
+                                $ipstring := $substring(
+                                    $join($ipoctets.$formatBase($number($), 2).(
+                                        $tmp := $;
+                                        $join([$length($)..7].('0')) & $tmp
+                                        )
+                                    ), 0, $number($mask)
+                                );
+                                $ipstring = $subnstring ? true : false
+                      )};
+          $matchip(cidr, ip)
+      )
+
+  row_maker:
+    title: Переносит слова по строкам с заданной длиной строки
+    params:
+      - alias: x
+        title: Строка
+        required: false  # Признак обязательности параметра функции
+      - alias: max
+        type: number
+        title: Максимальная длина
+        required: false  # Признак обязательности параметра функции
+    code: >
+      (
+          $rowBuilder := function($words, $max, $line) {(
+              $wordsCount := $count($words);
+              $wordsCount = 0
+                  /* терминальное условие, возвращаем, что есть */
+                  ? [$line]
+                  : (
+                      $pos := $length($line);
+                      $nextWordLen := $length($words[0]);
+                      ($pos + $nextWordLen) < $max
+                          /* можем вставить ещё одно слово в строчку. Вставляем */ 
+                          ? $rowBuilder($words[[1..$wordsCount-1]], $max, $line & ($line ? ' ') & $words[0])
+                      : $nextWordLen <= $max
+                          /* новое слово с новой строки */
+                          ? $append(($line ? [$line]), $rowBuilder($words[[1..$wordsCount-1]], $max, $words[0]))
+                          /* слово длиннее $max. Разбиваем слово */
+                          : (
+                              $splitPoint := $max - $pos - ($line ? 1 : 0);
+                              $splitPoint < 1
+                                  /* никакой кусок длинного слова уже не лезет */
+                                  ? $append([$line], $rowBuilder($words, $max, ''))
+                                  /* режем и пихаем */
+                                  : $append($line & ($line ? ' ') & $substring($words[0], 0, $splitPoint), 
+                                      $rowBuilder($append($substring($words[0], $splitPoint), $words[[1..$wordsCount-1]])
+                                          , $max
+                                          , ''
+                                    )
+                              )
+                          )
+                    )
+          )};
+          $rowMaker := function($x, $max) {(
+              $not($x = null) and $exists($x) and $length($x) > 0 and $not($x = ' ') ? (
+                  $words := $x.$split(' ');
+                  $rowBuilder($words, $max, '');
+              ) : 'Здесь ничего нет, а лучше написать'
+          )};
+          $rowMaker(x, max)
+      )

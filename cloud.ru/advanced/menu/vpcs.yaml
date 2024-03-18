@@ -2,16 +2,17 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.vpcs:
     menu: >
       (
-        $count($$."seaf.ta.reverse.cloud_ru.advanced.vpcs") > 0 ? [{
-                    /* Размещение в пользовательском меню */
-                    "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Схемы/Virtual Private Clouds",
-                    /* URI представления context см. ниже.*/
-                    "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram"
-        },
-        {
-                    /* Размещение в пользовательском меню */
-                    "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Схемы/Network Schema",
-                    /* URI представления context см. ниже.*/
-                    "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full"
-        }];
+          $config := entities."seaf.ta.reverse.general".config;
+          $count($$."seaf.ta.reverse.cloud_ru.advanced.vpcs") > 0 ? [{
+                      /* Размещение в пользовательском меню */
+                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Virtual Private Clouds",
+                      /* URI представления context см. ниже.*/
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram"
+          },
+          {
+                      /* Размещение в пользовательском меню */
+                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Network Schema",
+                      /* URI представления context см. ниже.*/
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full"
+          }];
       )

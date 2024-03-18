@@ -1,0 +1,32 @@
+functions:
+  reverse_general_edrs:
+    title: Список EDRs
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $edr_entity_matcher := /.*\.edrs$/;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $edr_entity := dataset.entities.$spread()[$edr_entity_matcher($keys())].$keys()[0];
+            $edrs := dataset.$spread()[$edr_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            [[$edrs.$spread().{
+                'id': $keys(),
+                'edr': *
+            }].(
+                {
+                    'id': id,
+                    'system_id': edr.system_id,
+                    'hosts': edr.hosts,
+                    'edr_link': '/entities/' & $edr_entity & '/card?id=' & id,
+                    'entity': $edr_entity
+                }
+            )];
+        )

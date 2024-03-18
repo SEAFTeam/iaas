@@ -2,9 +2,11 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.backup_policies:
     menu: >
       (
-          $count($$."seaf.ta.reverse.cloud_ru.advanced.backup_policies") > 0 ? [{
+          $config := entities."seaf.ta.reverse.general".config;
+          $count($$."seaf.ta.reverse.cloud_ru.advanced.backup_policies") > 0 ? 
+          [{
                       /* Размещение в пользовательском меню */
-                      "location": entities."seaf.ta.reverse".config.main_menu & "/Cloud.ru/Advanced/Реестры/Backup Policies",
+                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Реестры/Backup Policies",
                       /* URI представления context см. ниже.*/
                       "link": "entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/table_view"
           }];

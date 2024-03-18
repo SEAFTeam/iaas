@@ -1,0 +1,19 @@
+entities:
+  seaf.ta.reverse.general.avs:
+    menu: >
+      (
+          $domain := '';
+          $av_entity_matcher := /.*\.avs$/;
+          $entity := $$.entities.$spread()[$av_entity_matcher($keys())].$keys()[0];
+          $config := entities."seaf.ta.reverse.general".config;
+          [
+              {
+                  'location': $config.arch_menu & '/Кибербезопасность/AV',
+                  'link': 'entities/' & $entity & '/list?domain=' & $domain
+              },
+              {
+                  'location': $config.arch_menu & '/Кибербезопасность/Проблемы/Нет AV',
+                  'link': 'entities/' & $entity & '/no_av?domain=' & $domain
+              }
+          ]
+      )

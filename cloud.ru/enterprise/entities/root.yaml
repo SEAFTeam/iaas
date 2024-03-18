@@ -1,0 +1,11 @@
+imports:
+  - egws.yaml
+  - orgnets.yaml
+  - orgs.yaml
+  - vappnets.yaml
+  - vapps.yaml
+  - vdcs.yaml
+  - vms.yaml
+  - vdcgroups.yaml
+  - egws_nat.yaml
+  - egws_fw.yaml

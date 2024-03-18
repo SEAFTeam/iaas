@@ -1,0 +1,31 @@
+docs:
+  dochub.welcome.iaas_readme:
+    title: IaaS
+    location: IaaS
+    type: markdown
+    source: ../../README.md
+  dochub.welcome.cloudru_readme:
+    title: IaaS
+    location: IaaS/Cloud.ru
+    type: markdown
+    source: ../../cloud.ru/README.md
+  dochub.welcome.iaas_advanced_readme:
+    title: IaaS
+    location: IaaS/Cloud.ru/Advanced
+    type: markdown
+    source: ../../cloud.ru/advanced/README.md
+  dochub.welcome.iaas_enterprise_readme:
+    title: IaaS
+    location: IaaS/Cloud.ru/Enterprise
+    type: markdown
+    source: ../../cloud.ru/enterprise/README.md
+  dochub.welcome.iaas_enterprise_bin_readme:
+    title: IaaS
+    location: IaaS/Cloud.ru/Enterprise/Export script
+    type: markdown
+    source: ../../general/bin/enterprise/README.md
+  dochub.welcome.iaas_timeline2024:
+    title: SEAF IaaS Roadmap 2024Q1
+    location: IaaS/SEAF IaaS Roadmap 2024Q1
+    type: mermaid
+    source: docs/SEAF_IAAS_Roadmap_2024.mmd

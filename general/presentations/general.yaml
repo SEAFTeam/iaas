@@ -2,26 +2,20 @@ entities:
   seaf.ta.reverse.general:
     # Конфигурация размещения меню
     config:
-      doc_menu: Документы/IAAS
-      arch_menu: Архитектура/IAAS
+      doc_menu: Документы/IaaS
+      arch_menu: Архитектура/IaaS
+
     presentations:
-      readme:
-        type: markdown
-        template: ../../README.md
 
-      readme_cloud_ru:
-        type: markdown
-        template: ../../cloud.ru/README.md
-
-      readme_cloud_advanced:
-        type: markdown
-        template: ../../cloud.ru/advanced/README.md
-
-      metamodel:
+      metamodel_huawei:
         type: mermaid
-        template: templates/schema.mmd
+        template: templates/schema_huawei.mmd
 
-      loc:
+      metamodel_vcloud:
+        type: mermaid
+        template: templates/schema_vcloud.mmd
+
+      list_of_content:
         type: markdown
         template: templates/list_of_contents.md
         source: >
@@ -58,7 +52,9 @@ entities:
               $menu := $functions.(
                   $item := $;
                   $matcher := /^(.*)$/;
+                  $enterprise_matcher := /.*(\/Реестры\/.*|\/Организации\/[a-zA-Z0-9\s-_]+\/[a-zA-Z0-9\s_-]+$)/;
                   $items := $eval($item)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
+                  $items := $txt = 'Enterprise' ? $items[$enterprise_matcher(location)] : $items;
                   $items.({
                     'location': $matcher($.location).groups[0],
                     'link': '"/' & $.link & '"'

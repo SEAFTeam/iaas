@@ -12,4 +12,3 @@ imports:
   - security_groups.yaml
   - cces.yaml
   - dmss.yaml
-  - systems.yaml
