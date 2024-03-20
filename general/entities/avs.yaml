@@ -15,7 +15,7 @@ entities:
               type: string
             system_id:
               title: Идентификатор системы КБ в КА ДЗО
-              ref: "#/$rels/kadzo.v2023.kb_systems.kb_systems"
+              $ref: "#/$rels/components.component"
             hosts:
               title: Имена хостов на которых установлен антивирус
               type: array
