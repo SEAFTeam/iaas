@@ -12,13 +12,13 @@ entities:
           type: object
           properties:
             id:
-              title: Идентификатор VDC
+              title: Идентификатор VDC Group
               type: string
             original_id:
-              title: Идентификатор VDC (полный)
+              title: Идентификатор VDC Group (полный)
               type: string
             name:
-              title: Наименование VDC
+              title: Наименование VDC Group
               type: string
             networkprovidertype:
               title: Тип сетевого устройства
