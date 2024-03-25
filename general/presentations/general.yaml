@@ -4,17 +4,19 @@ entities:
     config:
       doc_menu: Документы/IaaS
       arch_menu: Архитектура/IaaS
+      entities:
+        server:
+          - 'reverse_enterprise_vms'
+          - 'reverse_advanced_ecss'
 
-    presentations:
+
 
       metamodel_huawei:
         type: mermaid
         template: templates/schema_huawei.mmd
-
       metamodel_vcloud:
         type: mermaid
         template: templates/schema_vcloud.mmd
-
       list_of_content:
         type: markdown
         template: templates/list_of_contents.md

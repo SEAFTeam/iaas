@@ -1,6 +1,7 @@
 entities:
   seaf.ta.reverse.cloud_ru.advanced.ecss:
-    title: 'Виртуальный сервер (SberCloud Advanced)'
+    title: Виртуальный сервер
+    description: Compute resource (AWS Virtual Machine)
     objects:
       ecs:
         route: "/"

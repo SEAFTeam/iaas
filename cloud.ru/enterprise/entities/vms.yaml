@@ -1,10 +1,11 @@
 entities:
   seaf.ta.reverse.cloud_ru.enterprise.vms:
-    title: Виртуальная машина VmWare
+    title: Виртуальный сервер
+    description: vCloud Director Entity
     objects:
       vm:
         route: "/"
-        title: Виртуальная машина VmWare
+        title: Виртуальная машина
     schema:
       type: object
       patternProperties:
