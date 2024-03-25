@@ -12,7 +12,7 @@ entities:
               $nataddresses := $distinct($egws_nat.external_address);
               $orgnets := $reverse_enterprise_orgnets($)[id in $egw.gatewayinterfaces.network_id];
               $addresses := $egw.gatewayinterfaces.subnetparticipation.ipaddress.($ != null ? $);
-              $egw ~> | $ | {'orgnets': $orgnets, 'addresses': $addresses, 'nataddresses': $nataddresses} |
+              $egw ~> | $ | {'orgnets': $orgnets, 'addresses': $addresses, 'nataddresses': $nataddresses } |
           )
 
       schema:

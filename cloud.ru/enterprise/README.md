@@ -61,7 +61,7 @@ seaf.ta.reverse.general.links:
 |  |  |  |- enterprise                - Регион или тип услуги (vmware/aws)
 |  |  |  |  |- entities             - Сущности метамодели
 |  |  |  |  |- functions            - Запросы написанные на JSONata
-|  |  |  |  |- datasets             - Переиспользуемые датасеты
+|  |  |  |  |- datasets             - Переиспользуемые датасеты - появится по мере необходимости
 |  |  |  |  |- menu                 - Структура меню сущностей метамодели
 |  |  |  |  |- presentations        - Презентационный слой сущностей метамодели
 ```
@@ -77,7 +77,9 @@ seaf.ta.reverse.general.links:
 | 6    | **vapp**     | 	seaf.ta.reverse.cloud_ru.enterprise.vapps	    | vApp (виртулаьные приложения)                                  |
 | 7    | **vappnet**  | 	seaf.ta.reverse.cloud_ru.enterprise.vappnets	 | Сети vApp                                                      |
 | 8    | **vm**       | 	seaf.ta.reverse.cloud_ru.enterprise.vms	      | Виртуальные машины                                             |
-| 9(*) | **links**           | seaf.ta.reverse.general.links           | Сущность-связь прикладного компонента к техническому компоненту (заполняется вручную) |
+| 9  | **egws_nat** | 	seaf.ta.reverse.cloud_ru.enterprise.egws_nat	  | Правила NAT на Edge Gateway                                                           |
+| 10 | **egws_fw**  | 	seaf.ta.reverse.cloud_ru.enterprise.egws_fw	   | Правила FW на Edge Gateway                                                            |
+| 11(*) | **links**    | seaf.ta.reverse.general.links                   | Сущность-связь прикладного компонента к техническому компоненту (заполняется вручную) |
 
 (*) - Сущность для связи с прикладными или техническими компонентами
 
