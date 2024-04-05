@@ -1,0 +1,11 @@
+entities:
+  seaf.ta.reverse.general:
+    config:
+      entities:
+        vms: seaf.ta.reverse.cloud_ru.enterprise.vms
+        vapps: seaf.ta.reverse.cloud_ru.enterprise.vapps
+        vdcs: seaf.ta.reverse.cloud_ru.enterprise.vdcs
+        edrs: seaf.ta.reverse.cloud_ru.enterprise.edrs
+        avs: seaf.ta.reverse.cloud_ru.enterprise.avs
+        orgs: seaf.ta.reverse.cloud_ru.enterprise.orgs
+        dc: seaf.ta.services.dc
