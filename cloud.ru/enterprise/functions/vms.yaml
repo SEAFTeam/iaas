@@ -14,25 +14,21 @@ functions:
         (
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $vm_entity_matcher := /.*\.enterprise\.vms$/;
-            $vapp_entity_matcher := /.*\.enterprise\.vapps$/;
-            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
-            $edr_entity_matcher := /.*\.enterprise\.edrs$/;
-            $av_entity_matcher := /.*\.enterprise\.avs$/;
-            $dcs_entity_matcher := /.*\.services\.dc$/;
-            $org_entity_matcher := /.*\.enterprise\.orgs$/;
-            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
-            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-            $vm_entity_full := dataset.entities.$spread()[$vm_entity_matcher($keys())];
-            $vm_entity := $vm_entity_full.$keys()[0];
-            $vapp_entity := dataset.entities.$spread()[$vapp_entity_matcher($keys())].$keys()[0];
-            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
-            $vms := dataset.$spread()[$vm_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vapps := dataset.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $edrs := dataset.$spread()[$edr_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $avs := dataset.$spread()[$av_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vm_entity := dataset.entities."seaf.ta.reverse.general".config.entities.vms;
+            $vapp_entity := dataset.entities."seaf.ta.reverse.general".config.entities.vapps;
+            $vdc_entity := dataset.entities."seaf.ta.reverse.general".config.entities.vdcs;
+            $edr_entity := dataset.entities."seaf.ta.reverse.general".config.entities.edrs;
+            $av_entity := dataset.entities."seaf.ta.reverse.general".config.entities.avs;
+            $dcs_entity := dataset.entities."seaf.ta.reverse.general".config.entities.dc;
+            $org_entity := dataset.entities."seaf.ta.reverse.general".config.entities.orgs;
+            $dcs := $lookup(dataset, $dcs_entity);
+            $vm_entity_full := $lookup(dataset.entities, $vm_entity);
+            $vms := $lookup(dataset, $vm_entity);
+            $vapps := $lookup(dataset, $vapp_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdc_entity)[$domain_matcher($keys())];
+            $edrs := $lookup(dataset, $edr_entity)[$domain_matcher($keys())];
+            $avs := $lookup(dataset, $av_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $org_entity)[$domain_matcher($keys())];
             [[$vms.$spread().{
                 'id': $keys(),
                 'vm': *
@@ -40,14 +36,14 @@ functions:
                 $disks := $join(vm.disks.(*.device & ' - ' & *.type & ' - ' & *.size & 'Gb'), '\n');
                 $addresses := $count(vm.addresses) > 1 ? $join(vm.addresses.($ != null ? $), ', ') : vm.addresses;
                 $vapp_id := vm.vapp_id;
-                $vapp := $vapps.$spread()[$keys() = $vapp_id];
+                $vapp := $lookup($vapps, $vapp_id);
                 $subnets := $count(vm.subnets) > 1 ? $join(vm.subnets.($ != null ? $), ', ') : vm.subnets;
                 $vdc_id := vm.vdc_id;
-                $vdc := $vdcs.$spread()[$keys() = $vdc_id];
+                $vdc := $lookup($vdcs, $vdc_id);
                 $av := vm.name in $avs.**.hosts ? true : false;
                 $edr := vm.name in $edrs.**.hosts ? true : false;
-                $org := $orgs.$spread()[$keys() = $vdc.*.org_id];
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $org := $lookup($orgs, $vdc.org_id);
+                $dc := $lookup($dcs, $org.DC);
                 $tags := $join(vm.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
                 {
                     'id': id,
@@ -62,7 +58,7 @@ functions:
                     'disks': $disks,
                     'nic_qty': vm.nic_qty,
                     'addresses': vm.addresses,
-                    'vapp': $vapp.*.name,
+                    'vapp': $vapp.name,
                     'vapp_id': $vapp_id,
                     'av': $av,
                     'edr': $edr,
@@ -72,17 +68,17 @@ functions:
                     'tags': $tags,
                     'vdc': vm.vdc_name,
                     'vdc_id': vm.vdc_id,
-                    'org': $vdc.*.org_name,
-                    'org_id': $vdc.*.org_id,
+                    'org': $vdc.org_name,
+                    'org_id': $vdc.org_id,
                     'tenant': 'Нет тенанта',
                     'link': '/entities/' & $vm_entity & '/card?id=' & id,
                     'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & $vapp_id,
                     'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
                     'entity': $vm_entity,
                     'entity_type': 'vCloud Director Entity',
-                    'entity_name': $vm_entity_full.*.title,
-                    'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'entity_name': $vm_entity_full.title,
+                    'DC': $org.DC,
+                    'dc_name': $dc.title
                 }
             )]
         )
