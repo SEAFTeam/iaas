@@ -1,0 +1,6 @@
+    {{#items.items}}
+    {{entity}}.{{metadata.name}}:
+        name: {{metadata.name}}
+        version: {{status.node_info.kubelet_version}}
+        cluster: {{parentEntity}}.{{parent.kubernetes_id}}
+    {{/items.items}}

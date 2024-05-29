@@ -1,0 +1,15 @@
+entities:
+    seaf.ta.reverse.general.avs:
+        menu: >
+            (
+                $domain := '';
+                $k8sclstr_entity_matcher := /.*\.k8s_dzo$/;
+                $entity := $$.entities.$spread()[$k8sclstr_entity_matcher($keys())].$keys()[0];
+                $config := entities."seaf.ta.reverse.general".config;
+                [
+                    {
+                        'location': $config.arch_menu & '/Kubernetes/Кластера',
+                        'link': 'entities/seaf.ta.services.k8s/table' & $domain
+                    }
+                ]
+            )

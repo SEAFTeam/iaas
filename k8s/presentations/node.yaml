@@ -1,0 +1,21 @@
+entities:
+    seaf.ta.reverse.k8s.node:
+        presentations:
+            table_view:
+                type: table
+                headers:
+                - value: name
+                  text: Название
+                  width: 200
+                  sortable: true
+                  link: link
+                source: > 
+                    (
+                        $nodes := $."seaf.ta.reverse.k8s.node"; 
+                        [$nodes.$spread().(
+                            {
+                                "name" : $.*.name
+                            }
+                        )]
+                    )
+                    

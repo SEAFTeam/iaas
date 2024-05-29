@@ -1,0 +1,31 @@
+entities:
+    seaf.ta.reverse.k8s.node:
+        title: Kubernetes cluster node
+        objects:
+            cce:
+                route: "/"
+                title: Kubernetes cluster node
+        schema:
+            type: object
+            patternProperties:
+                "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+                    type: object
+                    properties:
+                        id:
+                            title: ID ноды
+                            type: string
+                        cluster_id:
+                            title: ID кластера ноды
+                            type: string
+                        name:
+                            title: имя ноды
+                            type: string
+                        version:
+                            title: версия k8s
+                            type: string
+                        labels:
+                            title: метки
+                            type: array
+                            minItems: 0
+                            items:
+                                type: string
