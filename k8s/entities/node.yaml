@@ -14,7 +14,7 @@ entities:
                         id:
                             title: ID ноды
                             type: string
-                        cluster_id:
+                        cluster:
                             title: ID кластера ноды
                             type: string
                         name:
@@ -23,9 +23,3 @@ entities:
                         version:
                             title: версия k8s
                             type: string
-                        labels:
-                            title: метки
-                            type: array
-                            minItems: 0
-                            items:
-                                type: string

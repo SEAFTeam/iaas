@@ -1,23 +1,31 @@
-import sys
-from pprint import pprint
 from kubernetes import client
+# базовый класс
+from extractor  import Extractor
+# извлекатель деплойментов
+from deployment import DeploymentExtractor
 
-this = sys.modules[__name__]
+class NamespaceExtractor(Extractor):
+    # конструктор
+    def __init__(self, kube):
+        super().__init__(kube)
+        self.name = 'namespace'
 
-#entity name
-this.entity = "namespace"
-#k8s API object
-this.kube = {}
 
-# init iterator with context
-def init(kube):
-    this.kube = kube
-    this.api = client.CoreV1Api(this.kube)
-    this.namespaces = this.api.list_namespace().items
-    #pprint(this.namespaces)
+    def load(self):
+        # загрузка списка нод кластера
+        api = client.CoreV1Api(self.kube)
+        namespaces = api.list_namespace()
+        return namespaces.items
 
-def next():
-    # получаем список нод кластера
-    #pprint(nodes)
-    return this.namespaces
+    # загрузко объектов, дочерних по отношению к namespace
+    def children(self, serializer, items):
+        for namespace in items:
+
+            # извлечение деплойментов
+            deployments = DeploymentExtractor(self.kube, namespace)
+            parent = {}
+            parent['item'] = namespace
+            parent['entity'] = self.entity()
+            deployments.extract(serializer, parent)
+
 

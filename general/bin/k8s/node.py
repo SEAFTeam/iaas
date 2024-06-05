@@ -1,22 +1,18 @@
-import sys
-from pprint import pprint
+#import sys
+#from pprint import pprint
 from kubernetes import client
+# базовый класс
+from extractor import Extractor
 
-this = sys.modules[__name__]
+class NodeExtractor(Extractor):
+    # конструктор
+    def __init__(self, kube):
+        super().__init__(kube)
+        self.name = 'node'
 
-#entity name
-this.entity = "node"
-#k8s API object
-this.kube = {}
-
-# init iterator with context
-def init(kube):
-    this.kube = kube
-
-def next():
-    api = client.CoreV1Api(this.kube)
-    # получаем список нод кластера
-    nodes = api.list_node()
-    #pprint(nodes)
-    return nodes
+    def load(self):
+        # загрузка списка нод кластера
+        api = client.CoreV1Api(self.kube)
+        nodes = api.list_node()
+        return nodes.items
 

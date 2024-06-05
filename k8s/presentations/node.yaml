@@ -9,12 +9,18 @@ entities:
                   width: 200
                   sortable: true
                   link: link
+                - value: cluster
+                  text: Кластер
+                  width: 200
+                  sortable: true
+                  link: link
                 source: > 
                     (
                         $nodes := $."seaf.ta.reverse.k8s.node"; 
                         [$nodes.$spread().(
                             {
-                                "name" : $.*.name
+                                "name" : $.*.name,
+                                "cluster": $.*.cluster
                             }
                         )]
                     )

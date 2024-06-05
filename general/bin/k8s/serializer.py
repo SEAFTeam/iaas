@@ -1,50 +1,61 @@
+# класс и модуль сериализатор объектов reverse engineering
 import os
 import chevron
 
-# инициализация загрузчиков и форматов
-def init(components):
+# класс с логикой сериализации
+class Serializer:
+    # конструктор
+    def __init__(self):
+        # инициализация переменной путём к каталогу, в который будет производиться запись
+        self.target = os.environ.get('targetFolder')
+        # если каталог не задан, то тут нам больше делать нечего
+        if self.target is None:
+            raise Exception("targetFolder environment variable not found")
 
-    # проверка необходимых для запуска переменных
-    targetFolder = os.environ.get('targetFolder')
-    if targetFolder is None:
-        raise Exception("targetFolder environment variable not found")
+        # маркер проведённой инициализации компонентов
+        self.inits = {}
 
-    # настройка параметров для каждого компонента
-    for component in components:
-        entity = component.entity
-        rootEntity = getRootEntiry(component)
-
-        fileName = f'{targetFolder}/{entity}.yaml'
-
+    # инициализация файла вывода, связанного с компонентом
+    def init(self, component):
+        # полный путь и имя файла для инициализации YAML структуры
+        fileName = self.output(component)
+        # инициализация YAML файла
         with open(fileName, mode="wt", encoding="utf-8") as file:
-            print(f'{rootEntity}:', file=file)
+            print(f'{component.entity()}:', file=file)
 
-def getRootEntiry(component):
-    entity = component.entity
-    rootEntity = os.environ.get(f'root.{entity}')
-    if rootEntity is None:
-        raise Exception(f'root entity for [{entity}] not found in environment variables - [root.{entity}] expected')
+    # функция формирования файла для записи сущностей типа компонента
+    def output(self, component):
+        # формирование имени файла
+        fileName = f'{self.target}/{component.name}.yaml'
+        return fileName
 
-    return rootEntity
+    # запись извлечённого объекта в файл типа компонента
+    # структура контекста:
+    # {
+    #    entity: класс сериализуемой сущности
+    #    items: массив выгруженных сущностей
+    #    parent: родительская сущность
+    #    {
+    #       entity: класс родительской сущности
+    #       item: родительская сушность
+    #    }
+    # }
+    def serialize(self, component, context):
+        # проверка, был ли инициализирован компонент
+        if component.name not in self.inits:
+            self.inits[component.name] = True
+            self.init(component)
 
-def serialize(items, component, parent, parentComponent):
-    entity = component.entity
-    rootEntity = getRootEntiry(component)
-    parentEntity = {}
+        # полный путь и имя YAML файла для сериализации
+        output = self.output(component)
+        # путь и имя файла шаблона, они должны располагаться в каталоге template относительно текущего каталога
+        template = f'templates/{component.name}.mustache'
+        # читаем шаблон и рендерим итоговые данные
+        with open(template, 'r') as f:
+            data = chevron.render(f, context)
 
-    if(parentComponent is not None):
-        parentEntity = getRootEntiry(parentComponent)
+        # запись сформированной выгрузки в конец файла
+        with open(output, 'a') as out:
+            out.write(data)
 
-    targetFolder = os.environ.get('targetFolder')
-    fileName = f'{targetFolder}/{entity}.yaml'
-    templateFile = f'templates/{entity}.mustache'
-    context = {}
-    context['items'] = items
-    context['entity'] = rootEntity
-    context['parent'] = parent
-    context['parentEntity'] = parentEntity
-    with open(templateFile, 'r') as f:
-        item = chevron.render(f, context)
 
-    with open(fileName, 'a') as out:
-        out.write(item)

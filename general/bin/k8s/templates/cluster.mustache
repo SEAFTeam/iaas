@@ -1,3 +1,5 @@
-    {{entity}}.{{items.kubernetes_id}}:
-        kubernetes_id: {{items.kubernetes_id}}
-        cluster_fqdn: {{items.cluster_fqdn}}
+    {{#items}}
+    {{entity}}.{{name}}:
+        kubernetes_id: {{name}}
+        cluster_fqdn: {{cluster_fqdn}}
+    {{/items}}
