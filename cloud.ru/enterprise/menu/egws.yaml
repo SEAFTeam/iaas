@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws:
+  seaf.ta.reverse.vmwarecloud.egws:
     menu: >
       (
           $domain := '';
@@ -17,7 +17,7 @@ entities:
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/Шлюзы (Edge Gateway)',
+                  'location': $config.arch_menu & '/Cloud.ru/VMware Cloud/Реестры/Шлюзы (Edge Gateway)',
                   'link': 'entities/' & $egws_entity & '/list?domain=' & $domain
               }
           ];
@@ -35,22 +35,22 @@ entities:
               $exists($vdcgroup) ? 
                   [
                       {
-                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
+                          'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
                           'link': 'entities/' & $egws_entity & '/schema_vdcgroup?id=' & $id
                       },
                       {
-                          'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
+                          'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
                           'link': 'entities/' & $egws_entity & '/list?vdcgroup_id=' & $vdcgroup.*.id
                       }     
                   ]
                   :
                     [
                         {
-                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
+                            'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $name,
                             'link': 'entities/' & $egws_entity & '/schema?id=' & $id
                         },
                         {
-                            'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
+                            'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways',
                             'link': 'entities/' & $egws_entity & '/list?vdc_id=' & $vdc_id
                         }     
                     ]
@@ -66,11 +66,11 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               [
                   {
-                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
+                      'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $name,
                       'link': 'entities/' & $egws_entity & '/schema_vdcgroup?id=' & $id
                   },
                   {
-                      'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
+                      'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Edge Gateways',
                       'link': 'entities/' & $egws_entity & '/list?vdcgroup_id=' & $vdcgroup_id
                   }     
               ]

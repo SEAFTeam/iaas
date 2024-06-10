@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+  seaf.ta.reverse.vmwarecloud.vdcs:
     title: Виртуальные датацентры VDCs
     objects:
       vdc:
@@ -25,7 +25,7 @@ entities:
               type: string
             org_id:
               title: Идентификатор организации
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
             availableNetworks:
               title: Список доступных сетей
               type: array
@@ -36,7 +36,7 @@ entities:
                     title: Идентификатор сети
                     oneOf:
                       - type: string
-                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
+                      - $ref: "#/rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
                   name:
                      title: Наименование сети
                      type: string

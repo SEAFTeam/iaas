@@ -19,7 +19,7 @@ entities:
               }, 
               {
                   "location": $config.arch_menu & "/Cloud.ru/Enterprise",
-                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.enterprise&txt=Enterprise"
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=Enterprise"
               }
           ];
       )

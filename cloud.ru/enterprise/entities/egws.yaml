@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws:
+  seaf.ta.reverse.vmwarecloud.egws:
     title: Edge Gateways
     objects:
       egw:
@@ -28,13 +28,13 @@ entities:
               type: string
             vdc_id:
               title: Идентификатор vdc
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_name:
               title: Наименование vdc
               type: string
             vdcgroup_id:
               title: Идентификатор VDC Group
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcgroups.vdcgroup"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcgroups.vdcgroup"
             vdcgroup_name:
               title: Наименование VDC Group
               type: string
@@ -55,7 +55,7 @@ entities:
                     type: string
                   network_id:
                     title: Идентификатор сети
-                    $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
+                    $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
                   iftype:
                     title: Тип интерфейса
                     enum:

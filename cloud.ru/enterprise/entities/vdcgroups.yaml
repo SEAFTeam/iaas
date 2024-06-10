@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcgroups:
+  seaf.ta.reverse.vmwarecloud.vdcgroups:
     title: Группа VDC
     objects:
       vdcgroup:
@@ -37,7 +37,7 @@ entities:
               type: boolean
             org_id:
               title: Идентификатор организации
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
             networks:
               title: Список доступных сетей
               type: array
@@ -48,7 +48,7 @@ entities:
                     title: Идентификатор сети
                     oneOf:
                       - type: string
-                      - $ref: "#/rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
+                      - $ref: "#/rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
                   name:
                      title: Наименование сети
                      type: string
@@ -60,13 +60,13 @@ entities:
                 properties:
                   id:
                     title: Идентификатор VDC
-                    $ref: "#/rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+                    $ref: "#/rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
                   name:
                     title: Наименование VDC
                     type: string
                   org_id:
                     title: Идентификатор организации
-                    $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgs.org"
+                    $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
                   org_name:
                     title: Идентификатор организации
                     type: string

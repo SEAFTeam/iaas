@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vapps:
+  seaf.ta.reverse.vmwarecloud.vapps:
     title: Виртуальное приложение vApp
     objects:
       vapp:
@@ -25,7 +25,7 @@ entities:
               type: string
             vdc_id:
               title: Идентификаторв vdc
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_name:
                title: Наименование vdc
                type: string

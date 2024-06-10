@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws_fw:
+  seaf.ta.reverse.vmwarecloud.egws_fw:
     title: Edge Gateway FW Rules
     objects:
       egw_fw:
@@ -16,7 +16,7 @@ entities:
               type: string
             gw_id:
               title: Идентификатор Edge Gateway
-              $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.egws.egw'
+              $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.egws.egw'
             name:
               title: Наименование правила
               type: string
@@ -48,9 +48,9 @@ entities:
                       type: array
                       items:
                         anyOf:
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vms.vm'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vms.vm'
             destinationFirewallGroups:
               title: Конфигурация правила FW (destination)
               type: object
@@ -73,9 +73,9 @@ entities:
                       type: array
                       items:
                         anyOf:
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vms.vm'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vms.vm'
             ip_protocol:
               title: Протокол IP
               enum:

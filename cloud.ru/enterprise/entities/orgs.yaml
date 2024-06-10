@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.orgs:
+  seaf.ta.reverse.vmwarecloud.orgs:
     title: Организации
     objects:
       org:

@@ -27,6 +27,10 @@ entities:
                 gateway:
                   title: Название VPC
                   type: string
+                type2:
+                  title: Тип реверса
+                  enum:
+                    - "Modern.Cloud"
                 vpc:
                   title: ID VPC
                   type: string
@@ -48,9 +52,10 @@ entities:
         "^[a-zA-Z0-9_\\.]*$":
           type: object
           properties:
-            type: object
             reverse:
-              $ref: "#/$defs/seaf.ta.services.network_dzo1"
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.services.network_dzo1"
+
 
 seaf.ta.services.network:
   test:
@@ -60,10 +65,8 @@ seaf.ta.services.network:
     ipnetwork:
     network_appliance_id:
       - flix.network.cisco.01
-    reverse:
-      description:
-      type:
-      name:
+    reverse2:
+      type2: Modern.Cloud
 
 
 

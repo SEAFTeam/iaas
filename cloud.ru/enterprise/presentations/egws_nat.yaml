@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws_nat:
+  seaf.ta.reverse.vmwarecloud.egws_nat:
     presentations:
       dnat_list:
         type: table

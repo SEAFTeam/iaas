@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vms:
+  seaf.ta.reverse.vmwarecloud.vms:
     presentations:
       list:
         type: table

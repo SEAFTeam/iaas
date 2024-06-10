@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcs:
+  seaf.ta.reverse.vmwarecloud.vdcs:
     menu: >
       (
           $domain := '';
@@ -15,7 +15,7 @@ entities:
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC',
+                  'location': $config.arch_menu & '/Cloud.ru/VMware Cloud/Реестры/VDC',
                   'link': 'entities/' & $vdcs_entity & '/list?domain=' & $domain
               }];
           $dynamic_vdc := $vdcs.$spread()[$not($keys() in $vdcgroups.*.vdcs.id)].(
@@ -26,7 +26,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $orgname := $.*.org_name;
               {
-                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $name,
+                  'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $name,
                   'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
               }
           );
@@ -40,7 +40,7 @@ entities:
               $orgname := $.*.org_name;
               $vdcgroup.$spread().(
                 {
-                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $.*.name & '/' & $name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $.*.name & '/' & $name,
                     'link': 'entities/' & $vdcs_entity & '/card?id=' & $id
                 }
               )

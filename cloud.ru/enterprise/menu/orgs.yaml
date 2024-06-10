@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.orgs:
+  seaf.ta.reverse.vmwarecloud.orgs:
     menu: >
       (
           $domain := '';
@@ -15,7 +15,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $name := $.*.name;
               {
-                  'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $name ,
+                  'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $name ,
                   'link': 'entities/' & $orgs_entity & '/schema?id=' & $id
               }
           )

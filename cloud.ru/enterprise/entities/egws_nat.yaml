@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws_nat:
+  seaf.ta.reverse.vmwarecloud.egws_nat:
     title: Edge Gateway NAT Rules
     objects:
       egw_nat:
@@ -16,7 +16,7 @@ entities:
               type: string
             gw_id:
               title: Идентификатор Edge Gateway
-              $ref: '#/$rels/seaf.ta.reverse.cloud_ru.enterprise.egws.egw'
+              $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.egws.egw'
             name:
               title: Наименование NAT Rule
               type: string

@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vdcgroups:
+  seaf.ta.reverse.vmwarecloud.vdcgroups:
     menu: >
       (
           $domain := '';
@@ -13,7 +13,7 @@ entities:
           $config := entities."seaf.ta.reverse.general".config;
           $static := [
               {
-                  'location': $config.arch_menu & '/Cloud.ru/Enterprise/Реестры/VDC Groups',
+                  'location': $config.arch_menu & '/Cloud.ru/VMware Cloud/Реестры/VDC Groups',
                   'link': 'entities/' & $vdcgroups_entity & '/list?domain=' & $domain
               }];
           $dynamic := $vdcgroups.$spread().(
@@ -24,7 +24,7 @@ entities:
                 $orgname := $org.*.name;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
-                    'location': $config.arch_menu & '/Провайдеры/' & $dc.*.title & '/Enterprise/Организации/' & $orgname & '/' & $name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $name,
                     'link': 'entities/' & $vdcgroups_entity & '/card?id=' & $id
                 }
           );

@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.egws_fw:
+  seaf.ta.reverse.vmwarecloud.egws_fw:
     presentations:
       egw_rules_list:
         type: table

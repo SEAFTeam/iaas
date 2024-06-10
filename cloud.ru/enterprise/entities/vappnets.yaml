@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vappnets:
+  seaf.ta.reverse.vmwarecloud.vappnets:
     title: Сети vApp
     objects:
       vappnet:
@@ -22,7 +22,7 @@ entities:
               type: string
             vapp_id:
               title: Идентификатор vApp
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vapps.vapp"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
             gateway:
               title: Шлюз сети vApp
               type: string
@@ -46,8 +46,8 @@ entities:
             parentnetwork_id:
               title: Идентификатор вышестоящей сети
               oneOf:
-                - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
-                - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet"
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet"
                 - type: string
             ipscopes:
               title: Границы сетей
@@ -76,3 +76,85 @@ entities:
                         endaddress:
                           title: Конечный адрес
                           type: string
+  seaf.ta.services.network:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwarecloud.vappnets:
+          type: object
+          properties:
+            original_id:
+              title: Идентификатор сети vApp (полный)
+              type: string
+            type:
+              title: Тип сети
+              enum:
+                - "vAppNetwork"
+            vapp_id:
+              title: Идентификатор vApp
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
+            gateway:
+              title: Шлюз сети vApp
+              type: string
+            netmask:
+              title: Маска сети vApp
+              type: string
+            dns:
+              title: DNS
+              type: array
+              items:
+                type: string
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareCloud"
+            fencemode:
+              title: Тип изоляции
+              enum:
+                - "bridged"
+                - "isolated"
+                - "natRouted"
+            connected:
+              title: Статус подключения
+              type: boolean
+            parentnetwork:
+              title: Идентификатор вышестоящей сети
+              oneOf:
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet"
+                - $ref: "#/$rels/seaf.ta.services.network.network"
+                - type: string
+            ipscopes:
+              title: Скоупы сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  gateway:
+                    title: Адрес шлюза
+                    type: string
+                  netmask:
+                    title: Маска подсети
+                    type: string
+                  subnetprefixlength:
+                    title: Префикс подсети
+                    type: integer
+                  ipranges:
+                    title: Диапазоны адресов
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startaddress:
+                          title: Начальный адрес
+                          type: string
+                        endaddress:
+                          title: Конечный адрес
+                          type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_\\.]*$":
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwarecloud.vappnets"
+

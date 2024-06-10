@@ -1,104 +1,31 @@
 entities:
-  seaf.ta.reverse.cloud_ru.enterprise.vms:
-    title: Виртуальный сервер
-    description: vCloud Director Entity
-    objects:
-      vm:
-        route: "/"
-        title: Виртуальная машина
-    schema:
-      type: object
-      patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+  seaf.ta.components.server:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwarecloud.vms:
           type: object
           properties:
-            id:
-              title: Идентификатор
-              type: string
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareCloud"
             original_id:
               title: Идентификатор (полный)
-              type: string
-            name:
-              title: Имя виртуальной машины
-              type: string
-            description:
-              title: Описание
               type: string
             flavor:
                 title: Спецификация
                 type: string
-            os:
-              type: object
-              title: Операционная система
-              properties:
-                type:
-                  title: ОС
-                  type: string
-                bit:
-                  title: Разрядность ОС
-                  type: string
-            cpu:
-              type: object
-              title: Процессор
-              properties:
-                cores:
-                  title: Количество ядер
-                  type: integer
-                frequency:
-                  title: Частота
-                  type: integer
-                arch:
-                  title: Архитектура
-                  type: string
-            ram:
-              title: ОЗУ
-              type: integer
-            nic_qty:
-              title: Количество сетевых адаптеров
-              type: integer
             addresses:
               title: IP адреса
               type: array
               minItems: 0
               items:
                 type: string
-            subnets:
+            subnet_names:
               title: Имена сетей
               type: array
               items:
                 type: string
-            subnet_ids:
-              title: Идентификаторы сетей
-              type: array
-              items:
-                anyOf:
-                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vappnets.vappnet"
-                  - $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.orgnets.orgnet"
-            disks:
-              title: Диски
-              type: array
-              minItems: 1
-              items:
-                patternProperties:
-                  .*:
-                    type: object
-                    properties:
-                      az:
-                        title: Зона доступности
-                        type: string
-                        minLength: 1
-                      device:
-                        title: Точка монтирования
-                        type: string
-                        minLength: 1
-                      size:
-                        title: Размер
-                        type: integer
-                        minLength: 1
-                      type:
-                        title: Тип
-                        type: string
-                        minLength: 1
             tags:
               title: Тэги
               type: array
@@ -113,13 +40,21 @@ entities:
                     type: string
             vdc_id:
               title: Virtual Datacenter ID
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vdcs.vdc"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_name:
               title: Virtual Datacenter Name
               type: string
             vapp_id:
               title: vApp ID
-              $ref: "#/$rels/seaf.ta.reverse.cloud_ru.enterprise.vapps.vapp"
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
             tenant:
               title: Тенант
               type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwarecloud.vms"

@@ -18,12 +18,12 @@ docs:
     title: IaaS
     location: IaaS/Cloud.ru/Enterprise
     type: markdown
-    source: ../../cloud.ru/enterprise/README.md
+    source: ../../cloud.ru/VMware Cloud/README.md
   dochub.welcome.iaas_enterprise_bin_readme:
     title: IaaS
-    location: IaaS/Cloud.ru/Enterprise/Export script
+    location: IaaS/Cloud.ru/VMware Cloud/Export script
     type: markdown
-    source: ../../general/bin/enterprise/README.md
+    source: ../../general/bin/VMware Cloud/README.md
   dochub.welcome.iaas_timeline2024:
     title: SEAF IaaS Roadmap 2024Q1
     location: IaaS/SEAF IaaS Roadmap 2024Q1

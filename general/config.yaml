@@ -1,11 +1,27 @@
-entities:
-  seaf.ta.reverse.general:
-    config:
-      entities:
-        vms: seaf.ta.reverse.cloud_ru.enterprise.vms
-        vapps: seaf.ta.reverse.cloud_ru.enterprise.vapps
-        vdcs: seaf.ta.reverse.cloud_ru.enterprise.vdcs
-        edrs: seaf.ta.reverse.cloud_ru.enterprise.edrs
-        avs: seaf.ta.reverse.cloud_ru.enterprise.avs
-        orgs: seaf.ta.reverse.cloud_ru.enterprise.orgs
-        dc: seaf.ta.services.dc
+seaf.ta.reverse.general:
+  config:
+    entities:
+      vms:
+        model: seaf.ta.components.server
+        view: seaf.ta.reverse.vmwarecloud.vms
+      vapps:
+        model: seaf.ta.reverse.vmwarecloud.vapps
+        view: seaf.ta.reverse.vmwarecloud.vapps
+      vdcs:
+        model: seaf.ta.reverse.vmwarecloud.vdcs
+        view: seaf.ta.reverse.vmwarecloud.vdcs
+      vdcgroups:
+        model: seaf.ta.reverse.vmwarecloud.vdcgroups
+        view: seaf.ta.reverse.vmwarecloud.vdcgroups
+      edrs:
+        model: seaf.ta.reverse.general.edrs
+        view: seaf.ta.reverse.general.edrs
+      avs:
+        model: seaf.ta.reverse.general.avs
+        view: seaf.ta.reverse.general.avs
+      orgs:
+        model: seaf.ta.reverse.vmwarecloud.orgs
+        view: seaf.ta.reverse.vmwarecloud.orgs
+      dc:
+        model: seaf.ta.services.dc
+        view: seaf.ta.services.dc

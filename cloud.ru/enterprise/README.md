@@ -69,16 +69,16 @@ seaf.ta.reverse.general.links:
 
 | №    | **Объект**   | **Наименование сущности**                      | **Описание**                                                   |
 |------|--------------|------------------------------------------------|----------------------------------------------------------------|
-| 1    | **org**      | 	seaf.ta.reverse.cloud_ru.enterprise.orgs      | 	Организация (может быть множество орагнизаций внутри тенанта) |
-| 2    | **orgnet**   | 	seaf.ta.reverse.cloud_ru.enterprise.orgnets	  | Сети организации                                               |
-| 3    | **vdcgroup** | 	seaf.ta.reverse.cloud_ru.enterprise.vdcgroups	 | Группы виртулаьных датацентров                                 |
-| 4    | **vdc**      | 	seaf.ta.reverse.cloud_ru.enterprise.vdcs	     | Виртулаьные датаценты                                          |
-| 5    | **egw**      | 	seaf.ta.reverse.cloud_ru.enterprise.egws	     | Edge Gateways                                                  |
-| 6    | **vapp**     | 	seaf.ta.reverse.cloud_ru.enterprise.vapps	    | vApp (виртулаьные приложения)                                  |
-| 7    | **vappnet**  | 	seaf.ta.reverse.cloud_ru.enterprise.vappnets	 | Сети vApp                                                      |
-| 8    | **vm**       | 	seaf.ta.reverse.cloud_ru.enterprise.vms	      | Виртуальные машины                                             |
-| 9  | **egws_nat** | 	seaf.ta.reverse.cloud_ru.enterprise.egws_nat	  | Правила NAT на Edge Gateway                                                           |
-| 10 | **egws_fw**  | 	seaf.ta.reverse.cloud_ru.enterprise.egws_fw	   | Правила FW на Edge Gateway                                                            |
+| 1    | **org**      | 	seaf.ta.reverse.vmwarecloud.orgs      | 	Организация (может быть множество орагнизаций внутри тенанта) |
+| 2    | **orgnet**   | 	seaf.ta.reverse.vmwarecloud.orgnets	  | Сети организации                                               |
+| 3    | **vdcgroup** | 	seaf.ta.reverse.vmwarecloud.vdcgroups	 | Группы виртулаьных датацентров                                 |
+| 4    | **vdc**      | 	seaf.ta.reverse.vmwarecloud.vdcs	     | Виртулаьные датаценты                                          |
+| 5    | **egw**      | 	seaf.ta.reverse.vmwarecloud.egws	     | Edge Gateways                                                  |
+| 6    | **vapp**     | 	seaf.ta.reverse.vmwarecloud.vapps	    | vApp (виртулаьные приложения)                                  |
+| 7    | **vappnet**  | 	seaf.ta.reverse.vmwarecloud.vappnets	 | Сети vApp                                                      |
+| 8    | **vm**       | 	seaf.ta.reverse.vmwarecloud.vms	      | Виртуальные машины                                             |
+| 9  | **egws_nat** | 	seaf.ta.reverse.vmwarecloud.egws_nat	  | Правила NAT на Edge Gateway                                                           |
+| 10 | **egws_fw**  | 	seaf.ta.reverse.vmwarecloud.egws_fw	   | Правила FW на Edge Gateway                                                            |
 | 11(*) | **links**    | seaf.ta.reverse.general.links                   | Сущность-связь прикладного компонента к техническому компоненту (заполняется вручную) |
 
 (*) - Сущность для связи с прикладными или техническими компонентами
