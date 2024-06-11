@@ -40,4 +40,3 @@ entities:
                   name:
                      title: Наименование сети
                      type: string
-

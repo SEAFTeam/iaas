@@ -157,4 +157,3 @@ entities:
             reverse:
               oneOf:
                 - $ref: "#/$defs/seaf.ta.reverse.vmwarecloud.vappnets"
-

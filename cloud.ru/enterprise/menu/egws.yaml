@@ -4,17 +4,20 @@ entities:
       (
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
+      
           $egws_entity := "seaf.ta.reverse.general".config.entities.egws.model;
           $egws_view := "seaf.ta.reverse.general".config.entities.egws.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $orgs_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
+      
           $egws := $lookup($, $egws_entity)[$domain_matcher($keys())];
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
           $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
           $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
+      
           $config := "seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
               $dcid := $.*.DC;

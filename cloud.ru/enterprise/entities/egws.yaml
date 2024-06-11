@@ -94,3 +94,4 @@ entities:
                               endaddress:
                                 title: Конец диапазона
                                 type: string
+

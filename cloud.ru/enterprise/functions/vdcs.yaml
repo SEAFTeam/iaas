@@ -14,6 +14,7 @@ functions:
         (       
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
+        
             $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
             $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
             $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
@@ -23,12 +24,14 @@ functions:
             $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $orgnets_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+        
             $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
             $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
             $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
             $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
             $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
             $orgnets := $lookup(dataset, $orgnets_entity)[$domain_matcher($keys())];
+        
             [[$vdcs.$spread().{
                 'id': $keys(),
                 'vdc': *

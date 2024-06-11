@@ -14,6 +14,7 @@ functions:
         (
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
+        
             $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vms.model;
             $vms_view := dataset."seaf.ta.reverse.general".config.entities.vms.view;
             $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
@@ -24,6 +25,7 @@ functions:
             $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+        
             $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
             $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
             $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
@@ -31,6 +33,7 @@ functions:
             $edrs := $lookup(dataset, $edrs_entity)[$domain_matcher($keys())];
             $avs := $lookup(dataset, $avs_entity)[$domain_matcher($keys())];
             $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+        
             [[$vms.$spread().{
                 'id': $keys(),
                 'vm': *

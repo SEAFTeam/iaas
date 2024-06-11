@@ -14,17 +14,19 @@ functions:
             (
                 $domain := domain;
                 $domain_matcher := $eval('/^' & $domain & '.*/');
-                $egw_entity_matcher := /.*\.enterprise\.egws$/;
-                $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
-                $dcs_entity_matcher := /.*\.services\.dc$/;
-                $org_entity_matcher := /.*\.enterprise\.orgs$/;
-                $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-                $egw_entity := dataset.entities.$spread()[$egw_entity_matcher($keys())].$keys()[0];
-                $egws_fw_entity_full := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())];
-                $egws_fw_entity := $egws_fw_entity_full.$keys()[0];
-                $egws := dataset.$spread()[$egw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-                $egws_fw := dataset.$spread()[$egws_fw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-                $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            
+                $egws_entity := dataset."seaf.ta.reverse.general".config.entities.egws.model;
+                $egws_view := dataset."seaf.ta.reverse.general".config.entities.egws.view;
+                $egws_fw_entity := dataset."seaf.ta.reverse.general".config.entities.egws_fw.model;
+                $egws_fw_view := dataset."seaf.ta.reverse.general".config.entities.egws_fw.view;
+                $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+                $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            
+                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())];
+                $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
+                $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+                $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+                        
                 [[$egws_fw.$spread().{
                     'id': $keys(),
                     'fw': *
@@ -74,11 +76,11 @@ functions:
                                     'egw_id': $egw.$keys()[0],
                                     'org_id': $org_id,
                                     'org_name': $orgname,
-                                    'link': '/entities/' & $egws_fw_entity & '/card?id=' & id,
-                                    'egw_link': '/entities/' & $egw_entity & '/card?id=' & $egw.*.id,
-                                    'entity': $egws_fw_entity,
-                                    'entity_type': 'vCloud Director Entity',
-                                    'entity_name': $egws_fw_entity_full.*.title,
+                                    'link': '/entities/' & $egws_fw_view & '/card?id=' & id,
+                                    'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
+                                    'entity': $egws_fw_view,
+                                    'entity_type': 'VMware Cloud',
+                                    'entity_name': 'Правила NAT на Edge в облаке VMware',
                                     'DC': $dc.$keys()[0],
                                     'dc_name': $dc.*.title
                                 }

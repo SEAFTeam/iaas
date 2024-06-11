@@ -5,18 +5,21 @@ entities:
           $dataset := $;
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
-          $config := "seaf.ta.reverse.general".config;
+          
           $vms_entity := "seaf.ta.reverse.general".config.entities.vms.model;
           $vm_view := "seaf.ta.reverse.general".config.entities.vms.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $org_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
+      
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
           $vms := $lookup($, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
           $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
           $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
               $dcid := $.*.DC;
               $dcname := $dcs.$spread()[$keys() = $dcid].*.title;

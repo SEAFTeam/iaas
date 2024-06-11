@@ -14,31 +14,34 @@ functions:
         (
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $egw_entity_matcher := /.*\.enterprise\.egws$/;
-            $orgnet_entity_matcher := /.*\.enterprise\.orgnets$/;
-            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
-            $vdcgroup_entity_matcher := /.*\.enterprise\.vdcgroups$/;
-            $org_entity_matcher := /.*\.enterprise\.orgs$/;
-            $egws_nat_entity_matcher := /.*\.enterprise\.egws_nat$/;
-            $egws_fw_entity_matcher := /.*\.enterprise\.egws_fw$/;
-            $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-            $egw_entity_full := dataset.entities.$spread()[$egw_entity_matcher($keys())];
-            $egw_entity := $egw_entity_full.$keys()[0];
-            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
-            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
-            $egws_nat_entity := dataset.entities.$spread()[$egws_nat_entity_matcher($keys())].$keys()[0];
-            $egws_fw_entity := dataset.entities.$spread()[$egws_fw_entity_matcher($keys())].$keys()[0];
-            $egws := dataset.$spread()[$egw_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $orgnets := dataset.$spread()[$orgnet_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcgroups := dataset.$spread()[$vdcgroup_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            
+            $egws_entity := dataset."seaf.ta.reverse.general".config.entities.egws.model;
+            $egws_view := dataset."seaf.ta.reverse.general".config.entities.egws.view;
+            $egws_fw_entity := dataset."seaf.ta.reverse.general".config.entities.egws_fw.model;
+            $egws_fw_view := dataset."seaf.ta.reverse.general".config.entities.egws_fw.view;
+            $egws_nat_entity := dataset."seaf.ta.reverse.general".config.entities.egws_nat.model;
+            $egws_nat_view := dataset."seaf.ta.reverse.general".config.entities.egws_nat.view;
+            $orgnets_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            
+            $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())];
+            $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];
+            $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
+            $orgnets := $lookup(dataset, $orgnets_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+        
             [[$egws.$spread().{
                 'id': $keys(),
                 'egw': *
             }].(
-                
                 $vdc_id := egw.vdc_id;
                 $vdc := $vdcs.$spread()[$keys() = $vdc_id];
                 $org_id := egw.org_id;
@@ -64,14 +67,14 @@ functions:
                     'vdcgroup_id': $vdcgroup.id,
                     'org_name': $org.*.name,
                     'org_id': egw.org_id,
-                    'link': '/entities/' & $egw_entity & '/card?id=' & id,
-                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & egw.vdc_id,
-                    'org_link': '/entities/' & $org_entity & '/card?id=' & $org_id,
-                    'entity': $egw_entity,
-                    'entity_type': 'vCloud Director Entity',
-                    'entity_name': $egw_entity_full.*.title,
-                    'egws_nat_entity': $egws_nat_entity,
-                    'egws_fw_entity': $egws_fw_entity,
+                    'link': '/entities/' & $egws_view & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & egw.vdc_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
+                    'entity': $egws_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': 'Edge Gateway в облаке VMware',
+                    'egws_nat_entity': $egws_nat_view,
+                    'egws_fw_entity': $egws_fw_view,
                     'DC': $dc.$keys()[0],
                     'dc_name': $dc.*.title
                 }

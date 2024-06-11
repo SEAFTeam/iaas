@@ -26,3 +26,4 @@ entities:
             DC:
               title: Услуга IaaS
               $ref: "#/$rels/seaf.ta.services.dc.dc"
+          

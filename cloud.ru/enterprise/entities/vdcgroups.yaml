@@ -70,4 +70,3 @@ entities:
                   org_name:
                     title: Идентификатор организации
                     type: string
-

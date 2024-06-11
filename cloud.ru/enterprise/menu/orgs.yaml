@@ -4,10 +4,13 @@ entities:
       (
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
+      
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $org_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
+      
           $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+      
           $config := "seaf.ta.reverse.general".config;
           $menu := $orgs.$spread().(
               $id := $keys()[0];
