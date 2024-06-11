@@ -3,12 +3,12 @@ entities:
     menu: >
       (
           $domain := '';
-          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
-          $dcs_entity_matcher := /.*\.services\.dc$/;
-          $orgs_entity := $$.entities.$spread()[$orgs_entity_matcher($keys())].$keys()[0];
-          $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
-          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          $config := entities."seaf.ta.reverse.general".config;
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $org_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
+          $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $config := "seaf.ta.reverse.general".config;
           $menu := $orgs.$spread().(
               $id := $keys()[0];
               $org := $;
@@ -16,7 +16,7 @@ entities:
               $name := $.*.name;
               {
                   'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $name ,
-                  'link': 'entities/' & $orgs_entity & '/schema?id=' & $id
+                  'link': 'entities/' & $org_entity & '/schema?id=' & $id
               }
           )
       )

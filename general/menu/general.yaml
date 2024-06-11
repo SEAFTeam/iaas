@@ -3,7 +3,7 @@ entities:
   seaf.ta.reverse.general:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           [
               {
                   "location": $config.arch_menu,
@@ -18,8 +18,8 @@ entities:
                   "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.advanced&txt=Advanced"
               }, 
               {
-                  "location": $config.arch_menu & "/Cloud.ru/Enterprise",
-                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=Enterprise"
+                  "location": $config.arch_menu & "/Cloud.ru/VMware Cloud",
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud"
               }
           ];
       )

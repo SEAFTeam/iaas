@@ -14,21 +14,23 @@ functions:
         (
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $vm_entity := dataset."seaf.ta.reverse.general".config.entities.vms.model;
-            $vm_view := dataset."seaf.ta.reverse.general".config.entities.vms.view;
-            $vapp_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
-            $vdc_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
-            $edr_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
-            $av_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
+            $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vms.model;
+            $vms_view := dataset."seaf.ta.reverse.general".config.entities.vms.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
+            $vapps_views := dataset."seaf.ta.reverse.general".config.entities.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
+            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
-            $org_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
-            $dcs := $lookup(dataset, $dcs_entity);
-            $vms := $lookup(dataset, $vm_entity).$spread()[*.reverse.reverse_type = "VMwareCloud"];
-            $vapps := $lookup(dataset, $vapp_entity)[$domain_matcher($keys())];
-            $vdcs := $lookup(dataset, $vdc_entity)[$domain_matcher($keys())];
-            $edrs := $lookup(dataset, $edr_entity)[$domain_matcher($keys())];
-            $avs := $lookup(dataset, $av_entity)[$domain_matcher($keys())];
-            $orgs := $lookup(dataset, $org_entity)[$domain_matcher($keys())];
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $edrs := $lookup(dataset, $edrs_entity)[$domain_matcher($keys())];
+            $avs := $lookup(dataset, $avs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
             [[$vms.$spread().{
                 'id': $keys(),
                 'vm': *
@@ -71,12 +73,12 @@ functions:
                     'org': $vdc.org_name,
                     'org_id': $vdc.org_id,
                     'tenant': 'Нет тенанта',
-                    'link': '/entities/' & $vm_view & '/card?id=' & id,
-                    'vapp_link': '/entities/' & $vapp_entity & '/card?id=' & $vapp_id,
-                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
-                    'entity': $vm_view,
-                    'entity_type': 'vCloud Director Entity',
-                    'entity_name': $vm_entity_full.title,
+                    'link': '/entities/' & $vms_view & '/card?id=' & id,
+                    'vapp_link': '/entities/' & $vapps_view & '/card?id=' & $vapp_id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'entity': $vms_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': "Виртуальная машина в облаке VMware",
                     'DC': $org.DC,
                     'dc_name': $dc.title
                 }

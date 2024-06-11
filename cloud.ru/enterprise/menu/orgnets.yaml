@@ -3,24 +3,33 @@ entities:
     menu: >
       (
           $domain := '';
-          $orgnets_entity_matcher := /.*\.enterprise\.orgnets$/;
-          $orgs_entity_matcher := /.*\.enterprise\.orgs$/;
-          $vdcs_entity_matcher := /.*\.enterprise\.vdcs$/;
-          $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
-          $dcs_entity_matcher := /.*\.services\.dc$/;
-          $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          $vdcgroups := $$.$spread()[$vdcgroups_entity_matcher($keys())].*;
-          $orgnets_entity := $$.entities.$spread()[$orgnets_entity_matcher($keys())].$keys()[0];
-          $orgnets := $$.$spread()[$orgnets_entity_matcher($keys())].*;
-          $orgs := $$.$spread()[$orgs_entity_matcher($keys())].*;
-          $vdcs := $$.$spread()[$vdcs_entity_matcher($keys())].*;
-          $config := entities."seaf.ta.reverse.general".config;
-          $static := [
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
+          $orgnets_entity := "seaf.ta.reverse.general".config.entities.orgnets.model;
+          $orgnets_view := "seaf.ta.reverse.general".config.entities.orgnets.view;
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $orgnets := $lookup($, $orgnets_entity)[$domain_matcher($keys())];
+          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
+          $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$orgs.$spread().(
+              $dcid := $.*.DC;
+              $dcname := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dcname & '/VMware Cloud/Реестры/Сети',
+                  'link': 'entities/' & $vm_view & '/list?domain=' & $domain
+              }
+          )];
+          /*$static := [
               {
                   'location': $config.arch_menu &  '/Cloud.ru/VMware Cloud/Реестры/Сети',
-                  'link': 'entities/' & $orgnets_entity & '/list?domain=' & $domain
+                  'link': 'entities/' & $orgnets_view & '/list?domain=' & $domain
               }
-          ];
+          ];*/
           $dynamic_vdc := $orgnets.$spread()[$not($keys() in $vdcgroups.*.networks.id)].(
               $id := $keys()[0];
               $name := $replace($.*.name, '/', ' ');
@@ -78,5 +87,5 @@ entities:
               ]
           );
           $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
-          $append($static, $distinct($dynamic))
+          $append($lists, $distinct($dynamic))
       )

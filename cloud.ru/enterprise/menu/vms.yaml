@@ -2,10 +2,10 @@ entities:
   seaf.ta.reverse.vmwarecloud.vms:
     menu: >
       (
-          $dataset := $$;
-          $domain := domain;
+          $dataset := $;
+          $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           $vms_entity := "seaf.ta.reverse.general".config.entities.vms.model;
           $vm_view := "seaf.ta.reverse.general".config.entities.vms.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
@@ -13,7 +13,7 @@ entities:
           $org_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          $vms := $lookup($, $vms_entity).$spread()[*.reverse.reverse_type = "VMwareCloud"];
+          $vms := $lookup($, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
           $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
           $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];

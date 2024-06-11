@@ -1,5 +1,11 @@
 seaf.ta.reverse.general:
   config:
+    doc_menu: Документы/IaaS
+    arch_menu: Архитектура/IaaS
+    functions:
+      server:
+        - 'reverse_enterprise_vms'
+        - 'reverse_advanced_ecss'
     entities:
       vms:
         model: seaf.ta.components.server
@@ -13,6 +19,21 @@ seaf.ta.reverse.general:
       vdcgroups:
         model: seaf.ta.reverse.vmwarecloud.vdcgroups
         view: seaf.ta.reverse.vmwarecloud.vdcgroups
+      orgnets:
+        model: seaf.ta.reverse.vmwarecloud.orgnets
+        view: seaf.ta.reverse.vmwarecloud.orgnets
+      vappnets:
+        model: seaf.ta.reverse.vmwarecloud.vappnets
+        view: seaf.ta.reverse.vmwarecloud.vappnets
+      egws:
+        model: seaf.ta.reverse.vmwarecloud.egws
+        view: seaf.ta.reverse.vmwarecloud.egws
+      egws_nat:
+        model: seaf.ta.reverse.vmwarecloud.egws_nat
+        view: seaf.ta.reverse.vmwarecloud.egws_nat
+      egws_fw:
+        model: seaf.ta.reverse.vmwarecloud.egws_fw
+        view: seaf.ta.reverse.vmwarecloud.egws_fw
       edrs:
         model: seaf.ta.reverse.general.edrs
         view: seaf.ta.reverse.general.edrs
