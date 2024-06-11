@@ -24,7 +24,7 @@ entities:
               $dcname := $dcs.$spread()[$keys() = $dcid].*.title;
               {
                   'location': $config.arch_menu & '/' & $dcname & '/VMware Cloud/Реестры/Сети',
-                  'link': 'entities/' & $vm_view & '/list?domain=' & $domain
+                  'link': 'entities/' & $orgnets_view & '/list?domain=' & $domain
               }
           )];
           /*$static := [
@@ -48,11 +48,11 @@ entities:
                       [
                           {
                             'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
-                            'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                            'link': 'entities/' & $orgnets_view & '/schema?id=' & $id
                           },
                           {
                             'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
-                            'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
+                            'link': 'entities/' & $orgnets_view & '/list?vdc_id=' & $vdc_id
                           }
                       ]
                   )
@@ -60,11 +60,11 @@ entities:
                   [
                       {
                         'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
-                        'link': 'entities/' & $orgnets_entity & '/schema?id=' & $id
+                        'link': 'entities/' & $orgnets_view & '/schema?id=' & $id
                       },
                       {
                         'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
-                        'link': 'entities/' & $orgnets_entity & '/list?vdc_id=' & $vdc_id
+                        'link': 'entities/' & $orgnets_view & '/list?vdc_id=' & $vdc_id
                       }
                   ]
               )
@@ -81,11 +81,11 @@ entities:
               [
                   {
                     'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации/' & $name,
-                    'link': 'entities/' & $orgnets_entity & '/schema_vdcgroup?id=' & $id
+                    'link': 'entities/' & $orgnets_view & '/schema_vdcgroup?id=' & $id
                   },
                   {
                     'location': $config.arch_menu & '/' & $dc.*.title & '/VMware Cloud/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации',
-                    'link': 'entities/' & $orgnets_entity & '/list?vdcgroup_id=' & $vdcgroup_id
+                    'link': 'entities/' & $orgnets_view & '/list?vdcgroup_id=' & $vdcgroup_id
                   }
               ]
           );
