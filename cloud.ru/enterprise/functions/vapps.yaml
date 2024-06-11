@@ -12,21 +12,21 @@ functions:
           required: false  # Признак обязательности параметра функции
     code: >
         (
+        
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $vapp_entity_matcher := /.*\.enterprise\.vapps$/;
-            $vdc_entity_matcher := /.*\.enterprise\.vdcs$/;
-            $org_entity_matcher := /.*\.enterprise\.orgs$/;
-            $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
-            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-            $vapp_entity_full := dataset.entities.$spread()[$vapp_entity_matcher($keys())];
-            $vapp_entity := $vapp_entity_full.$keys()[0];
-            $vdc_entity := dataset.entities.$spread()[$vdc_entity_matcher($keys())].$keys()[0];
-            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
-            $vapps := dataset.$spread()[$vapp_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcs := dataset.$spread()[$vdc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
+            $vapps_view := dataset."seaf.ta.reverse.general".config.entities.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            
             [[$vapps.$spread().{
                 'id': $keys(),
                 'vapp': *
@@ -46,12 +46,12 @@ functions:
                     'vdc_id': $vdc_id,
                     'org_name': $vdc.*.org_name,
                     'org_id': $org_id,
-                    'link': '/entities/' & $vapp_entity & '/card?id=' & id,
-                    'vdc_link': '/entities/' & $vdc_entity & '/card?id=' & $vdc_id,
-                    'org_link': '/entities/' & $org_entity & '/card?id=' & $org_id,
-                    'entity': $vapp_entity,
-                    'entity_type': 'vCloud Director Entity',
-                    'entity_name': $vapp_entity_full.*.title,
+                    'link': '/entities/' & $vapps_view & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
+                    'entity': $vapps_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': 'vApp в облаке VMware',
                     'DC': $dc.$keys()[0],
                     'dc_name': $dc.*.title
                 }

@@ -2,7 +2,7 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.vpcs:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           $count($$."seaf.ta.reverse.cloud_ru.advanced.vpcs") > 0 ? [{
                       /* Размещение в пользовательском меню */
                       "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Virtual Private Clouds",

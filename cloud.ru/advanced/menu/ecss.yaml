@@ -2,7 +2,7 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.ecss:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           $count($$."seaf.ta.reverse.cloud_ru.advanced.ecss") > 0 ? [
             {
               /* Размещение в пользовательском меню */

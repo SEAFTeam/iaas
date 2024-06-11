@@ -12,18 +12,17 @@ functions:
         required: false  # Признак обязательности параметра функции
     code: >
         (
+          
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
-            $org_entity_matcher := /.*\.enterprise\.orgs$/;
-            $vdcgroups_entity_matcher := /.*\.enterprise\.vdcgroups$/;
-            $dcs_entity_matcher := /.*\.services\.dc$/;
-            $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
-            $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
-            $org_entity := dataset.entities.$spread()[$org_entity_matcher($keys())].$keys()[0];
-            $orgs := dataset.$spread()[$org_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
-            $vdcgroups_entity_full := dataset.entities.$spread()[$vdcgroups_entity_matcher($keys())];      
-            $vdcgroups_entity := $vdcgroups_entity_full.$keys()[0];
-            $vdcgroups := dataset.$spread()[$vdcgroups_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
             [[$vdcgroups.$spread().{
                 'id': $keys(),
                 'vdcgroup': *
@@ -43,11 +42,11 @@ functions:
                     'network_names': vdcgroup.networks.name,
                     'org_name': $org.*.name,
                     'org_id': vdcgroup.org_id,
-                    'link': '/entities/' & $vdcgroups_entity & '/card?id=' & $vdcgroup_id,
-                    'org_link': '/entities/' & $org_entity & '/card?id=' & $orgid,
-                    'entity': $vdcgroups_entity,
-                    'entity_type': 'vCloud Director Entity',
-                    'entity_name': $vdcgroups_entity_full.*.title,
+                    'link': '/entities/' & $vdcgroups_view & '/card?id=' & $vdcgroup_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $orgid,
+                    'entity': $vdcgroups_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': 'VDC Group в облаке VMware',
                     'DC': $dc.$keys()[0],
                     'dc_name': $dc.*.title
                 }

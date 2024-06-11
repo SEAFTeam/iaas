@@ -12,6 +12,7 @@ functions:
           required: false  # Признак обязательности параметра функции
     code: >
         (
+        
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
             $vappnet_entity_matcher := /.*\.enterprise\.vappnets$/;

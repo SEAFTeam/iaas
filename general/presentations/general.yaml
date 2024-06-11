@@ -1,16 +1,7 @@
 entities:
   seaf.ta.reverse.general:
+    presentations:
     # Конфигурация размещения меню
-    config:
-      doc_menu: Документы/IaaS
-      arch_menu: Архитектура/IaaS
-      entities:
-        server:
-          - 'reverse_enterprise_vms'
-          - 'reverse_advanced_ecss'
-
-
-
       metamodel_huawei:
         type: mermaid
         template: templates/schema_huawei.mmd
@@ -41,7 +32,6 @@ entities:
                   'menu': $menu
               }
           )
-
       root:
         type: plantuml
         template: templates/root.puml
@@ -55,8 +45,8 @@ entities:
                   $item := $;
                   $matcher := /^(.*)$/;
                   $enterprise_matcher := /.*(\/Реестры\/.*|\/Организации\/[a-zA-Z0-9\s-_]+\/[a-zA-Z0-9\s_-]+$)/;
-                  $items := $eval($item)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
-                  $items := $txt = 'Enterprise' ? $items[$enterprise_matcher(location)] : $items;
+                  $items := $eval($item, $$)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
+                  $items := $txt = 'VMware Cloud' ? $items[$enterprise_matcher(location)] : $items;
                   $items.({
                     'location': $matcher($.location).groups[0],
                     'link': '"/' & $.link & '"'
