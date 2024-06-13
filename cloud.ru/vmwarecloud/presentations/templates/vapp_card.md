@@ -1,10 +1,10 @@
 # vApp
 ***  
-**Наименование**: {{name}}
+**Наименование**: {{title}}
 
 | Наименование | VDC                          | Организация                  | DC/IaaS     |
 |--------------|------------------------------|------------------------------|------|
-| {{name}}     | [{{vdc_name}}]({{vdc_link}}) | [{{org_name}}]({{org_link}}) | {{&dc_name}}     |
+| {{title}}     | [{{vdc_title}}]({{vdc_link}}) | [{{org_title}}]({{org_link}}) | {{&dc_title}}     |
 
 
 {{#description}}
@@ -16,7 +16,7 @@
 ## Сети
 {{/networkexists}}
 {{#networks}}
-**Наименование**: [{{name}}]({{vappnet_link}})
+**Наименование**: [{{title}}]({{vappnet_link}})
 
 **DNS:** 
 {{#dns}}

@@ -17,10 +17,10 @@ entities:
             original_id:
               title: Идентификатор VDC (полный)
               type: string
-            name:
+            title:
               title: Наименование VDC
               type: string
-            org_name:
+            org_title:
               title: Наименование организации
               type: string
             org_id:
@@ -37,6 +37,6 @@ entities:
                     oneOf:
                       - type: string
                       - $ref: "#/rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
-                  name:
+                  title:
                      title: Наименование сети
                      type: string

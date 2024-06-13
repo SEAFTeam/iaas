@@ -21,7 +21,7 @@ entities:
               minItems: 0
               items:
                 type: string
-            subnet_names:
+            subnet_titles:
               title: Имена сетей
               type: array
               items:
@@ -33,7 +33,7 @@ entities:
                 type: object
                 properties:
                   key:
-                    title: Имя ключа
+                    title: Наименование ключа
                     type: string
                   value:
                     title: Значение ключа
@@ -41,8 +41,8 @@ entities:
             vdc_id:
               title: Virtual Datacenter ID
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
-            vdc_name:
-              title: Virtual Datacenter Name
+            vdc_title:
+              title: Virtual Datacenter title
               type: string
             vapp_id:
               title: vApp ID

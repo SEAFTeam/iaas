@@ -42,20 +42,20 @@ functions:
                 {
                     'id': id,
                     'short_id': vapp.id,
-                    'name': vapp.name,
+                    'title': vapp.title,
                     'description': vapp.description,
-                    'vdc_name': vapp.vdc_name,
+                    'vdc_title': vapp.vdc_title,
                     'vdc_id': $vdc_id,
-                    'org_name': $vdc.*.org_name,
+                    'org_title': $vdc.*.org_title,
                     'org_id': $org_id,
                     'link': '/entities/' & $vapps_view & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
                     'entity': $vapps_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'vApp в облаке VMware',
+                    'entity_title': 'vApp в облаке VMware',
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

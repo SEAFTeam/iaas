@@ -16,7 +16,7 @@ entities:
               title: Идентификатор сервиса DMS
               type: string
             name:
-              title: Имя сервиса DMS
+              title: Наименование сервиса DMS
               type: string
             engine:
               title: Движок сервиса DMS (rabbit или kafka)

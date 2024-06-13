@@ -1,10 +1,10 @@
 # Virtual Datacenter Group (VDC Group)
 ***  
-**Наименование**: {{name}}
+**Наименование**: {{title}}
 
 | Наименование | Организация  | DC/IaaS      |
 |--------------|--------------|--------------|
-| {{name}}     | [{{org_name}}]({{org_link}}) | {{&dc_name}} |
+| {{title}}     | [{{org_title}}]({{org_link}}) | {{&dc_title}} |
 
 {{#description}}
 ## Описание

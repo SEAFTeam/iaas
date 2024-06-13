@@ -40,7 +40,7 @@ functions:
                 $parent_vdcgroups := $vdcgroups.$spread()[$vdc_id in *.vdcs.id].(
                     {
                         'id': $.*.id,
-                        'name': $.*.name,
+                        'title': $.*.title,
                         'link': '/entities/' & $vdcgroups_view & '/card?id=' & $.*.id
                     }
                 );
@@ -50,23 +50,23 @@ functions:
                 {
                     'id': id,
                     'short_id': vdc.id,
-                    'name': vdc.name,
+                    'title': vdc.title,
                     'description': vdc.description,
                     'vapp_ids': $vapps.$spread()[*.vdc_id = $vdc_id].*.id,
-                    'vapp_names': $vapps.$spread()[*.vdc_id = $vdc_id].*.name,
+                    'vapp_titles': $vapps.$spread()[*.vdc_id = $vdc_id].*.title,
                     'availableNetwork_ids': vdc.availableNetworks.id,
-                    'availableNetwork_names': vdc.availableNetworks.name,
+                    'availableNetwork_titles': vdc.availableNetworks.title,
                     'vdcgroups': $parent_vdcgroups,
-                    'org_name': vdc.org_name,
+                    'org_title': vdc.org_title,
                     'org_id': vdc.org_id,
                     'computeproviderscope': vdc.computeproviderscope,
                     'link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & vdc.org_id,
                     'entity': $vdcs_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': "VDC в облаке VMware",
+                    'entity_title': "VDC в облаке VMware",
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

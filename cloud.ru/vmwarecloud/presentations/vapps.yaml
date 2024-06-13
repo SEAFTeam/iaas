@@ -22,17 +22,17 @@ entities:
               $vdc := $reverse_vmwarecloud_vdcs($)[id = $vapp.vdc_id];
               $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$vdc.id in vdc_ids];
               $vappnets := $reverse_vmwarecloud_vappnets($)[$id = vapp_id];
-              $nodes := {$vapp.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_name}};
+              $nodes := {$vapp.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_title}};
               $baseprefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1];
-              $nodes := $append($nodes, {$baseprefix: {'title': 'VDC: ' & $vapp.vdc_name}});
-              $nodes := $append($nodes, {$baseprefix & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.name}});
+              $nodes := $append($nodes, {$baseprefix: {'title': 'VDC: ' & $vapp.vdc_title}});
+              $nodes := $append($nodes, {$baseprefix & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.title}});
               $nodes := $append($nodes, $vms.(
                       $prefix := $baseprefix & '.' & $vapp.short_id;
                       $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
                       $prefix := $count($subnets) = 1 ?  $prefix & '.' & $subnets.short_id : $prefix;
                       {
                           $prefix & '.' & $.short_id: {
-                              'title': $.name,
+                              'title': $.title,
                               'symbol': $.short_id,
                               'hideTitle': true
                           }
@@ -43,7 +43,7 @@ entities:
                       $prefix := $baseprefix & '.' & $vapp.short_id;
                       {
                           $prefix & '.' & $.short_id: {
-                              'title': $.name,
+                              'title': $.title,
                               'symbol': 'vappnet-' & $.short_id,
                               'hideTitle': true
                           }
@@ -53,7 +53,7 @@ entities:
               $symbols := $vms.(
                   $fn_svg_vm := $$.icons."reverse.general".svg_vm;
                   $href := $.link;
-                  $icon := $eval($fn_svg_vm, {'name': $.name, 'href': $href});
+                  $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $href});
                   {
                       $.short_id: $icon
                   }
@@ -62,7 +62,7 @@ entities:
                   $vappnets.(
                       $fn_svg_vappnet_header := $$.icons."reverse.general".svg_vappnet_header;
                       $href := $.link;
-                      $icon := $eval($fn_svg_vappnet_header, {'name': $.name, 'href': $href});
+                      $icon := $eval($fn_svg_vappnet_header, {'title': $.title, 'href': $href});
                       {
                           'vappnet-' & $.short_id: $icon
                       }
@@ -96,7 +96,7 @@ entities:
       vm_list:
         type: table
         headers:
-          - value: name
+          - value: title
             text: Наименование
             width: 200
             sortable: true
@@ -113,7 +113,7 @@ entities:
       list:
         type: table
         headers:
-          - value: name
+          - value: title
             text: Наименование vApp
             sortable: true
             align: left
@@ -123,13 +123,13 @@ entities:
             text: Описание
             align: left
             width: 300
-          - value: vdc_name
+          - value: vdc_title
             text: VDC
             align: left
             sortable: true
             width: 200
             link: vdc_link
-          - value: org_name
+          - value: org_title
             text: Организация
             align: left
             sortable: true

@@ -35,13 +35,13 @@ functions:
                     $egw := $egws[$keys() = $gw_id];
                     $org_id := $egw.*.org_id;
                     $org := $orgs.$spread()[$keys() = $org_id];
-                    $orgname := $org.*.name;
+                    $orgtitle := $org.*.title;
                     $dc := $dcs.$spread()[$keys() = $org.*.DC];
                     {
                         'id': id,
                         'short_id': nat.id,
                         'gw_id': nat.gw_id,
-                        'name': nat.name,
+                        'title': nat.title,
                         'description': nat.description,
                         'type': nat.type,
                         'enabled': nat.enabled,
@@ -51,17 +51,17 @@ functions:
                         'snat_dst_address': nat.snat_dst_address,
                         'dnat_ext_port': nat.dnat_ext_port,
                         'fw_match': nat.fw_match,
-                        'egw_name': $egw.*.name,
+                        'egw_title': $egw.*.title,
                         'egw_id': $egw.$keys()[0],
                         'org_id': $org_id,
-                        'org_name': $orgname,
+                        'org_title': $orgtitle,
                         'link': '/entities/' & $egws_nat_view & '/' & $lowercase(nat.type) & '_schema?id=' & id,
                         'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
                         'entity': $egws_nat_view,
                         'entity_type': 'VMware Cloud',
-                        'entity_name': 'Правила FW на Edge в облаке VMware',
+                        'entity_title': 'Правила FW на Edge в облаке VMware',
                         'DC': $dc.$keys()[0],
-                        'dc_name': $dc.*.title
+                        'dc_title': $dc.*.title
                     }
                 )]
             )

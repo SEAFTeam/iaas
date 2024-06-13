@@ -42,18 +42,18 @@ functions:
                 $addresses := $count(vm.reverse.addresses) > 1 ? $join(vm.reverse.addresses.($ != null ? $), ', ') : vm.reverse.addresses;
                 $vapp_id := vm.reverse.vapp_id;
                 $vapp := $lookup($vapps, $vapp_id);
-                $subnets := $count(vm.reverse.subnet_names) > 1 ? $join(vm.reverse.subnet_names.($ != null ? $), ', ') : vm.reverse.subnet_names;
+                $subnets := $count(vm.reverse.subnet_titles) > 1 ? $join(vm.reverse.subnet_titles.($ != null ? $), ', ') : vm.reverse.subnet_titles;
                 $vdc_id := vm.reverse.vdc_id;
                 $vdc := $lookup($vdcs, $vdc_id);
-                $av := vm.name in $avs.**.hosts ? true : false;
-                $edr := vm.name in $edrs.**.hosts ? true : false;
+                $av := vm.title in $avs.**.hosts ? true : false;
+                $edr := vm.title in $edrs.**.hosts ? true : false;
                 $org := $lookup($orgs, $vdc.org_id);
                 $dc := $lookup($dcs, $org.DC);
                 $tags := $join(vm.reverse.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
                 {
                     'id': id,
                     'short_id': vm.id,
-                    'name': vm.title,
+                    'title': vm.title,
                     'description': vm.description,
                     'os_type': vm.os.type,
                     'os_bit': vm.os.bit,
@@ -63,7 +63,7 @@ functions:
                     'disks': $disks,
                     'nic_qty': vm.nic_qty,
                     'addresses': vm.reverse.addresses,
-                    'vapp': $vapp.name,
+                    'vapp': $vapp.title,
                     'vapp_id': $vapp_id,
                     'av': $av,
                     'edr': $edr,
@@ -71,9 +71,9 @@ functions:
                     'subnet_ids': vm.subnets,
                     'az': 'Здесь нет зоны доступности',
                     'tags': $tags,
-                    'vdc': vm.reverse.vdc_name,
+                    'vdc': vm.reverse.vdc_title,
                     'vdc_id': vm.reverse.vdc_id,
-                    'org': $vdc.org_name,
+                    'org': $vdc.org_title,
                     'org_id': $vdc.org_id,
                     'tenant': 'Нет тенанта',
                     'link': '/entities/' & $vms_view & '/card?id=' & id,
@@ -81,9 +81,9 @@ functions:
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
                     'entity': $vms_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': "Виртуальная машина в облаке VMware",
+                    'entity_title': "Виртуальная машина в облаке VMware",
                     'DC': $org.DC,
-                    'dc_name': $dc.title
+                    'dc_title': $dc.title
                 }
             )]
         )

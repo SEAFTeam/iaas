@@ -21,10 +21,10 @@ entities:
               $vdcs := $reverse_vmwarecloud_vdcs($)[org_id = $id];
               $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[org_id = $id];
               $items := {
-                          'title': $org.name
+                          'title': $org.title
               };
               $items := $append($items, $vdcs.(
-                    $current_item := $.name;
+                    $current_item := $.title;
                     $current_link := $.link;
                     {
                         'title': $current_item,
@@ -33,7 +33,7 @@ entities:
                   )
               );
               $items := $append($items, $vdcgroups.(
-                    $current_item := $.name;
+                    $current_item := $.title;
                     $current_link := $.link;
                     {
                         'title': $current_item,
@@ -44,8 +44,8 @@ entities:
               $links := [];
               $links := $append($links, 
                   $vdcgroups.(
-                      $from := $org.name;
-                      $to := $.name;
+                      $from := $org.title;
+                      $to := $.title;
                       {
                           "from": $from,
                           "to": $to
@@ -54,8 +54,8 @@ entities:
               );
               $links := $append($links, 
                   $vdcgroups.(
-                      $from := $.name;
-                      $vdcgroups.vdc_names.(
+                      $from := $.title;
+                      $vdcgroups.vdc_titles.(
                           $to := $;
                           {
                               "from": $from,
@@ -66,9 +66,9 @@ entities:
               );
               $links := $append($links, 
                   $vdcs.(
-                      $not($.name in $links.to) ? (
-                          $from := $org.name;
-                          $to := $.name;
+                      $not($.title in $links.to) ? (
+                          $from := $org.title;
+                          $to := $.title;
                           {
                               "from": $from,
                               "to": $to

@@ -18,9 +18,9 @@ entities:
           $config := "seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
               $dcid := $.*.DC;
-              $dcname := $dcs.$spread()[$keys() = $dcid].*.title;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
               {
-                  'location': $config.arch_menu & '/' & $dcname & '/Облако VMware/Реестры/VDC Groups',
+                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/VDC Groups',
                   'link': 'entities/' & $vdcgroups_view & '/list?domain=' & $domain
               }
           )];
@@ -31,13 +31,13 @@ entities:
               }];*/
           $dynamic := $vdcgroups.$spread().(
                 $id := $keys()[0];
-                $name := $.*.name;
+                $title := $.*.title;
                 $org_id := $.*.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
-                $orgname := $org.*.name;
+                $orgtitle := $org.*.title;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title,
                     'link': 'entities/' & $vdcgroups_view & '/card?id=' & $id
                 }
           );

@@ -1,10 +1,10 @@
 # Network
 ***  
-**Наименование**: {{name}}
+**Наименование**: {{title}}
 
 | Наименование | Connected                        | Type     | VDC                          | VDC Group                              | Организация                  | DC/IaaS |
 |--------------|----------------------------------|----------|------------------------------|----------------------------------------|------------------------------|-----|
-| {{name}}     | {{connected}} | {{type}} | [{{vdc_name}}]({{vdc_link}}) | [{{vdcgroup_name}}]({{vdcgroup_link}}) | [{{org_name}}]({{org_link}}) | {{&dc_name}} |
+| {{title}}     | {{connected}} | {{type}} | [{{vdc_title}}]({{vdc_link}}) | [{{vdcgroup_title}}]({{vdcgroup_link}}) | [{{org_title}}]({{org_link}}) | {{&dc_title}} |
 
 
 {{#description}}

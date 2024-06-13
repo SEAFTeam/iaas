@@ -42,7 +42,7 @@ functions:
                 {
                     'id': id,
                     'short_id': orgnet.id,
-                    'name': orgnet.name,
+                    'title': orgnet.title,
                     'description': orgnet.description,
                     'type': orgnet.type,
                     'gateway': orgnet.gateway,
@@ -50,24 +50,24 @@ functions:
                     'fencemode': orgnet.fencemode,
                     'connected': orgnet.connected,
                     'ipscopes': orgnet.ipscopes,
-                    'netpool_name': orgnet.networkpool,
+                    'netpool_title': orgnet.networkpool,
                     'netpool_id': orgnet.networkpool_id,
-                    'vdc_name': orgnet.vdc_name,
+                    'vdc_title': orgnet.vdc_title,
                     'vdc_id': orgnet.vdc_id,
-                    'vdcgroup_name': orgnet.vdcgroup_name,
+                    'vdcgroup_title': orgnet.vdcgroup_title,
                     'vdcgroup_id': orgnet.vdcgroup_id,
                     'indirect_vdcgroup': $vdcgroups.$spread()[$orngetId in *.networks.id].$keys(),
                     'dns': orgnet.dns,
-                    'org_name': $org.*.name,
+                    'org_title': $org.*.title,
                     'org_id': orgnet.org_id,
                     'link': '/entities/' & $orgnets_view & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & orgnet.vdc_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & orgnet.org_id,
                     'entity': $orgnets_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'Сети организации в облаке VMware',
+                    'entity_title': 'Сети организации в облаке VMware',
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

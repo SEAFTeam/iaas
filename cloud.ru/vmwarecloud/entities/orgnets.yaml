@@ -17,7 +17,7 @@ entities:
             original_id:
               title: Идентификатор сети (полный)
               type: string
-            name:
+            title:
               title: Наименование сети
               type: string
             type:
@@ -42,7 +42,7 @@ entities:
               title: Идентификатор сетевого пула
               type: string
             networkpool:
-              title: Имя сетевого пула
+              title: Наименование сетевого пула
               type: string
             org_id:
               title: Идентификатор организации
@@ -50,7 +50,7 @@ entities:
             vdc_id:
               title: Идентификатор vdc
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
-            vdc_name:
+            vdc_title:
               title: Наименование vdc
               type: string
             connected:
@@ -123,8 +123,8 @@ entities:
             networkpool:
               title: Идентификатор сетевого пула
               type: string
-            networkpool_name:
-              title: Имя сетевого пула
+            networkpool_title:
+              title: Наименование сетевого пула
               type: string
             org_id:
               title: Идентификатор организации
@@ -132,7 +132,7 @@ entities:
             vdc_id:
               title: Идентификатор VDC
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
-            vdc_name:
+            vdc_title:
               title: Наименование VDC
               type: string
             connected:

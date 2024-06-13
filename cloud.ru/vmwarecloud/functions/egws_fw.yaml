@@ -35,7 +35,7 @@ functions:
                     $egw := $egws[$keys() = $gw_id];
                     $org_id := $egw.*.org_id;
                     $org := $orgs.$spread()[$keys() = $org_id];
-                    $orgname := $org.*.name;
+                    $orgtitle := $org.*.title;
                     $dc := $dcs.$spread()[$keys() = $org.*.DC];
                     $context := $;
                     $src := $not($exists(fw.sourceFirewallGroups.*)) ? 'Any' : $append(
@@ -62,7 +62,7 @@ functions:
                                     'id': $context.id,
                                     'short_id': $context.fw.id,
                                     'gw_id': $context.fw.gw_id,
-                                    'name': $context.fw.name,
+                                    'title': $context.fw.title,
                                     'description': $context.fw.description,
                                     'enabled': $context.fw.enabled,
                                     'source': $source,
@@ -72,17 +72,17 @@ functions:
                                     'direction': $context.fw.direction,
                                     'protocol': $port_profile.protocol,
                                     'port': $port_profile.port,
-                                    'egw_name': $egw.*.name,
+                                    'egw_title': $egw.*.title,
                                     'egw_id': $egw.$keys()[0],
                                     'org_id': $org_id,
-                                    'org_name': $orgname,
+                                    'org_title': $orgtitle,
                                     'link': '/entities/' & $egws_fw_view & '/card?id=' & id,
                                     'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
                                     'entity': $egws_fw_view,
                                     'entity_type': 'VMware Cloud',
-                                    'entity_name': 'Правила NAT на Edge в облаке VMware',
+                                    'entity_title': 'Правила NAT на Edge в облаке VMware',
                                     'DC': $dc.$keys()[0],
-                                    'dc_name': $dc.*.title
+                                    'dc_title': $dc.*.title
                                 }
                             )
                         )

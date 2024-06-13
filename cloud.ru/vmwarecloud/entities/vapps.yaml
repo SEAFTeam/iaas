@@ -17,7 +17,7 @@ entities:
             original_id:
               title: Идентификатор vApp (полный)
               type: string
-            name:
+            title:
               title: Наименование vApp
               type: string
             description:
@@ -26,6 +26,6 @@ entities:
             vdc_id:
               title: Идентификаторв vdc
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
-            vdc_name:
+            vdc_title:
                title: Наименование vdc
                type: string

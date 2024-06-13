@@ -26,27 +26,27 @@ entities:
               $id := $keys()[0];
               $gw_id := $.*.gw_id;
               $egw := $egws.$spread()[$keys() = $gw_id];
-              $egwname := $egw.*.name;
+              $egwtitle := $egw.*.title;
               $egw.*.vdcgroup_id != null ? (
-                $vdcgroupname := $egw.*.vdcgroup_name;
+                $vdcgrouptitle := $egw.*.vdcgroup_title;
                 $vdcgroup_id := $egw.*.vdcgroup_id;
                 $org_id := $egw.*.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
-                $orgname := $org.*.name;
+                $orgtitle := $org.*.title;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/'  & $orgname & '/' & $vdcgroupname & '/Edge Gateways/' & $egwname & '/' & $.*.type & '/' & $.*.name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/'  & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $egwtitle & '/' & $.*.type & '/' & $.*.title,
                     'link': 'entities/' & $egws_nat_entity & '/' & $lowercase($.*.type) & '_schema?id=' & $id
                 }
               ) : (
-                $vdcname := $egw.*.vdc_name;
+                $vdctitle := $egw.*.vdc_title;
                 $vdc_id := $egw.*.vdc_id;
                 $org_id := $egw.*.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
-                $orgname := $org.*.name;
+                $orgtitle := $org.*.title;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcname & '/Edge Gateways/' & $egwname & '/' & $.*.type & '/' & $.*.name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways/' & $egwtitle & '/' & $.*.type & '/' & $.*.title,
                     'link': 'entities/' & $egws_nat_entity & '/' & $lowercase($.*.type) & '_schema?id=' & $id
                 }
               )

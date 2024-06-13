@@ -46,37 +46,37 @@ functions:
                 $vdc := $vdcs.$spread()[$keys() = $vdc_id];
                 $org_id := egw.org_id;
                 $org := $orgs.$spread()[$keys() = $org_id];
-                $orgname := $org.*.name;
+                $orgtitle := $org.*.title;
                 $dc := $dcs.$spread()[$keys() = $org.*.DC];
                 $vdcgroup := egw.vdcgroup_id = null ? (
                     $tmp := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
-                    $exists($tmp) ? {'id': $tmp.$keys()[0], 'name': $tmp.*.name } : {'id': null, 'name': null};
-                ) : ({'id': egw.vdcgroup_id, 'name': egw.vdcgroup_name});
+                    $exists($tmp) ? {'id': $tmp.$keys()[0], 'title': $tmp.*.title } : {'id': null, 'title': null};
+                ) : ({'id': egw.vdcgroup_id, 'title': egw.vdcgroup_title});
                 {
                     'id': id,
                     'short_id': egw.id,
-                    'name': egw.name,
+                    'title': egw.title,
                     'description': egw.description,
                     'type': egw.type,
                     'gatewayinterfaces': egw.gatewayinterfaces,
                     'advancedNetworkingEnabled': egw.advancedNetworkingEnabled,
                     'distributedRoutingEnabled': egw.distributedRoutingEnabled,
-                    'vdc_name': egw.vdc_name,
+                    'vdc_title': egw.vdc_title,
                     'vdc_id': egw.vdc_id,
-                    'vdcgroup_name': $vdcgroup.name,
+                    'vdcgroup_title': $vdcgroup.title,
                     'vdcgroup_id': $vdcgroup.id,
-                    'org_name': $org.*.name,
+                    'org_title': $org.*.title,
                     'org_id': egw.org_id,
                     'link': '/entities/' & $egws_view & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & egw.vdc_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
                     'entity': $egws_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'Edge Gateway в облаке VMware',
+                    'entity_title': 'Edge Gateway в облаке VMware',
                     'egws_nat_entity': $egws_nat_view,
                     'egws_fw_entity': $egws_fw_view,
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

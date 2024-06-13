@@ -15,7 +15,7 @@ entities:
               title: ID хранилища РК
               type: string
             name:
-              title: Имя хранилища РК
+              title: Наименование хранилища РК
               type: string
             description:
               title: Описание хранилища РК
@@ -33,7 +33,7 @@ entities:
                     title: Тип ресурса РК
                     type: string
                   name:
-                    title: Имя ресурса РК
+                    title: Наименование ресурса РК
                     type: string
                   size:
                     title: Лимит объема РК

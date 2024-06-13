@@ -1,10 +1,10 @@
 # Edge Gateway
 ***  
-**Наименование**: {{name}}
+**Наименование**: {{title}}
 
 | Наименование | Type     | VDC                          | VDC Group                              | Организация                  |  DC/IaaS    |
 |--------------|----------|------------------------------|----------------------------------------|------------------------------|-----|
-| {{name}}     | {{type}} | [{{vdc_name}}]({{vdc_link}}) | [{{vdcgroup_name}}]({{vdcgroup_link}}) | [{{org_name}}]({{org_link}}) | {{&dc_name}}   |
+| {{title}}     | {{type}} | [{{vdc_title}}]({{vdc_link}}) | [{{vdcgroup_title}}]({{vdcgroup_link}}) | [{{org_title}}]({{org_link}}) | {{&dc_title}}   |
 
 {{#description}}
 ## Описание

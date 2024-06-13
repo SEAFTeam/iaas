@@ -31,14 +31,14 @@ functions:
                 { 
                     'id': id,
                     'short_id': org.id,
-                    'name': org.name,
+                    'title': org.title,
                     'description': org.description,
                     'link': '/entities/' & $orgs_view & '/schema?id=' & id,
                     'entity': $orgs_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'Организации в облаке VMware',
+                    'entity_title': 'Организации в облаке VMware',
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

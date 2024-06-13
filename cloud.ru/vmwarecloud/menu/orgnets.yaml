@@ -21,9 +21,9 @@ entities:
           $config := "seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
               $dcid := $.*.DC;
-              $dcname := $dcs.$spread()[$keys() = $dcid].*.title;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
               {
-                  'location': $config.arch_menu & '/' & $dcname & '/Облако VMware/Реестры/Сети',
+                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/Сети',
                   'link': 'entities/' & $orgnets_view & '/list?domain=' & $domain
               }
           )];
@@ -35,23 +35,23 @@ entities:
           ];*/
           $dynamic_vdc := $orgnets.$spread()[$not($keys() in $vdcgroups.*.networks.id)].(
               $id := $keys()[0];
-              $name := $replace($.*.name, '/', ' ');
+              $title := $replace($.*.title, '/', ' ');
               $org_id := $.*.org_id;
               $org := $orgs.$spread()[$keys() = $org_id];
-              $orgname := $org.*.name;
+              $orgtitle := $org.*.title;
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $vdc_id := $.*.vdc_id;
-              $vdcname := $vdcs.$spread()[$keys() = $vdc_id].*.name;
+              $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
               $vdc_id in $vdcgroups.*.vdcs.id ? (
                   $vdcgroups.$spread()[$vdc_id in *.vdcs.id].(
-                      $vdcgname := $.*.name;
+                      $vdcgtitle := $.*.title;
                       [
                           {
-                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации/' & $name,
+                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgtitle & '/' & $vdctitle & '/Сети организации/' & $title,
                             'link': 'entities/' & $orgnets_view & '/schema?id=' & $id
                           },
                           {
-                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcgname & '/' & $vdcname & '/Сети организации',
+                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgtitle & '/' & $vdctitle & '/Сети организации',
                             'link': 'entities/' & $orgnets_view & '/list?vdc_id=' & $vdc_id
                           }
                       ]
@@ -59,11 +59,11 @@ entities:
               ) : (
                   [
                       {
-                        'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcname & '/Сети организации/' & $name,
+                        'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Сети организации/' & $title,
                         'link': 'entities/' & $orgnets_view & '/schema?id=' & $id
                       },
                       {
-                        'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcname & '/Сети организации',
+                        'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Сети организации',
                         'link': 'entities/' & $orgnets_view & '/list?vdc_id=' & $vdc_id
                       }
                   ]
@@ -71,20 +71,20 @@ entities:
           );
           $dynamic_vdcgroup := $orgnets.$spread()[$keys() in $vdcgroups.*.networks.id].(
               $id := $keys()[0];
-              $name := $replace($.*.name, '/', ' ');
+              $title := $replace($.*.title, '/', ' ');
               $org_id := $.*.org_id;
               $org := $orgs.$spread()[$keys() = $org_id];
-              $orgname := $org.*.name;
+              $orgtitle := $org.*.title;
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
               $vdcgroup_id := $.*.vdcgroup_id;
-              $vdcgroupname := $vdcgroups.$spread()[$keys() = $vdcgroup_id].*.name;
+              $vdcgrouptitle := $vdcgroups.$spread()[$keys() = $vdcgroup_id].*.title;
               [
                   {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации/' & $name,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Сети организации/' & $title,
                     'link': 'entities/' & $orgnets_view & '/schema_vdcgroup?id=' & $id
                   },
                   {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgname & '/' & $vdcgroupname & '/Сети организации',
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Сети организации',
                     'link': 'entities/' & $orgnets_view & '/list?vdcgroup_id=' & $vdcgroup_id
                   }
               ]

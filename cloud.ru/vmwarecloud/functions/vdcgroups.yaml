@@ -37,21 +37,21 @@ functions:
             {
                     'id': id,
                     'short_id': vdcgroup.id,
-                    'name': vdcgroup.name,
+                    'title': vdcgroup.title,
                     'description': vdcgroup.description,
                     'vdc_ids': vdcgroup.vdcs.id,
-                    'vdc_names': vdcgroup.vdcs.name,
+                    'vdc_titles': vdcgroup.vdcs.title,
                     'network_ids': vdcgroup.networks.id,
-                    'network_names': vdcgroup.networks.name,
-                    'org_name': $org.*.name,
+                    'network_titles': vdcgroup.networks.title,
+                    'org_title': $org.*.title,
                     'org_id': vdcgroup.org_id,
                     'link': '/entities/' & $vdcgroups_view & '/card?id=' & $vdcgroup_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & $orgid,
                     'entity': $vdcgroups_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'VDC Group в облаке VMware',
+                    'entity_title': 'VDC Group в облаке VMware',
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )

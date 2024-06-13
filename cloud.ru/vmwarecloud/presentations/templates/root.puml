@@ -5,7 +5,7 @@ skinparam ranksep 10
 skinparam rectangle {
     FontSize 18
     BorderColor black
-    ArrowFontName Impact
+    ArrowFonttitle Impact
     ArrowColor #FF6655
 }
 

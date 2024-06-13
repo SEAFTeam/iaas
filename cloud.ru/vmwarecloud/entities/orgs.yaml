@@ -17,7 +17,7 @@ entities:
             original_id:
               title: Идентификатор сети vApp (полный)
               type: string
-            name:
+            title:
               title: Наименование организации
               type: string
             description:

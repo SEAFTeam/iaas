@@ -16,14 +16,14 @@ entities:
               $id := $keys()[0];
               $org := $;
               $dc := $dcs.$spread()[$keys() = $org.*.DC];
-              $name := $.*.name;
+              $title := $.*.title;
               [{
-                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware/Организации/" & $name ,
+                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware/Организации/" & $title ,
                   "link": "entities/" & $org_entity & "/schema?id=" & $id
               },
               {
                   "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware",
-                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud&org=" & $name
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud&org=" & $title
               }]
           )
       )

@@ -4,7 +4,7 @@ entities:
       egw_rules_list:
         type: table
         headers:
-          - value: name
+          - value: title
             text: Наименование правила
             sortable: true
             align: left
@@ -51,17 +51,17 @@ entities:
                   $src := source;
                   $dst := destination;
                   $src_resolved := $ipmatcher($src) ? 
-                      $vms[$src in addresses].{'name': name, 'link': link} :
-                          $src = 'Any' ? {'name': 'Any', 'link': ''} :
-                              $orgnets[id = $src].{'name': name, 'link': link};
+                      $vms[$src in addresses].{'title': title, 'link': link} :
+                          $src = 'Any' ? {'title': 'Any', 'link': ''} :
+                              $orgnets[id = $src].{'title': title, 'link': link};
                   $dst_resolved := $ipmatcher($dst) ? 
-                      $vms[$dst in addresses].{'name': name, 'link': link} :
-                          $dst = 'Any' ? {'name': 'Any', 'link': ''} :
-                              $orgnets[id = $dst].{'name': name, 'link': link};
+                      $vms[$dst in addresses].{'title': title, 'link': link} :
+                          $dst = 'Any' ? {'title': 'Any', 'link': ''} :
+                              $orgnets[id = $dst].{'title': title, 'link': link};
                   {
-                      'source': $src_resolved.name,
+                      'source': $src_resolved.title,
                       'src_link': $src_resolved.link,
-                      'destination': $dst_resolved.name,
+                      'destination': $dst_resolved.title,
                       'dst_link': $dst_resolved.link,
                       'enabled': enabled = true ? '✅' : '❌'
                   }

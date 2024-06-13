@@ -17,7 +17,7 @@ entities:
             original_id:
               title: Идентификатор Edge Gateway (полный)
               type: string
-            name:
+            title:
               title: Наименование Edge Gateway
               type: string
             description:
@@ -29,13 +29,13 @@ entities:
             vdc_id:
               title: Идентификатор vdc
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
-            vdc_name:
+            vdc_title:
               title: Наименование vdc
               type: string
             vdcgroup_id:
               title: Идентификатор VDC Group
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcgroups.vdcgroup"
-            vdcgroup_name:
+            vdcgroup_title:
               title: Наименование VDC Group
               type: string
             advancedNetworkingEnabled:
@@ -50,7 +50,7 @@ entities:
               items:
                 type: object
                 properties:
-                  name:
+                  title:
                     title: Наименование интерфейса
                     type: string
                   network_id:

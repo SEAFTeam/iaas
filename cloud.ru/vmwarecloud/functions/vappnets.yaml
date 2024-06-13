@@ -45,7 +45,7 @@ functions:
                 {
                     'id': id,
                     'short_id': vappnet.id,
-                    'name': vappnet.name,
+                    'title': vappnet.title,
                     'description': vappnet.description,
                     'gateway': vappnet.gateway,
                     'netmask': vappnet.netmask,
@@ -53,19 +53,19 @@ functions:
                     'ipscopes': vappnet.ipscopes,
                     'parentnetwork_id': vappnet.parentnetwork_id,
                     'dns': vappnet.dns,
-                    'vapp_name': $vapp.*.name,
+                    'vapp_title': $vapp.*.title,
                     'vapp_id': vappnet.vapp_id,
-                    'vdc_name': $vdc.*.name,
+                    'vdc_title': $vdc.*.title,
                     'vdc_id': $vdc.*.id,
-                    'org_name': $org.*.name,
+                    'org_title': $org.*.title,
                     'org_id': $org.*.id,
                     'link': '/entities/' & $vappnets_view & '/card?id=' & id,
                     'vapp_link': '/entities/' & $vapps_view & '/card?id=' & vappnet.vapp_id,
                     'entity': $vappnets_view,
                     'entity_type': 'VMware Cloud',
-                    'entity_name': 'vApp Network в облаке VMware',
+                    'entity_title': 'vApp Network в облаке VMware',
                     'DC': $dc.$keys()[0],
-                    'dc_name': $dc.*.title
+                    'dc_title': $dc.*.title
                 }
             )]
         )
