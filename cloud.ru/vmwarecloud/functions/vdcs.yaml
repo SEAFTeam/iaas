@@ -1,0 +1,72 @@
+functions:
+  reverse_vmwarecloud_vdcs:
+    title: Список VDC
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (       
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $orgnets_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+        
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $orgnets := $lookup(dataset, $orgnets_entity)[$domain_matcher($keys())];
+        
+            [[$vdcs.$spread().{
+                'id': $keys(),
+                'vdc': *
+            }].(
+                $vdc_id := id;
+                $parent_vdcgroups := $vdcgroups.$spread()[$vdc_id in *.vdcs.id].(
+                    {
+                        'id': $.*.id,
+                        'name': $.*.name,
+                        'link': '/entities/' & $vdcgroups_view & '/card?id=' & $.*.id
+                    }
+                );
+                $orgid := vdc.org_id;
+                $org := $orgs.$spread()[$keys() = $orgid];
+                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                {
+                    'id': id,
+                    'short_id': vdc.id,
+                    'name': vdc.name,
+                    'description': vdc.description,
+                    'vapp_ids': $vapps.$spread()[*.vdc_id = $vdc_id].*.id,
+                    'vapp_names': $vapps.$spread()[*.vdc_id = $vdc_id].*.name,
+                    'availableNetwork_ids': vdc.availableNetworks.id,
+                    'availableNetwork_names': vdc.availableNetworks.name,
+                    'vdcgroups': $parent_vdcgroups,
+                    'org_name': vdc.org_name,
+                    'org_id': vdc.org_id,
+                    'computeproviderscope': vdc.computeproviderscope,
+                    'link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & vdc.org_id,
+                    'entity': $vdcs_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': "VDC в облаке VMware",
+                    'DC': $dc.$keys()[0],
+                    'dc_name': $dc.*.title
+                }
+            )]
+        )

@@ -76,7 +76,7 @@ entities:
           (
               $id := $params.id;
               $edr := $reverse_general_edrs($)[id = $id];
-              $vms := $reverse_enterprise_vms($)[name in $edr.hosts];
+              $vms := $reverse_vmwarecloud_vms($)[name in $edr.hosts];
           )
 
       no_edr:
@@ -121,5 +121,5 @@ entities:
           (
               $domain := $params.domain;
               $edrs := $reverse_general_edrs($, $domain);
-              $vms := $reverse_enterprise_vms($, $domain)[$not(name in $edrs.hosts)];
+              $vms := $reverse_vmwarecloud_vms($, $domain)[$not(name in $edrs.hosts)];
           )

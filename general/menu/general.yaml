@@ -16,10 +16,6 @@ entities:
               {
                   "location": $config.arch_menu & "/Cloud.ru/Advanced",
                   "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.advanced&txt=Advanced"
-              }, 
-              {
-                  "location": $config.arch_menu & "/Cloud.ru/VMware Cloud",
-                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud"
               }
           ];
       )

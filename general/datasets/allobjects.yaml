@@ -9,13 +9,13 @@ datasets:
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
           $advs := $$.$spread()[$adv_entity_matcher($keys())];
-          $enterprise := $append($enterprise, $reverse_enterprise_egws($));
-          $enterprise := $append($enterprise, $reverse_enterprise_orgnets($));
-          $enterprise := $append($enterprise, $reverse_enterprise_orgs($));
-          $enterprise := $append($enterprise, $reverse_enterprise_vappnets($));
-          $enterprise := $append($enterprise, $reverse_enterprise_vapps($));
-          $enterprise := $append($enterprise, $reverse_enterprise_vdcgroups($));
-          $enterprise := $append($enterprise, $reverse_enterprise_vdcs($));
-          $enterprise := $append($enterprise, $reverse_enterprise_vms($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_egws($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_orgnets($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_orgs($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_vappnets($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_vapps($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_vdcgroups($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_vdcs($));
+          $enterprise := $append($enterprise, $reverse_vmwarecloud_vms($));
           $allobjects := $append($advs, $enterprise);
       )

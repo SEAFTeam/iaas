@@ -4,7 +4,7 @@ seaf.ta.reverse.general:
     arch_menu: Архитектура/IaaS
     functions:
       server:
-        - 'reverse_enterprise_vms'
+        - 'reverse_vmwarecloud_vms'
         - 'reverse_advanced_ecss'
     entities:
       vms:

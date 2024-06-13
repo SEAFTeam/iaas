@@ -1,0 +1,89 @@
+functions:
+  reverse_vmwarecloud_vms:
+    title: Список виртуальных машин
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vms.model;
+            $vms_view := dataset."seaf.ta.reverse.general".config.entities.vms.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
+            $vapps_views := dataset."seaf.ta.reverse.general".config.entities.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
+            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+        
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $edrs := $lookup(dataset, $edrs_entity)[$domain_matcher($keys())];
+            $avs := $lookup(dataset, $avs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+        
+            [[$vms.$spread().{
+                'id': $keys(),
+                'vm': *
+            }].(
+                $disks := $join(vm.disks.(*.device & ' - ' & *.type & ' - ' & *.size & 'Gb'), '\n');
+                $addresses := $count(vm.reverse.addresses) > 1 ? $join(vm.reverse.addresses.($ != null ? $), ', ') : vm.reverse.addresses;
+                $vapp_id := vm.reverse.vapp_id;
+                $vapp := $lookup($vapps, $vapp_id);
+                $subnets := $count(vm.reverse.subnet_names) > 1 ? $join(vm.reverse.subnet_names.($ != null ? $), ', ') : vm.reverse.subnet_names;
+                $vdc_id := vm.reverse.vdc_id;
+                $vdc := $lookup($vdcs, $vdc_id);
+                $av := vm.name in $avs.**.hosts ? true : false;
+                $edr := vm.name in $edrs.**.hosts ? true : false;
+                $org := $lookup($orgs, $vdc.org_id);
+                $dc := $lookup($dcs, $org.DC);
+                $tags := $join(vm.reverse.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
+                {
+                    'id': id,
+                    'short_id': vm.id,
+                    'name': vm.title,
+                    'description': vm.description,
+                    'os_type': vm.os.type,
+                    'os_bit': vm.os.bit,
+                    'cpu_qty': vm.cpu.cores,
+                    'ram': vm.ram / 1024,
+                    'flavor': 'Здесь нет flavor',
+                    'disks': $disks,
+                    'nic_qty': vm.nic_qty,
+                    'addresses': vm.reverse.addresses,
+                    'vapp': $vapp.name,
+                    'vapp_id': $vapp_id,
+                    'av': $av,
+                    'edr': $edr,
+                    'subnet': $subnets,
+                    'subnet_ids': vm.subnets,
+                    'az': 'Здесь нет зоны доступности',
+                    'tags': $tags,
+                    'vdc': vm.reverse.vdc_name,
+                    'vdc_id': vm.reverse.vdc_id,
+                    'org': $vdc.org_name,
+                    'org_id': $vdc.org_id,
+                    'tenant': 'Нет тенанта',
+                    'link': '/entities/' & $vms_view & '/card?id=' & id,
+                    'vapp_link': '/entities/' & $vapps_view & '/card?id=' & $vapp_id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'entity': $vms_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_name': "Виртуальная машина в облаке VMware",
+                    'DC': $org.DC,
+                    'dc_name': $dc.title
+                }
+            )]
+        )
