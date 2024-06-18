@@ -1,0 +1,15 @@
+entities:
+    seaf.ta.components.k8s_service:
+        presentations:
+            get_service:
+                type: markdown
+                template: templates/service.md
+                source: >
+                    (
+                        $service := $."seaf.ta.components.k8s_service".$spread()[$.*.id = $params.id];
+                        {                        
+                            "name"              : $service.*.name,
+                            "type"              : $service.*.type,
+                            "ports"             : $service.*.ports
+                        }
+                    )

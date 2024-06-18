@@ -1,0 +1,77 @@
+entities:
+    seaf.ta.services.k8s:
+        presentations:
+            rx_list:
+                type: table
+                headers:
+                - value: name
+                  text: Название
+                  width: 200
+                  sortable: true
+                  link: link
+                - value: fqdn
+                  text: FQDN
+                  width: 200
+                  sortable: true
+                source: >
+                    (
+                        $clusters := $."seaf.ta.services.k8s"; 
+                        [$clusters.$spread().(
+                            {
+                                "name" : $.*.kubernetes_id,
+                                "fqdn" : $.*.cluster_fqdn,
+                                "link" : '/entities/seaf.ta.services.k8s/rx_get?id=' & $.*.kubernetes_id
+                            }
+                        )]
+                    )
+            rx_get:
+                type: markdown
+                template: templates/cluster.md
+                source: > 
+                    (
+                        $cluster_id := "seaf.ta.services.k8s." & $params.id;
+                        $cluster    := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $cluster_id];
+                        $nodes      := $."seaf.ta.reverse.k8s.node".$spread()[$.*.cluster = $cluster_id];
+                        $node_count := $count($nodes);
+                        $some := 0;
+                        {                        
+                            "id"            : $params.id,
+                            "cluster_id"    : $cluster_id,
+                            "fqdn"          : $cluster.*.cluster_fqdn,
+                            "node_count"    : $node_count
+                        }
+                    )
+            rx_cluster_nodes:
+                type: table
+                headers:
+                    - value: name
+                      text: Название
+                      link: link
+                source: > 
+                    (
+                        $nodes := $."seaf.ta.reverse.k8s.node".$spread()[*.cluster = $params.id]; 
+                        [$nodes.$spread().(
+                            {
+                                "name" : $.*.name,
+                                "cluster": $.*.cluster,
+                                "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.*.id
+                            }
+                        )]
+                    )
+            rx_cluster_namespaces:
+                type: table
+                headers:
+                    -   value: name
+                        text: Название
+                        link: link
+                source: >
+                    (
+                        $namespaces := $."seaf.ta.reverse.k8s.namespace".$spread()[*.cluster = $params.id]; 
+                        [$namespaces.$spread().(
+                            {
+                                "name" : $.*.name,
+                                "cluster": $.*.cluster,
+                                "link" : '/entities/seaf.ta.reverse.k8s.namespace/get_namespace?id=' & $.*.id
+                            }
+                        )]
+                    )

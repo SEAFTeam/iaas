@@ -1,0 +1,14 @@
+    {{#items}}
+        {{entity}}.{{metadata.uid}}:
+            id: {{metadata.uid}}
+            name: {{metadata.name}}
+            type: {{spec.type}}
+            namespace: {{parent.entity}}.{{parent.item.metadata.uid}}
+            namespace-name: {{parent.item.metadata.name}}
+            ports:
+            {{#spec.ports}}
+                - port: {{port}}
+                  targetPort: {{target_port}}
+                  nodePort: {{node_port}}
+            {{/spec.ports}}
+    {{/items}}

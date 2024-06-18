@@ -1,0 +1,53 @@
+entities:
+    seaf.ta.reverse.k8s.namespace:
+        presentations:
+            get_namespace:
+                type: markdown
+                template: templates/namespace.md
+                source: >
+                    (
+                        $namespace      := $."seaf.ta.reverse.k8s.namespace".$spread()[$.*.id = $params.id];
+                        {                        
+                            "id"            : $params.id,
+                            "name"          : $namespace.*.name
+                        }
+                    )
+            namespace_deployments:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                source: >
+                    (
+                        $nsid := "seaf.ta.reverse.k8s.namespace." & $params.id;
+                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace = $nsid]; 
+                        [$deployments.$spread().(
+                            {
+                                "name" : $.*.name,
+                                "link" : '/entities/seaf.ta.components.k8s_deployment/get_deployment?id=' & $.*.deployment_id
+                            }
+                        )]
+
+                    )
+            namespace_services:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                    - value: type
+                      text: тип
+                source: >
+                    (
+                        $nsid := "seaf.ta.reverse.k8s.namespace." & $params.id;
+                        $services := $."seaf.ta.components.k8s_service".$spread()[*.namespace = $nsid]; 
+                        [$services.$spread().(
+                            {
+                                "name"  : $.*.name,
+                                "type"  : $.*.type,
+                                "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.*.id
+                            }
+                        )]
+
+                    )

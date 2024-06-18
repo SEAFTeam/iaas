@@ -1,2 +1,6 @@
 imports:
+    - cluster.yaml
     - node.yaml
+    - namespace.yaml
+    - deployment.yaml
+    - service.yaml

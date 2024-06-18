@@ -3,6 +3,7 @@ from kubernetes import client
 from extractor  import Extractor
 # извлекатель деплойментов
 from deployment import DeploymentExtractor
+from service import ServiceExtractor
 
 class NamespaceExtractor(Extractor):
     # конструктор
@@ -20,7 +21,6 @@ class NamespaceExtractor(Extractor):
     # загрузко объектов, дочерних по отношению к namespace
     def children(self, serializer, items):
         for namespace in items:
-
             # извлечение деплойментов
             deployments = DeploymentExtractor(self.kube, namespace)
             parent = {}
@@ -28,4 +28,10 @@ class NamespaceExtractor(Extractor):
             parent['entity'] = self.entity()
             deployments.extract(serializer, parent)
 
+            # извлечение сервисов
+            services = ServiceExtractor(self.kube, namespace)
+            parent = {}
+            parent['item'] = namespace
+            parent['entity'] = self.entity()
+            services.extract(serializer, parent)
 
