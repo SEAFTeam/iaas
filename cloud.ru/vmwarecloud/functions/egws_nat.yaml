@@ -33,7 +33,7 @@ functions:
                 }].(
                     $gw_id := nat.gw;
                     $egw := $egws[$keys() = $gw_id];
-                    $org_id := $egw.*.reverse.org;
+                    $org_id := $egw.*.org;
                     $org := $orgs.$spread()[$keys() = $org_id];
                     $orgtitle := $org.*.title;
                     $dc := $dcs.$spread()[$keys() = $org.*.dc];

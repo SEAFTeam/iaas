@@ -27,7 +27,7 @@ entities:
               $gw := $.*.gw;
               $egw := $egws.$spread()[$keys() = $gw];
               $egwtitle := $egw.*.title;
-              $egw.*.vdcgroup != null ? (
+              $egw.*.reverse.vdcgroup != null ? (
                 $vdcgrouptitle := $egw.*.reverse.vdcgroup_title;
                 $vdcgroup_id := $egw.*.reverse.vdcgroup;
                 $org_id := $egw.*.reverse.org;
