@@ -8,15 +8,15 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             id:
               title: FW Rule ID
               type: string
-            gw_id:
+            gw:
               title: Идентификатор Edge Gateway
-              $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.egws.egw'
+              $ref: '#/$rels/seaf.ta.components.network.network'
             title:
               title: Наименование правила
               type: string
@@ -50,7 +50,8 @@ entities:
                         anyOf:
                           - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
                           - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vms.vm'
+                          - $ref: '#/$rels/seaf.ta.components.server.server'
+                          - $ref: '#/$rels/seaf.ta.services.network.network'
             destinationFirewallGroups:
               title: Конфигурация правила FW (destination)
               type: object
@@ -75,7 +76,8 @@ entities:
                         anyOf:
                           - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
                           - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
-                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vms.vm'
+                          - $ref: '#/$rels/seaf.ta.components.server.server'
+                          - $ref: '#/$rels/seaf.ta.services.network.network'
             ip_protocol:
               title: Протокол IP
               enum:
@@ -99,19 +101,21 @@ entities:
                 - 'OUT'
             port_profiles:
               title: Порты и протоколы
-              type: array
-              items:
-                - patternProperties:
-                    ".*":
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          protocol:
-                            title: Протокол L4
-                            type: string
-                          dst_ports:
-                            title: Порты
-                            type: array
-                            items:
-                              - type: string
+              type: object
+              patternProperties:
+                "^[a-zA-Z0-9_-]*(:[a-zA-Z0-9_-]*)*$":
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      protocol:
+                        title: Протокол L4
+                        type: string
+                      dst_ports:
+                        title: Порты
+                        type: array
+                        items:
+                          type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

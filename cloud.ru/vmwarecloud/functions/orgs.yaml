@@ -27,7 +27,7 @@ functions:
                 'org': *
             }].(
                 $org := $;
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
                 { 
                     'id': id,
                     'short_id': org.id,
@@ -37,7 +37,7 @@ functions:
                     'entity': $orgs_view,
                     'entity_type': 'VMware Cloud',
                     'entity_title': 'Организации в облаке VMware',
-                    'DC': $dc.$keys()[0],
+                    'dc': $dc.$keys()[0],
                     'dc_title': $dc.*.title
                 }
             )]

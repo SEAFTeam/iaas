@@ -20,13 +20,13 @@ seaf.ta.reverse.general:
         model: seaf.ta.reverse.vmwarecloud.vdcgroups
         view: seaf.ta.reverse.vmwarecloud.vdcgroups
       orgnets:
-        model: seaf.ta.reverse.vmwarecloud.orgnets
+        model: seaf.ta.services.network
         view: seaf.ta.reverse.vmwarecloud.orgnets
       vappnets:
-        model: seaf.ta.reverse.vmwarecloud.vappnets
+        model: seaf.ta.services.network
         view: seaf.ta.reverse.vmwarecloud.vappnets
       egws:
-        model: seaf.ta.reverse.vmwarecloud.egws
+        model: seaf.ta.components.network
         view: seaf.ta.reverse.vmwarecloud.egws
       egws_nat:
         model: seaf.ta.reverse.vmwarecloud.egws_nat

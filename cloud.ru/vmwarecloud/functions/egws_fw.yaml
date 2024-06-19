@@ -22,7 +22,7 @@ functions:
                 $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
                 $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
             
-                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())];
+                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
                 $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
                 $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
                 $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
@@ -31,12 +31,12 @@ functions:
                     'id': $keys(),
                     'fw': *
                 }].(
-                    $gw_id := fw.gw_id;
+                    $gw_id := fw.gw;
                     $egw := $egws[$keys() = $gw_id];
-                    $org_id := $egw.*.org_id;
+                    $org_id := $egw.*.org;
                     $org := $orgs.$spread()[$keys() = $org_id];
                     $orgtitle := $org.*.title;
-                    $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                    $dc := $dcs.$spread()[$keys() = $org.*.dc];
                     $context := $;
                     $src := $not($exists(fw.sourceFirewallGroups.*)) ? 'Any' : $append(
                             ($not(null in fw.sourceFirewallGroups.**.members) ? fw.sourceFirewallGroups.**.members), 
@@ -47,7 +47,8 @@ functions:
                     $ports := $not($exists(fw.port_profiles.*)) ? {'port': 'Any', 'protocol': 'Any' } : (
                             fw.port_profiles.*.(
                                 $proto := protocol;
-                                dst_ports.(
+                                $dst_ports := ($exists($.dst_ports) and $count($.dst_ports) > 0) ? $join($.dst_ports, ", ") : "Any";
+                                $dst_ports.(
                                     {'port': $, 'protocol': $proto}
                                 )
                             )
@@ -61,7 +62,7 @@ functions:
                                 {
                                     'id': $context.id,
                                     'short_id': $context.fw.id,
-                                    'gw_id': $context.fw.gw_id,
+                                    'gw': $context.fw.gw,
                                     'title': $context.fw.title,
                                     'description': $context.fw.description,
                                     'enabled': $context.fw.enabled,
@@ -73,15 +74,15 @@ functions:
                                     'protocol': $port_profile.protocol,
                                     'port': $port_profile.port,
                                     'egw_title': $egw.*.title,
-                                    'egw_id': $egw.$keys()[0],
-                                    'org_id': $org_id,
+                                    'egw': $egw.$keys()[0],
+                                    'org': $org_id,
                                     'org_title': $orgtitle,
                                     'link': '/entities/' & $egws_fw_view & '/card?id=' & id,
                                     'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
                                     'entity': $egws_fw_view,
                                     'entity_type': 'VMware Cloud',
                                     'entity_title': 'Правила NAT на Edge в облаке VMware',
-                                    'DC': $dc.$keys()[0],
+                                    'dc': $dc.$keys()[0],
                                     'dc_title': $dc.*.title
                                 }
                             )

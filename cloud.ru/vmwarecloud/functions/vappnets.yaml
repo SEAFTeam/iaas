@@ -25,7 +25,7 @@ functions:
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
         
-            $vappnets := $lookup(dataset, $vappnets_entity)[$domain_matcher($keys())];
+            $vappnets := $lookup(dataset, $vappnets_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "vAppNetwork"];
             $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
             $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
             $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
@@ -35,36 +35,37 @@ functions:
                 'id': $keys(),
                 'vappnet': *
             }].(
-                $vapp_id := vappnet.vapp_id;
+                $vapp_id := vappnet.reverse.vapp;
                 $vapp := $vapps.$spread()[$keys() = $vapp_id];
-                $vdc_id := $vapp.*.vdc_id;
+                $vdc_id := $vapp.*.vdc;
                 $vdc := $vdcs.$spread()[$keys() = $vdc_id];
-                $org_id := $vdc.*.org_id;
+                $org_id := $vdc.*.org;
                 $org := $orgs.$spread()[$keys() = $org_id];
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
                 {
                     'id': id,
                     'short_id': vappnet.id,
                     'title': vappnet.title,
                     'description': vappnet.description,
-                    'gateway': vappnet.gateway,
-                    'netmask': vappnet.netmask,
-                    'fencemode': vappnet.fencemode,
-                    'ipscopes': vappnet.ipscopes,
-                    'parentnetwork_id': vappnet.parentnetwork_id,
-                    'dns': vappnet.dns,
+                    'ipnetwork': orgnet.iptework,
+                    'gateway': vappnet.reverse.gateway,
+                    'netmask': vappnet.reverse.netmask,
+                    'fencemode': vappnet.reverse.fencemode,
+                    'ipscopes': vappnet.reverse.ipscopes,
+                    'parentnetwork': vappnet.reverse.parentnetwork,
+                    'dns': vappnet.reverse.dns,
                     'vapp_title': $vapp.*.title,
-                    'vapp_id': vappnet.vapp_id,
+                    'vapp': vappnet.reverse.vapp,
                     'vdc_title': $vdc.*.title,
-                    'vdc_id': $vdc.*.id,
+                    'vdc': $vdc.*.id,
                     'org_title': $org.*.title,
-                    'org_id': $org.*.id,
+                    'org': $org.*.id,
                     'link': '/entities/' & $vappnets_view & '/card?id=' & id,
                     'vapp_link': '/entities/' & $vapps_view & '/card?id=' & vappnet.vapp_id,
                     'entity': $vappnets_view,
                     'entity_type': 'VMware Cloud',
                     'entity_title': 'vApp Network в облаке VMware',
-                    'DC': $dc.$keys()[0],
+                    'dc': $dc.$keys()[0],
                     'dc_title': $dc.*.title
                 }
             )]

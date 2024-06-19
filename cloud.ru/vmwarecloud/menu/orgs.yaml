@@ -15,7 +15,7 @@ entities:
           $menu := $orgs.$spread().(
               $id := $keys()[0];
               $org := $;
-              $dc := $dcs.$spread()[$keys() = $org.*.DC];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $title := $.*.title;
               [{
                   "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware/Организации/" & $title ,

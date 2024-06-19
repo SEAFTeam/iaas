@@ -31,26 +31,26 @@ functions:
                 'vdcgroup': *
             }].(
                 $vdcgroup_id := id;
-                $orgid := vdcgroup.org_id;
+                $orgid := vdcgroup.org;
                 $org := $orgs.$spread()[$keys() = $orgid];
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];      
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];      
             {
                     'id': id,
                     'short_id': vdcgroup.id,
                     'title': vdcgroup.title,
                     'description': vdcgroup.description,
-                    'vdc_ids': vdcgroup.vdcs.id,
+                    'vdcs': vdcgroup.vdcs.id,
                     'vdc_titles': vdcgroup.vdcs.title,
-                    'network_ids': vdcgroup.networks.id,
+                    'networks': vdcgroup.networks.id,
                     'network_titles': vdcgroup.networks.title,
                     'org_title': $org.*.title,
-                    'org_id': vdcgroup.org_id,
+                    'org': vdcgroup.org,
                     'link': '/entities/' & $vdcgroups_view & '/card?id=' & $vdcgroup_id,
                     'org_link': '/entities/' & $orgs_view & '/card?id=' & $orgid,
                     'entity': $vdcgroups_view,
                     'entity_type': 'VMware Cloud',
                     'entity_title': 'VDC Group в облаке VMware',
-                    'DC': $dc.$keys()[0],
+                    'dc': $dc.$keys()[0],
                     'dc_title': $dc.*.title
                 }
             )]

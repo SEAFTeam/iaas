@@ -8,7 +8,7 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             id:
@@ -23,7 +23,7 @@ entities:
             description:
               title: Описание vApp
               type: string
-            vdc_id:
+            vdc:
               title: Идентификаторв vdc
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_title:

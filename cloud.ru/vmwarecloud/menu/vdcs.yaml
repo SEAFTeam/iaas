@@ -18,7 +18,7 @@ entities:
       
           $config := "seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
-              $dcid := $.*.DC;
+              $dcid := $.*.dc;
               $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
               {
                   'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/VDC',
@@ -35,8 +35,8 @@ entities:
               $id := $keys()[0];
               $title := $.*.title;
               $vdc := $;
-              $org := $orgs.$spread()[$keys() = $vdc.*.org_id];
-              $dc := $dcs.$spread()[$keys() = $org.*.DC];
+              $org := $orgs.$spread()[$keys() = $vdc.*.org];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $orgtitle := $.*.org_title;
               {
                   'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title,
@@ -48,8 +48,8 @@ entities:
               $title := $.*.title;
               $vdcgroup := $vdcgroups.$spread()[$id in *.vdcs.id];
               $vdc := $;
-              $org := $orgs.$spread()[$keys() = $vdc.*.org_id];
-              $dc := $dcs.$spread()[$keys() = $org.*.DC];
+              $org := $orgs.$spread()[$keys() = $vdc.*.org];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $orgtitle := $.*.org_title;
               $vdcgroup.$spread().(
                 {

@@ -22,12 +22,12 @@ entities:
           $menu := $vapps.$spread().(
               $id := $keys();
               $title := $.*.title;
-              $vdc_id := $.*.vdc_id;
+              $vdc_id := $.*.vdc;
               $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
-              $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org_id;
+              $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org;
               $org := $orgs.$spread()[$keys() = $org_id];
               $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.DC];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $vdc_id in $vdcgroups.*.vdcs.id ? (
                   $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
                   $vdcgroup.$spread().(

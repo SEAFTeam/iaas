@@ -65,9 +65,9 @@ entities:
         source: > 
           (
               $domain := $params.domain;
-              $vdc_id := $params.vdc_id;
+              $vdc := $params.vdc;
               $dataset := $$;
-              $tmp := $exists($vdc_id) ? [$reverse_vmwarecloud_vms($dataset, $domain)[vdc_id = $vdc_id]] : [$reverse_vmwarecloud_vms($dataset, $domain)];
+              $tmp := $exists($vdc) ? [$reverse_vmwarecloud_vms($dataset, $domain)[vdc = $vdc]] : [$reverse_vmwarecloud_vms($dataset, $domain)];
               $tmp ~> | $ | {'edr': (edr = true ? '✅' : '❌'), 'av': (av = true ? '✅' : '❌')  } |
           )
 

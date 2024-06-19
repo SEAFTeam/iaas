@@ -18,8 +18,8 @@ entities:
               $id := $params.id;
               $org := $reverse_vmwarecloud_orgs($)[id = $id];
               $txt := 'VDC и VDC группы в организации';
-              $vdcs := $reverse_vmwarecloud_vdcs($)[org_id = $id];
-              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[org_id = $id];
+              $vdcs := $reverse_vmwarecloud_vdcs($)[org = $id];
+              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[org = $id];
               $items := {
                           'title': $org.title
               };

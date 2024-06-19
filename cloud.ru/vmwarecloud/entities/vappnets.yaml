@@ -8,7 +8,7 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             id:
@@ -40,14 +40,15 @@ entities:
                 - bridged
                 - isolated
                 - natRouted
-            islinked:
+            connected:
               title: Статус подключения
               type: string
-            parentnetwork_id:
+            parentnetwork:
               title: Идентификатор вышестоящей сети
               oneOf:
                 - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
                 - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet"
+                - $ref: "#/$rels/seaf.ta.services.network.network"
                 - type: string
             ipscopes:
               title: Границы сетей
@@ -89,7 +90,7 @@ entities:
               title: Тип сети
               enum:
                 - "vAppNetwork"
-            vapp_id:
+            vapp:
               title: Идентификатор vApp
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
             gateway:
@@ -97,6 +98,22 @@ entities:
               type: string
             netmask:
               title: Маска сети vApp
+              type: string
+            shared:
+              title: Shared
+              type: boolean
+            parentnetwork:
+              title: Идентификатор вышестоящей сети
+              oneOf:
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet"
+                - $ref: "#/$rels/seaf.ta.services.network.network"
+                - type: string
+            connected:
+              title: Статус подключения
+              type: boolean
+            status:
+              title: Статус реализации
               type: string
             dns:
               title: DNS
@@ -113,16 +130,6 @@ entities:
                 - "bridged"
                 - "isolated"
                 - "natRouted"
-            connected:
-              title: Статус подключения
-              type: boolean
-            parentnetwork:
-              title: Идентификатор вышестоящей сети
-              oneOf:
-                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
-                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet"
-                - $ref: "#/$rels/seaf.ta.services.network.network"
-                - type: string
             ipscopes:
               title: Скоупы сетей
               type: array
@@ -152,7 +159,7 @@ entities:
                           type: string
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_\\.]*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           properties:
             reverse:
               oneOf:

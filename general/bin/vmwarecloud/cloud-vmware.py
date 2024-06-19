@@ -73,6 +73,21 @@ def save(object, path, filename):
     with open(f'{path}/{filename}.yaml', 'w', encoding='utf-8') as outfile:
         yaml.dump(object, outfile, allow_unicode=True, encoding='utf-8', indent=4, default_flow_style=False, sort_keys=False, Dumper=IndentDumper, explicit_end=False, explicit_start=False)
 
+# Вычисляем адрес сети
+def get_cidr(*args):
+    addr = args[0] if args[0] != '' else "0.0.0.0"
+    mask = args[1] if args[1] != '' else "0.0.0.0"
+
+    addr = [int(x) for x in addr.split(".")]
+    mask = [int(x) for x in mask.split(".")]
+    cidr = sum((bin(x).count('1') for x in mask))
+
+    netw = [addr[i] & mask[i] for i in range(4)]
+
+    result = "{0}/{1}".format(('.'.join(map(str, netw))), cidr)
+    return result
+
+
 # Получаем версию API
 def get_api_versions(**kwarg):
     # Определение URL аутентификации
@@ -241,9 +256,9 @@ def get_orgs(site, access_token, api_init, prefix, dc):
         yaml_structure = {
             'id': org_id,
             'original_id': org_urn_id,
-            'name': org.get('name',''),
+            'title': org.get('name',''),
             'description': org.get('description', ''),
-            'DC': dc
+            'dc': dc
         }
 
         orgs_list['seaf.ta.reverse.vmwarecloud.orgs'][f'{org_seaf_id}'] = yaml_structure
@@ -299,7 +314,7 @@ def get_vdcgroups(site, access_token, api_init, prefix, dc):
             networks.append(
                 {
                     'id': network_id, 
-                    'name': network.get('name', '')
+                    'title': network.get('name', '')
                 }
             )
 
@@ -311,9 +326,9 @@ def get_vdcgroups(site, access_token, api_init, prefix, dc):
             vdcs.append(
                 {
                     'id': orgvdc_seaf_id,
-                    'name': orgvdc.get('vdcRef','').get('name'),
-                    'org_id': org_seaf_id,
-                    'org_name': orgvdc.get('orgRef','').get('name')
+                    'title': orgvdc.get('vdcRef','').get('name'),
+                    'org': org_seaf_id,
+                    'org_title': orgvdc.get('orgRef','').get('name')
                 }
             )
         
@@ -323,16 +338,16 @@ def get_vdcgroups(site, access_token, api_init, prefix, dc):
         yaml_structure = {
             'id': vdcgroup_id,
             'original_id': vdcgroup_urn_id,
-            'name': vdcgroup.get('name',''),
+            'title': vdcgroup.get('name',''),
             'networkprovidertype': vdcgroup.get('networkProviderType',''),
             'type': vdcgroup.get('type',''),
-            'networkpoolid': netpool_id,
+            'networkpool': netpool_id,
             'localegress': vdcgroup.get('localEgress',''),
             'dfwenabled': vdcgroup.get('dfwEnabled',''),
-            'org_id': org_id,
+            'org': org_id,
             'networks': [],
             'vdcs': [],
-            'DC': dc
+            'dc': dc
         }
         yaml_structure['networks'] = networks
         yaml_structure['vdcs'] = vdcs
@@ -389,7 +404,7 @@ def get_vdcs(site, access_token, api_init, prefix, dc):
             networks.append(
                 {
                     'id': network_id, 
-                    'name': network.get('name', '')
+                    'title': network.get('name', '')
                 }
             )
 
@@ -398,14 +413,14 @@ def get_vdcs(site, access_token, api_init, prefix, dc):
         yaml_structure = {
             'id': vdc_id,
             'original_id': vdc_urn_id,
-            'name': vdc.get('name',''),
+            'title': vdc.get('name',''),
             'allocationtype': vdc.get('allocationType',''),
-            'org_name': vdc.get('org','').get('name',''),
-            'org_id': org_id,
-            'availableNetworks': [],
-            'DC': dc
+            'org_title': vdc.get('org','').get('name',''),
+            'org': org_id,
+            'availablenetworks': [],
+            'dc': dc
         }
-        yaml_structure['availableNetworks'] = networks
+        yaml_structure['availablenetworks'] = networks
 
         vdcs_list['seaf.ta.reverse.vmwarecloud.vdcs'][f'{vdc_seaf_id}'] = yaml_structure
 
@@ -415,7 +430,7 @@ def get_orgnetworks(site, access_token, api_init, prefix, dc):
     # Receiving OrgNetworks 
     print(f'{bcolors.HEADER}Org Networks *************************************** {bcolors.ENDC}')
     orgnetworks = []
-    orgnetworks_list = {'seaf.ta.reverse.vmwarecloud.orgnets': {}}
+    orgnetworks_list = {'seaf.ta.services.network': {}}
 
     query = f'https://{site}/cloudapi/1.0.0/orgVdcNetworks?pageSize=100'
     try:
@@ -484,29 +499,40 @@ def get_orgnetworks(site, access_token, api_init, prefix, dc):
 
         yaml_structure = {
             'id': orgnet_id,
-            'original_id': orgnet_urn_id,
-            'type': 'orgNetwork',
-            'name': orgnet.get('name',''),
+            'title': orgnet.get('name',''),
             'description': orgnet.get('description',''),
-            'netmask': '',
-            'gateway': '',
-            'parentnetwork': parentnetwork_id,
-            'backingnetworktype': orgnet.get('backingNetworkType',''),
-            'networkpool_id': '',
-            'networkpool': '',
-            'isdefaultnetwork': orgnet.get('isDefaultNetwork',''),
-            'shared': orgnet.get('shared',''),
-            'status': orgnet.get('status',''),
-            'org_id': org_id,
-            'vdc_id': vdc_id,
-            'vdc_name':  vdc_name,
-            'vdcgroup_id': vdcgroup_id,
-            'vdcgroup_name': vdcgroup_name,
-            'connected': connected,
-            'dns': dns,
-            'fencemode': orgnet.get('networkType',''),
-            'ipscopes': [],
-            'DC': dc
+            'type': 'Проводная',
+            'lan_type': 'LAN',
+            'az':'',
+            'segment':'',
+            'vlan':'',
+            'ipnetwork':'',
+            'purpose': '',
+            'network_appliance_id': '',
+            'reverse': {
+                'reverse_type': 'VMwareCloud',
+                'original_id': orgnet_urn_id,
+                'type': 'orgNetwork',
+                'netmask': '',
+                'gateway': '',
+                'parentnetwork': parentnetwork_id,
+                'backingnetworktype': orgnet.get('backingNetworkType',''),
+                'networkpool': '',
+                'networkpool_title': '',
+                'isdefaultnetwork': orgnet.get('isDefaultNetwork',''),
+                'shared': orgnet.get('shared',''),
+                'status': orgnet.get('status',''),
+                'org': org_id,
+                'vdc': vdc_id,
+                'vdc_title':  vdc_name,
+                'vdcgroup': vdcgroup_id,
+                'vdcgroup_title': vdcgroup_name,
+                'connected': connected,
+                'dns': dns,
+                'fencemode': orgnet.get('networkType',''),
+                'ipscopes': []
+            },
+            'dc': dc
         }
 
         # Getting All Networks
@@ -524,13 +550,15 @@ def get_orgnetworks(site, access_token, api_init, prefix, dc):
                     'ipranges': [x for x in ipranges]
                 }
                 ipscope.append(yaml_scope)
-        yaml_structure['ipscopes'] = ipscope
+        yaml_structure['reverse']['ipscopes'] = ipscope
         netmask = [x.get('netmask','') for x in ipscope if x.get('netmask') not in [None,'']]
         gateway = [x.get('gateway','') for x in ipscope if x.get('gateway') not in [None,'']]
-        yaml_structure['netmask'] = netmask[0] if netmask not in [None, '', []] else ''
-        yaml_structure['gateway'] = gateway[0] if gateway not in [None, '', []] else ''
+        yaml_structure['reverse']['netmask'] = netmask[0] if netmask not in [None, '', []] else ''
+        yaml_structure['reverse']['gateway'] = gateway[0] if gateway not in [None, '', []] else ''
+        ipnetwork = get_cidr(yaml_structure['reverse']['gateway'], yaml_structure['reverse']['netmask'])
+        yaml_structure['ipnetwork'] = ipnetwork
 
-        orgnetworks_list['seaf.ta.reverse.vmwarecloud.orgnets'][orgnet_seaf_id] = yaml_structure
+        orgnetworks_list['seaf.ta.services.network'][orgnet_seaf_id] = yaml_structure
 
     save(orgnetworks_list, exportpath, "enterprise_orgnets")
 
@@ -538,7 +566,7 @@ def get_edgegw(site, access_token, api_init, prefix, dc):
     # Receiving Edge Gateways 
     print(f'{bcolors.HEADER}Edge Gateways ***************************************{bcolors.ENDC}')
     egws = []
-    egw_list = {'seaf.ta.reverse.vmwarecloud.egws': {}}
+    egw_list = {'seaf.ta.components.network': {}}
 
     query = f'https://{site}/cloudapi/1.0.0/edgeGateways?pageSize=100'
     try:
@@ -598,8 +626,8 @@ def get_edgegw(site, access_token, api_init, prefix, dc):
                 uplink_seaf_id = prefix + 'orgnets.' + uplink_id
 
                 yaml_if = {
-                    'name': item.get('uplinkName',''),
-                    'network_id': uplink_seaf_id,
+                    'title': item.get('uplinkName',''),
+                    'network': uplink_seaf_id,
                     'iftype': 'uplink',
                     'usefordefaultroute': 'No idea where to get from new API',
                     'connected': item.get('connected',''),
@@ -651,8 +679,8 @@ def get_edgegw(site, access_token, api_init, prefix, dc):
             else: usefordefaultroute = False
 
             yaml_if = {
-                'name': item.get('name',''),
-                'network_id': network_seaf_id,
+                'title': item.get('name',''),
+                'network': network_seaf_id,
                 'iftype': item.get('connection','').get('connectionType',''),
                 'usefordefaultroute': usefordefaultroute,
                 'connected': connected,
@@ -733,29 +761,29 @@ def get_edgegw(site, access_token, api_init, prefix, dc):
         yaml_structure = {
             'id': gw_id,
             'original_id': gw_urn_id,
-            'name': gw.get('name'),
+            'title': gw.get('name'),
             'description': gw.get('description',''),
             'type': gw.get('gatewayBacking','').get('gatewayType'),
-            'vdc_id': vdc_id,
-            'vdc_name': vdc_name,
-            'vdcgroup_id': vdcgroup_id,
-            'vdcgroup_name': vdcgroup_name,
-            'org_id': org_id,
+            'vdc': vdc_id,
+            'vdc_title': vdc_name,
+            'vdcgroup': vdcgroup_id,
+            'vdcgroup_title': vdcgroup_name,
+            'org': org_id,
             # 'advancedNetworkingEnabled': r_details['configuration']['advancedNetworkingEnabled'],
             # 'distributedRoutingEnabled': r_details['configuration']['distributedRoutingEnabled'],
             'gatewayinterfaces': [],
-            'DC': dc
+            'dc': dc
         }
         yaml_structure['gatewayinterfaces'] = interfaces
 
-        egw_list['seaf.ta.reverse.vmwarecloud.egws'][gw_seaf_id] = yaml_structure
+        egw_list['seaf.ta.components.network'][gw_seaf_id] = yaml_structure
 
     save(egw_list, exportpath, "enterprise_egws")
 
 def get_vms(site, access_token, api_init, prefix, dc):
     # Получаем список VM
     vms = []
-    vms_list = {'seaf.ta.reverse.vmwarecloud.vms': {}}
+    vms_list = {'seaf.ta.components.server': {}}
 
     print(f'{bcolors.HEADER}VMs ***************************************{bcolors.ENDC}')
 
@@ -849,10 +877,10 @@ def get_vms(site, access_token, api_init, prefix, dc):
 
         yaml_structure = {
             'id': vm_id,
-            'original_id': vm_urn_id,
-            'name': computername,
+            'type': 'Виртуальный'
+            'title': computername,
+            'fqdn': computername,
             'description': vm_json['description'],
-            'flavor': '',
             'os': {
                 'type': [x for x in vm_json['section'] if x['_type'] == 'OperatingSystemSectionType'][0]['description']['value'],
                 'bit': [x for x in vm_json['section'] if x['_type'] == 'VmSpecSectionType'][0]['virtualCpuType'].split('_')[-1]
@@ -860,28 +888,31 @@ def get_vms(site, access_token, api_init, prefix, dc):
             'cpu': {
                 'cores': [x for x in vm_json['section'] if x['_type'] == 'VmSpecSectionType'][0]['numCpus'],
                 'frequency': '',
-                'arch': [x for x in vm_json['section'] if x['_type'] == 'VmSpecSectionType'][0]['virtualCpuType']
+                # 'arch': [x for x in vm_json['section'] if x['_type'] == 'VmSpecSectionType'][0]['virtualCpuType']
             },
             'ram': [x for x in vm_json['section'] if x['_type'] == 'VmSpecSectionType'][0]['memoryResourceMb']['configured'],
             'nic_qty': len([x for x in vm_json['section'] if x['_type'] == 'NetworkConnectionSectionType'][0]['networkConnection']),
-            'addresses': [],
             'subnets': [],
-            'subnet_ids': [],
             'disks': [],
-            'tags': [],
-            'vdc_id': vdc_id,
-            'vdc_name': vm['vdcName'],
-            'vapp_id': vapp_id,
-            'tenant': '',
-            'DC': dc
+            'reverse': {
+                'reverse_type': 'VMwareCloud'
+                'original_id': vm_urn_id,
+                'addresses': [],
+                'subnet_titles': [],
+                'tags': [],
+                'vdc': vdc_id,
+                'vdc_title': vm['vdcName'],
+                'vapp': vapp_id,
+                'tenant': ''
+            }
         }
 
         yaml_structure['disks'] = disks
-        yaml_structure['addresses'] = addresses
-        yaml_structure['subnets'] = subnets
-        yaml_structure['subnet_ids'] = subnetids
+        yaml_structure['reverse']['addresses'] = addresses
+        yaml_structure['subnets'] = subnetids
+        yaml_structure['reverse']['subnet_titles'] = subnets
 
-        vms_list['seaf.ta.reverse.vmwarecloud.vms'][vm_seaf_id] = yaml_structure
+        vms_list['seaf.ta.components.server'][vm_seaf_id] = yaml_structure
 
     save(vms_list, exportpath, 'enterprise_vms')
 
@@ -938,11 +969,11 @@ def get_vapps(site, access_token, api_init, prefix, dc):
         yaml_structure = {
             'id': vapp_id,
             'original_id': vapp_urn_id,
-            'name': vapp.get('name',''),
+            'title': vapp.get('name',''),
             'description': vapp.get('description',''),
-            'vdc_id': vdc_id,
-            'vdc_name': vapp.get('vdcName',''),
-            'DC': dc
+            'vdc': vdc_id,
+            'vdc_title': vapp.get('vdcName',''),
+            'dc': dc
         }
         vapps_list['seaf.ta.reverse.vmwarecloud.vapps'][vapp_seaf_id] = yaml_structure
 
@@ -951,7 +982,7 @@ def get_vapps(site, access_token, api_init, prefix, dc):
 def get_vappnets(site, access_token, api_init, prefix, dc):
     # Получаем vAppNets
     vappnets = []
-    vappnet_list = {'seaf.ta.reverse.vmwarecloud.vappnets': {}}
+    vappnet_list = {'seaf.ta.services.network': {}}
 
     print(f'{bcolors.HEADER}VApp Networks ***************************************{bcolors.ENDC}')
 
@@ -1021,17 +1052,29 @@ def get_vappnets(site, access_token, api_init, prefix, dc):
 
         yaml_structure = {
             'id': vappnet_id,
-            'original_id': vappnet_urn_id,
-            'name': vappnet['name'],
-            'vapp_id': vapp_id,
-            'gateway': vappnet['gateway'],
-            'netmask': vappnet['netmask'],
-            'dns': dns,
-            'fencemode': vappnet_details['configuration']['fenceMode'],
-            'islinked': islinked,
-            'parentnetwork_id': parentnetwork_id,
-            'ipscopes': [],
-            'DC': dc
+            'title': vappnet['name'],
+            'type': 'Проводная',
+            'lan_type': 'LAN',
+            'az':'',
+            'segment':'',
+            'vlan':'',
+            'ipnetwork':'',
+            'purpose': '',
+            'network_appliance_id': '',
+            'reverse':{
+                'reverse_type': 'VMwareCloud',
+                'type': 'vAppNetwork',
+                'original_id': vappnet_urn_id,
+                'vapp': vapp_id,
+                'gateway': vappnet['gateway'],
+                'netmask': vappnet['netmask'],
+                'dns': dns,
+                'fencemode': vappnet_details['configuration']['fenceMode'],
+                'connected': islinked,
+                'parentnetwork': parentnetwork_id,
+                'ipscopes': []
+            },
+            'dc': dc
         }
 
         ipscope = []
@@ -1047,9 +1090,9 @@ def get_vappnets(site, access_token, api_init, prefix, dc):
                         'ipranges': [x for x in ipranges]
                     }
                     ipscope.append(yaml_scope)
-        yaml_structure['ipscopes'] = ipscope
+        yaml_structure['reverse']['ipscopes'] = ipscope
 
-        vappnet_list['seaf.ta.reverse.vmwarecloud.vappnets'][vappnet_seaf_id] = yaml_structure
+        vappnet_list['seaf.ta.services.network'][vappnet_seaf_id] = yaml_structure
 
     save(vappnet_list, exportpath, 'enterprise_vappnets')
 
@@ -1108,8 +1151,8 @@ def get_edgenat(site, access_token, api_init, prefix, dc):
 
             yaml_structure = {
                 'id': id,
-                'gw_id': gw_seaf_id,
-                'name': name,
+                'gw': gw_seaf_id,
+                'title': name,
                 'description': value.get('description',''),
                 'enabled': value.get('enabled',''),
                 'type': value.get('type',''),
@@ -1120,7 +1163,7 @@ def get_edgenat(site, access_token, api_init, prefix, dc):
                 'snat_dst_address': value.get('snatDestinationAddresses',''),
                 'dnat_ext_port': value.get('dnatExternalPort',''),
                 'fw_match': value.get('firewallMatch',''),
-                'DC': dc
+                'dc': dc
             }
             nat_list['seaf.ta.reverse.vmwarecloud.egws_nat'][seaf_id] = yaml_structure
 
@@ -1181,8 +1224,8 @@ def get_edgefw(site, access_token, api_init, prefix, dc):
 
             yaml_structure = {
                 'id': id,
-                'gw_id': gw_seaf_id,
-                'name': name,
+                'gw': gw_seaf_id,
+                'title': name,
                 'description': rule.get('description',''),
                 'enabled': rule.get('enabled'),
                 'sourceFirewallGroups': rule.get('sourceFirewallGroups',''),
@@ -1192,7 +1235,7 @@ def get_edgefw(site, access_token, api_init, prefix, dc):
                 'action_value': rule.get('actionValue',''),
                 'direction': rule.get('direction',''),
                 'port_profiles': [],
-                'DC': dc
+                'dc': dc
             }
 
             src_fw_groups = {}

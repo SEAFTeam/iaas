@@ -38,17 +38,17 @@ entities:
                   value:
                     title: Значение ключа
                     type: string
-            vdc_id:
+            vdc:
               title: Virtual Datacenter ID
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_title:
               title: Virtual Datacenter title
               type: string
-            vapp_id:
+            vapp:
               title: vApp ID
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
             tenant:
-              title: Тенант
+              title: Тенант (project id)
               type: string
       type: object
       patternProperties:

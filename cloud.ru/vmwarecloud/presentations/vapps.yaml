@@ -8,7 +8,7 @@ entities:
           (   
               $id := $params.id;
               $vapp := $reverse_vmwarecloud_vapps($)[id = $id];
-              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp_id = $id];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp = $id];
               $vapp ~> | $ |{'networks': $vappnets, 'networkexists': $exists($vappnets)} |
           )
 
@@ -18,12 +18,12 @@ entities:
           (
               $id := $params.id;
               $vapp := $reverse_vmwarecloud_vapps($)[id = $id];
-              $vms := $reverse_vmwarecloud_vms($)[vapp_id = $vapp.id];
-              $vdc := $reverse_vmwarecloud_vdcs($)[id = $vapp.vdc_id];
-              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$vdc.id in vdc_ids];
-              $vappnets := $reverse_vmwarecloud_vappnets($)[$id = vapp_id];
-              $nodes := {$vapp.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_title}};
-              $baseprefix := $vapp.org_id.$split('.')[-1] & '.' & $vapp.vdc_id.$split('.')[-1];
+              $vms := $reverse_vmwarecloud_vms($)[vapp = $vapp.id];
+              $vdc := $reverse_vmwarecloud_vdcs($)[id = $vapp.vdc];
+              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$vdc.id in vdcs];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[$id = vapp];
+              $nodes := {$vapp.org.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_title}};
+              $baseprefix := $vapp.org.$split('.')[-1] & '.' & $vapp.vdc.$split('.')[-1];
               $nodes := $append($nodes, {$baseprefix: {'title': 'VDC: ' & $vapp.vdc_title}});
               $nodes := $append($nodes, {$baseprefix & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.title}});
               $nodes := $append($nodes, $vms.(
@@ -107,7 +107,7 @@ entities:
         source: >
           (
               $id := $params.id;
-              [$reverse_vmwarecloud_vms($)[vapp_id = $id]]
+              [$reverse_vmwarecloud_vms($)[vapp = $id]]
           )
 
       list:
@@ -138,15 +138,15 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $vdc_id := $params.vdc_id;
+              $vdc := $params.vdc;
               $vdcgroup_id := $params.vdcgroup_id;
-              $tmp := $exists($vdc_id) ? (
-                  [$reverse_vmwarecloud_vapps($, $domain)[vdc_id = $vdc_id]]
+              $tmp := $exists($vdc) ? (
+                  [$reverse_vmwarecloud_vapps($, $domain)[vdc = $vdc]]
               ) : (
                   $exists($vdcgroup_id) ? (
                       $vdcgroup := $reverse_vmwarecloud_vdcgroups($, $domain)[id = $vdcgroup_id];
-                      $vdcs := $reverse_vmwarecloud_vdcs($, $domain)[id in $vdcgroup.vdc_ids];
-                      [$reverse_vmwarecloud_vapps($, $domain)[vdc_id in $vdcs.id]]
+                      $vdcs := $reverse_vmwarecloud_vdcs($, $domain)[id in $vdcgroup.vdcs];
+                      [$reverse_vmwarecloud_vapps($, $domain)[vdc in $vdcs.id]]
                   ) : (
                       [$reverse_vmwarecloud_vapps($, $domain)]
                   )

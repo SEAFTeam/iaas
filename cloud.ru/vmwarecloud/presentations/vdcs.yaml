@@ -23,7 +23,7 @@ entities:
         source: >
           (
               $domain := $params.domain;
-              $reverse_vmwarecloud_vdcs($, $domain) ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availableNetwork_titles': $join(availableNetwork_titles, '\n')} |
+              $reverse_vmwarecloud_vdcs($, $domain) ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availablenetwork_titles': $join(availablenetwork_titles, '\n')} |
           )
 
       card:
@@ -33,7 +33,7 @@ entities:
           (
               $id := $params.id;
               $vdc := $reverse_vmwarecloud_vdcs($)[id = $id];
-              $vdc ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availableNetwork_titles': $join(availableNetwork_titles, '\n'), 'vapps': $exists(vapp_titles), 'networks': $exists(availableNetwork_titles), 'vdcg': $exists(vdcgroups) } |
+              $vdc ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availablenetwork_titles': $join(availablenetwork_titles, '\n'), 'vapps': $exists(vapp_titles), 'networks': $exists(availablenetwork_titles), 'vdcg': $exists(vdcgroups) } |
           )
 
       schema:
@@ -44,17 +44,17 @@ entities:
               $fn_svg_block := $$.icons."reverse.general".svg_block;
               $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
               $fn_svg_internet := $$.icons."reverse.general".svg_internet;
-              $egws := $reverse_vmwarecloud_egws($)[vdc_id = $id];
+              $egws := $reverse_vmwarecloud_egws($)[vdc = $id];
               $vdc := $reverse_vmwarecloud_vdcs($)[id = $id];
-              $vapps := $reverse_vmwarecloud_vapps($)[vdc_id = $vdc.id];
-              $vms := $reverse_vmwarecloud_vms($)[vapp_id in $vapps.id];
-              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp_id in $vapps.id];
-              $orgnets := $reverse_vmwarecloud_orgnets($)[vdc_id = $vdc.id or id in $vappnets.parentnetwork_id];
-              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$id in vdc_ids];
-              $nodes := {$vdc.org_id.$split('.')[-1]:{'title': 'Организация: ' & $vdc.org_title}};
-              $nodes := $append($nodes, {$vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id: {'title': 'VDC: ' & $vdc.title}});
+              $vapps := $reverse_vmwarecloud_vapps($)[vdc = $vdc.id];
+              $vms := $reverse_vmwarecloud_vms($)[vapp in $vapps.id];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp in $vapps.id];
+              $orgnets := $reverse_vmwarecloud_orgnets($)[vdc = $vdc.id or id in $vappnets.parentnetwork];
+              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$id in vdcs];
+              $nodes := {$vdc.org.$split('.')[-1]:{'title': 'Организация: ' & $vdc.org_title}};
+              $nodes := $append($nodes, {$vdc.org.$split('.')[-1] & '.' & $vdc.short_id: {'title': 'VDC: ' & $vdc.title}});
               $nodes := $append($nodes, $vapps.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
+                      $prefix := $vdc.org.$split('.')[-1] & '.' & $vdc.short_id;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.title,
@@ -65,7 +65,7 @@ entities:
                   )
               );
               $nodes := $append($nodes, $orgnets.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
+                      $prefix := $vdc.org.$split('.')[-1] & '.' & $vdc.short_id;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.title,
@@ -76,7 +76,7 @@ entities:
                   )
               );
               $nodes := $append($nodes, $egws.(
-                      $prefix := $vdc.org_id.$split('.')[-1] & '.' & $vdc.short_id;
+                      $prefix := $vdc.org.$split('.')[-1] & '.' & $vdc.short_id;
                       {
                           $prefix & '.' & $.short_id: {
                               'title': $.title,
@@ -89,9 +89,9 @@ entities:
               $externalNetworks := $egws.($.gatewayinterfaces[iftype = 'uplink']);
               $nodes := $append($nodes, $externalNetworks.(
                           {
-                              $.network_id.$split('.')[-1]: {
+                              $.network.$split('.')[-1]: {
                                   'title': $.title,
-                                  'symbol': 'extnet-' & $.network_id.$split('.')[-1],
+                                  'symbol': 'extnet-' & $.network.$split('.')[-1],
                                   'hideTitle': true
                               }
                           }          
@@ -108,7 +108,7 @@ entities:
                   $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                   $.gatewayinterfaces.(
                     $ipaddress := $.subnetparticipation.ipaddress;
-                    $regexp := $eval('/.*\\.' & $.network_id.$split('.')[-1] & '/');
+                    $regexp := $eval('/.*\\.' & $.network.$split('.')[-1] & '/');
                     $nodes[$regexp($.$keys())].(
                         {
                             'from': $gwnode,
@@ -126,7 +126,7 @@ entities:
                       $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
                       $.gatewayinterfaces.(
                           $ipaddress := $.subnetparticipation.ipaddress;
-                          $regexp := $eval('/^' & $.network_id.$split('.')[-1] & '$/');
+                          $regexp := $eval('/^' & $.network.$split('.')[-1] & '$/');
                           $nodes[$regexp($.$keys())].(
                               {
                                   'from': $gwnode,
@@ -140,11 +140,11 @@ entities:
               );
               $links := $append($links,
                   [$vapps.(
-                      $vapp_id := $.id;
+                      $vapp := $.id;
                       $regexp := $eval('/.*\\.' & $.short_id & '/');
                       $vappnode := $nodes[$regexp($.$keys())].$keys()[0];
-                      $vappnets[vapp_id = $vapp_id].(
-                          $regexp := $eval('/.*\\.' & $.parentnetwork_id.$split('.')[-1] & '/');
+                      $vappnets[vapp = $vapp].(
+                          $regexp := $eval('/.*\\.' & $.parentnetwork.$split('.')[-1] & '/');
                           $nodes[$regexp($.$keys())].(
                               {
                                   'from': $vappnode,
@@ -160,7 +160,7 @@ entities:
                   $exists($externalNetworks) ? 
                      $externalNetworks.(
                           {
-                              'from': $.network_id.$split('.')[-1],
+                              'from': $.network.$split('.')[-1],
                               'to': 'internet',
                               'title': 'Внешняя сеть в интернет',
                               'style': '->'
@@ -168,11 +168,11 @@ entities:
                       )
               );
               $symbols := $append($symbols, $vapps.(
-                      $vapp_id := $.id;
-                      $vapp_nets := $eval($fn_vappnets)[vapp_id = $vapp_id];
+                      $vapp := $.id;
+                      $vapp_nets := $eval($fn_vappnets)[vapp = $vapp];
                       $netranges := $join($vapp_nets.($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress))), ' ');
                       $fencemode := $join($vapp_nets.($.fencemode), ' ');
-                      $vmscount := $count($vms[vapp_id = $vapp_id]);
+                      $vmscount := $count($vms[vapp = $vapp]);
                       $data := {'Vm`s in vapp': $string($vmscount), 'Networks': $netranges, 'Fence mode': $fencemode};
                       $icon := $eval($fn_svg_block, {'title': $.title, 'description': $.description, 'href': $.link, 'type':'vApp', 'details': $data});
                       {
@@ -205,7 +205,7 @@ entities:
                       $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
                       $icon := $eval($fn_svg_block, {'title': $.title, 'type':'extNet', 'details': $data});
                       {
-                          'extnet-' & $.network_id.$split('.')[-1]: $icon
+                          'extnet-' & $.network.$split('.')[-1]: $icon
                       }
                   )
               );
@@ -243,7 +243,7 @@ entities:
         source: >
           (
               $id := $params.id;
-              [$reverse_vmwarecloud_vapps($)[vdc_id = $id]]
+              [$reverse_vmwarecloud_vapps($)[vdc = $id]]
           )
 
       networks:
@@ -260,7 +260,7 @@ entities:
         source: >
           (
               $id := $params.id;
-              [$reverse_vmwarecloud_orgnets($)[vdc_id = $id]]
+              [$reverse_vmwarecloud_orgnets($)[vdc = $id]]
           )
 
       vdcgroups:
@@ -277,5 +277,5 @@ entities:
         source: >
           (
               $id := $params.id;
-              [$reverse_vmwarecloud_vdcgroups($)[$id in vdc_ids]]
+              [$reverse_vmwarecloud_vdcgroups($)[$id in vdcs]]
           )

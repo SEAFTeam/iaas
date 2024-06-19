@@ -22,7 +22,7 @@ functions:
                 $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
                 $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
                 
-                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())];
+                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
                 $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];
                 $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
                 $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
@@ -31,16 +31,16 @@ functions:
                     'id': $keys(),
                     'nat': *
                 }].(
-                    $gw_id := nat.gw_id;
+                    $gw_id := nat.gw;
                     $egw := $egws[$keys() = $gw_id];
-                    $org_id := $egw.*.org_id;
+                    $org_id := $egw.*.reverse.org;
                     $org := $orgs.$spread()[$keys() = $org_id];
                     $orgtitle := $org.*.title;
-                    $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                    $dc := $dcs.$spread()[$keys() = $org.*.dc];
                     {
                         'id': id,
                         'short_id': nat.id,
-                        'gw_id': nat.gw_id,
+                        'gw': nat.gw,
                         'title': nat.title,
                         'description': nat.description,
                         'type': nat.type,
@@ -52,15 +52,15 @@ functions:
                         'dnat_ext_port': nat.dnat_ext_port,
                         'fw_match': nat.fw_match,
                         'egw_title': $egw.*.title,
-                        'egw_id': $egw.$keys()[0],
-                        'org_id': $org_id,
+                        'egw': $egw.$keys()[0],
+                        'org': $org_id,
                         'org_title': $orgtitle,
                         'link': '/entities/' & $egws_nat_view & '/' & $lowercase(nat.type) & '_schema?id=' & id,
                         'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
                         'entity': $egws_nat_view,
                         'entity_type': 'VMware Cloud',
                         'entity_title': 'Правила FW на Edge в облаке VMware',
-                        'DC': $dc.$keys()[0],
+                        'dc': $dc.$keys()[0],
                         'dc_title': $dc.*.title
                     }
                 )]

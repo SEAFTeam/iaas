@@ -8,7 +8,7 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             id:
@@ -113,6 +113,9 @@ entities:
             netmask:
               title: Маска сети
               type: string
+            shared:
+              title: Shared
+              type: boolean
             parentnetwork:
               title: Родительская сеть
               type: array
@@ -126,18 +129,33 @@ entities:
             networkpool_title:
               title: Наименование сетевого пула
               type: string
-            org_id:
+            org:
               title: Идентификатор организации
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
-            vdc_id:
+            vdc:
               title: Идентификатор VDC
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
             vdc_title:
               title: Наименование VDC
               type: string
+            vdcgroup:
+              title: Идентификатор VDC Group
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
+            vdcgroup_title:
+              title: Наименование VDC Group
+              type: string
             connected:
               title: Статус подключения
               type: boolean
+            status:
+              title: Статус реализации
+              type: string
+            isdefaultnetwork:
+              title: Сеть по-умолчанию
+              type: string
+            backingnetworktype:
+              title: Тип подлежащей сети
+              type: string
             dns:
               title: DNS
               type: array
@@ -182,7 +200,8 @@ entities:
                           type: string
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_\\.]*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
           properties:
             reverse:
               oneOf:

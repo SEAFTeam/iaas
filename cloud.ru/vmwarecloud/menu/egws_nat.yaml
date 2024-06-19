@@ -14,7 +14,7 @@ entities:
           $orgs_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
       
-          $egws := $lookup($, $egws_entity)[$domain_matcher($keys())];
+          $egws := $lookup($, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
           $egws_nat := $lookup($, $egws_nat_entity)[$domain_matcher($keys())];
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
@@ -24,27 +24,27 @@ entities:
           $config := "seaf.ta.reverse.general".config;
           $dynamic := [$egws_nat.$spread().(
               $id := $keys()[0];
-              $gw_id := $.*.gw_id;
-              $egw := $egws.$spread()[$keys() = $gw_id];
+              $gw := $.*.gw;
+              $egw := $egws.$spread()[$keys() = $gw];
               $egwtitle := $egw.*.title;
-              $egw.*.vdcgroup_id != null ? (
-                $vdcgrouptitle := $egw.*.vdcgroup_title;
-                $vdcgroup_id := $egw.*.vdcgroup_id;
-                $org_id := $egw.*.org_id;
+              $egw.*.vdcgroup != null ? (
+                $vdcgrouptitle := $egw.*.reverse.vdcgroup_title;
+                $vdcgroup_id := $egw.*.reverse.vdcgroup;
+                $org_id := $egw.*.reverse.org;
                 $org := $orgs.$spread()[$keys() = $org_id];
                 $orgtitle := $org.*.title;
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
                 {
                     'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/'  & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $egwtitle & '/' & $.*.type & '/' & $.*.title,
                     'link': 'entities/' & $egws_nat_entity & '/' & $lowercase($.*.type) & '_schema?id=' & $id
                 }
               ) : (
-                $vdctitle := $egw.*.vdc_title;
-                $vdc_id := $egw.*.vdc_id;
-                $org_id := $egw.*.org_id;
+                $vdctitle := $egw.*.reverse.vdc_title;
+                $vdc_id := $egw.*.reverse.vdc;
+                $org_id := $egw.*.reverse.org;
                 $org := $orgs.$spread()[$keys() = $org_id];
                 $orgtitle := $org.*.title;
-                $dc := $dcs.$spread()[$keys() = $org.*.DC];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
                 {
                     'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways/' & $egwtitle & '/' & $.*.type & '/' & $.*.title,
                     'link': 'entities/' & $egws_nat_entity & '/' & $lowercase($.*.type) & '_schema?id=' & $id

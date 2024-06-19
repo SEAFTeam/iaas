@@ -8,7 +8,7 @@ entities:
     schema:
       type: object
       patternProperties:
-        "^[a-zA-Z0-9_]*(\\.[a-zA-Z0-9_]*)*$":
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
           type: object
           properties:
             id:
@@ -35,7 +35,7 @@ entities:
             dfwenabled:
               title: Distributed FW Enabled
               type: boolean
-            org_id:
+            org:
               title: Идентификатор организации
               $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
             networks:
@@ -48,7 +48,7 @@ entities:
                     title: Идентификатор сети
                     oneOf:
                       - type: string
-                      - $ref: "#/rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+                      - $ref: "#/$rels/seaf.ta.services.network.network"
                   title:
                      title: Наименование сети
                      type: string
@@ -64,9 +64,12 @@ entities:
                   title:
                     title: Наименование VDC
                     type: string
-                  org_id:
+                  org:
                     title: Идентификатор организации
                     $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
                   org_title:
                     title: Идентификатор организации
                     type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
