@@ -5,11 +5,11 @@ entities:
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
       
-          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
-          $orgs_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
-          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
-          $vdcgroups_view := "seaf.ta.reverse.general".config.entities.vdcgroups.view;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+          $vdcgroups_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.view;
       
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
           $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];

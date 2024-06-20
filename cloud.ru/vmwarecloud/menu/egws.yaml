@@ -5,12 +5,12 @@ entities:
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
       
-          $egws_entity := "seaf.ta.reverse.general".config.entities.egws.model;
-          $egws_view := "seaf.ta.reverse.general".config.entities.egws.view;
-          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vdcs.model;
+          $egws_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+          $egws_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
-          $orgs_entity := "seaf.ta.reverse.general".config.entities.orgs.model;
-          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vdcgroups.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
       
           $egws := $lookup($, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];

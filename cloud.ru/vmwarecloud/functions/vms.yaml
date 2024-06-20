@@ -15,14 +15,14 @@ functions:
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
         
-            $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vms.model;
-            $vms_view := dataset."seaf.ta.reverse.general".config.entities.vms.view;
-            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
-            $vapps_views := dataset."seaf.ta.reverse.general".config.entities.vapps.view;
-            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
-            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
-            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
-            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
+            $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vms.model;
+            $vms_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vms.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.model;
+            $vapps_views := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.view;
+            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.edrs.model;
+            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.avs.model;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
         

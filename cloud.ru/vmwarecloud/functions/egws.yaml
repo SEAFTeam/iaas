@@ -15,7 +15,7 @@ functions:
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
             
-            $egws_entity := dataset."seaf.ta.reverse.general".config.entities.egws.model;
+            $egws_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
             $egws_view := dataset."seaf.ta.reverse.general".config.entities.egws.view;
             $egws_fw_entity := dataset."seaf.ta.reverse.general".config.entities.egws_fw.model;
             $egws_fw_view := dataset."seaf.ta.reverse.general".config.entities.egws_fw.view;

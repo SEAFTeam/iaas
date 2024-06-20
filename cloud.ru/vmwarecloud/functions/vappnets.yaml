@@ -15,14 +15,14 @@ functions:
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
         
-            $vappnets_entity := dataset."seaf.ta.reverse.general".config.entities.vappnets.model;
-            $vappnets_view := dataset."seaf.ta.reverse.general".config.entities.vappnets.view;
-            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vapps.model;
-            $vapps_view := dataset."seaf.ta.reverse.general".config.entities.vapps.view;
-            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
-            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
-            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
-            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $vappnets_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vappnets.model;
+            $vappnets_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vappnets.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.model;
+            $vapps_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.view;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
         
             $vappnets := $lookup(dataset, $vappnets_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "vAppNetwork"];

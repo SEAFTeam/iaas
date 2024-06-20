@@ -15,12 +15,12 @@ functions:
                 $domain := domain;
                 $domain_matcher := $eval('/^' & $domain & '.*/');
             
-                $egws_entity := dataset."seaf.ta.reverse.general".config.entities.egws.model;
-                $egws_view := dataset."seaf.ta.reverse.general".config.entities.egws.view;
-                $egws_nat_entity := dataset."seaf.ta.reverse.general".config.entities.egws_nat.model;
-                $egws_nat_view := dataset."seaf.ta.reverse.general".config.entities.egws_nat.view;
+                $egws_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+                $egws_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
+                $egws_nat_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws_nat.model;
+                $egws_nat_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws_nat.view;
                 $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
-                $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+                $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
                 
                 $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
                 $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];

@@ -15,7 +15,7 @@ functions:
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
           
-            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
           

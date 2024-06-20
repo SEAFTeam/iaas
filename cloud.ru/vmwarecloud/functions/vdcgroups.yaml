@@ -16,11 +16,11 @@ functions:
             $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
           
-            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
-            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
-            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
-            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.view;
           
             $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
             $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
