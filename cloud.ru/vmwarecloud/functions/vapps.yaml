@@ -1,0 +1,61 @@
+functions:
+  reverse_vmwarecloud_vapps:
+    title: Список vApps
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+        
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.model;
+            $vapps_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.view;
+        
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            
+            [[$vapps.$spread().{
+                'id': $keys(),
+                'vapp': *
+            }].(
+                $vapp_id := id;
+                $vdc_id := vapp.vdc;
+                $vdc := $vdcs.$spread()[$keys() = $vdc_id];
+                $org_id := $vdc.*.org;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                {
+                    'id': id,
+                    'short_id': vapp.id,
+                    'title': vapp.title,
+                    'description': vapp.description,
+                    'vdc_title': vapp.vdc_title,
+                    'vdc': $vdc_id,
+                    'org_title': $vdc.*.org_title,
+                    'org': $org_id,
+                    'link': '/entities/' & $vapps_view & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
+                    'entity': $vapps_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_title': 'vApp в облаке VMware',
+                    'dc': $dc.$keys()[0],
+                    'dc_title': $dc.*.title
+                }
+            )]
+        )

@@ -1,0 +1,74 @@
+entities:
+  seaf.ta.services.network:
+    schema:
+      $defs:
+        seaf.ta.services.network_dzo1:
+          title: Расширение описания сетевых устройств для целей проверки станадртов
+          type: object
+          oneOf:
+            - type: object
+              properties:
+                type:
+                  type: string
+                  enum: [Cloud]
+                id:
+                  title: ID Подсети
+                  type: string
+                cidr:
+                  title: CIDR сети
+                  type: string
+                  minLength: 1
+                description:
+                  title: Описание
+                  type: string
+                name:
+                  title: Название подсети
+                  type: string
+                gateway:
+                  title: Название VPC
+                  type: string
+                type2:
+                  title: Тип реверса
+                  enum:
+                    - "Modern.Cloud"
+                vpc:
+                  title: ID VPC
+                  type: string
+                dns_list:
+                  title: DNS сервера
+                  type: array
+                  items:
+                    type: string
+                tenant:
+                  title: Тенант в облаке
+                  type: string
+                DC:
+                  title: Датацентр/IaaS провайдер
+                  $ref: "#/$rels/seaf.ta.services.dc.dc"
+              required:
+                - type
+              additionalProperties: false
+      patternProperties:
+        "^[a-zA-Z0-9_\\.]*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.services.network_dzo1"
+
+
+seaf.ta.services.network:
+  test:
+    type: LAN
+    network_id:
+    lan_type: Проводная
+    ipnetwork:
+    network_appliance_id:
+      - flix.network.cisco.01
+    reverse2:
+      type2: Modern.Cloud
+
+
+
+
+

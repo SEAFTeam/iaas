@@ -1,0 +1,121 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.egws_fw:
+    title: Edge Gateway FW Rules
+    objects:
+      egw_fw:
+        route: "/"
+        title: Edge Gateway FW Rule
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: FW Rule ID
+              type: string
+            gw:
+              title: Идентификатор Edge Gateway
+              $ref: '#/$rels/seaf.ta.components.network.network'
+            title:
+              title: Наименование правила
+              type: string
+            description:
+              title: Описание правила
+              type: string
+            enabled:
+              title: Статус
+              type: boolean
+            sourceFirewallGroups:
+              title: Конфигурация правила FW (source)
+              type: object
+              patternProperties:
+                "^[a-zA-Z0-9_-]*(:[a-zA-Z0-9_-]*)*$":
+                  type: object
+                  properties:
+                    type:
+                      title: Тип правила
+                      enum:
+                        - 'SECURITY_GROUP'
+                        - 'IP_SET'
+                    ip_addresses:
+                      title: IP адреса
+                      type: array
+                      items:
+                        type: string
+                    members:
+                      title: IP адреса
+                      type: array
+                      items:
+                        anyOf:
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
+                          - $ref: '#/$rels/seaf.ta.components.server.server'
+                          - $ref: '#/$rels/seaf.ta.services.network.network'
+            destinationFirewallGroups:
+              title: Конфигурация правила FW (destination)
+              type: object
+              patternProperties:
+                "^[a-zA-Z0-9_-]*(:[a-zA-Z0-9_-]*)*$":
+                  type: object
+                  properties:
+                    type:
+                      title: Тип правила
+                      enum:
+                        - 'SECURITY_GROUP'
+                        - 'IP_SET'
+                    ip_addresses:
+                      title: IP адреса
+                      type: array
+                      items:
+                        type: string
+                    members:
+                      title: IP адреса
+                      type: array
+                      items:
+                        anyOf:
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet'
+                          - $ref: '#/$rels/seaf.ta.reverse.vmwarecloud.vappnets.vappnet'
+                          - $ref: '#/$rels/seaf.ta.components.server.server'
+                          - $ref: '#/$rels/seaf.ta.services.network.network'
+            ip_protocol:
+              title: Протокол IP
+              enum:
+                - 'IPV4'
+                - 'IPV6'
+            action:
+              title: Действие правила
+              enum:
+                - 'ALLOW'
+                - 'DENY'
+            action_value:
+              title: Действие правила (удалить)
+              enum:
+                - 'ALLOW'
+                - 'DENY'
+            direction:
+              title: Направление правила
+              enum:
+                - 'IN_OUT'
+                - 'IN'
+                - 'OUT'
+            port_profiles:
+              title: Порты и протоколы
+              type: object
+              patternProperties:
+                "^[a-zA-Z0-9_-]*(:[a-zA-Z0-9_-]*)*$":
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      protocol:
+                        title: Протокол L4
+                        type: string
+                      dst_ports:
+                        title: Порты
+                        type: array
+                        items:
+                          type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

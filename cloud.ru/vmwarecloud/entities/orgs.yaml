@@ -1,0 +1,29 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.orgs:
+    title: Организации
+    objects:
+      org:
+        route: "/"
+        title: Организация
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор сети vApp
+              type: string
+            original_id:
+              title: Идентификатор сети vApp (полный)
+              type: string
+            title:
+              title: Наименование организации
+              type: string
+            description:
+              title: Описание организации
+              type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
+          

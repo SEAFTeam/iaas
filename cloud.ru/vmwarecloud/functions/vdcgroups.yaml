@@ -1,0 +1,57 @@
+functions:
+  reverse_vmwarecloud_vdcgroups:
+    title: Список VDC Groups
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (
+          
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.view;
+          
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+      
+            [[$vdcgroups.$spread().{
+                'id': $keys(),
+                'vdcgroup': *
+            }].(
+                $vdcgroup_id := id;
+                $orgid := vdcgroup.org;
+                $org := $orgs.$spread()[$keys() = $orgid];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];      
+            {
+                    'id': id,
+                    'short_id': vdcgroup.id,
+                    'title': vdcgroup.title,
+                    'description': vdcgroup.description,
+                    'vdcs': vdcgroup.vdcs.id,
+                    'vdc_titles': vdcgroup.vdcs.title,
+                    'networks': vdcgroup.networks.id,
+                    'network_titles': vdcgroup.networks.title,
+                    'org_title': $org.*.title,
+                    'org': vdcgroup.org,
+                    'link': '/entities/' & $vdcgroups_view & '/card?id=' & $vdcgroup_id,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $orgid,
+                    'entity': $vdcgroups_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_title': 'VDC Group в облаке VMware',
+                    'dc': $dc.$keys()[0],
+                    'dc_title': $dc.*.title
+                }
+            )]
+        )

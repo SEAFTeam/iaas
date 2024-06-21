@@ -1,0 +1,83 @@
+functions:
+  reverse_vmwarecloud_egws:
+    title: Список edge gateways
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            
+            $egws_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+            $egws_view := dataset."seaf.ta.reverse.general".config.entities.egws.view;
+            $egws_fw_entity := dataset."seaf.ta.reverse.general".config.entities.egws_fw.model;
+            $egws_fw_view := dataset."seaf.ta.reverse.general".config.entities.egws_fw.view;
+            $egws_nat_entity := dataset."seaf.ta.reverse.general".config.entities.egws_nat.model;
+            $egws_nat_view := dataset."seaf.ta.reverse.general".config.entities.egws_nat.view;
+            $orgnets_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vdcs.view;
+            $vdcgroups_entity := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.model;
+            $vdcgroups_view := dataset."seaf.ta.reverse.general".config.entities.vdcgroups.view;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            
+            $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+            $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];
+            $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
+            $orgnets := $lookup(dataset, $orgnets_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+        
+            [[$egws.$spread().{
+                'id': $keys(),
+                'egw': *
+            }].(
+                $vdc_id := egw.reverse.vdc;
+                $vdc := $vdcs.$spread()[$keys() = $vdc_id];
+                $org_id := egw.reverse.org;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                $orgtitle := $org.*.title;
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                $vdcgroup := egw.reverse.vdcgroup = null ? (
+                    $tmp := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
+                    $exists($tmp) ? {'id': $tmp.$keys()[0], 'title': $tmp.*.title } : {'id': null, 'title': null};
+                ) : ({'id': egw.reverse.vdcgroup, 'title': egw.reverse.vdcgroup_title});
+                {
+                    'id': id,
+                    'short_id': egw.id,
+                    'title': egw.title,
+                    'description': egw.description,
+                    'type': egw.reverse.type,
+                    'gatewayinterfaces': egw.reverse.gatewayinterfaces,
+                    'advancedNetworkingEnabled': egw.reverse.advancedNetworkingEnabled,
+                    'distributedRoutingEnabled': egw.reverse.distributedRoutingEnabled,
+                    'vdc_title': egw.reverse.vdc_title,
+                    'vdc': egw.reverse.vdc,
+                    'vdcgroup_title': $vdcgroup.title,
+                    'vdcgroup': $vdcgroup.id,
+                    'org_title': $org.*.title,
+                    'org': egw.reverse.org,
+                    'link': '/entities/' & $egws_view & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & egw.reverse.vdc,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
+                    'entity': $egws_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_title': 'Edge Gateway в облаке VMware',
+                    'egws_nat_entity': $egws_nat_view,
+                    'egws_fw_entity': $egws_fw_view,
+                    'dc': $dc.$keys()[0],
+                    'dc_title': $dc.*.title
+                }
+            )]
+        )

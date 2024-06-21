@@ -15,7 +15,7 @@ entities:
               title: ELB ID
               type: string
             name:
-              title: Имя Elastic Load Balancer
+              title: Наименование Elastic Load Balancer
               type: string
             description:
               title: Описание ELB
@@ -84,7 +84,7 @@ entities:
                           title: Адрес компонента
                           type: string
                         name:
-                          title: Имя компонента
+                          title: Наименование компонента
                           type: string
             tags:
               title: Тэги
@@ -93,7 +93,7 @@ entities:
                 type: object
                 properties:
                   key:
-                    title: Имя ключа
+                    title: Наименование ключа
                     type: string
                   value:
                     title: Значение ключа

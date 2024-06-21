@@ -1,6 +1,6 @@
 functions:
   reverse_advanced_ecss:
-    title: Список виртуальных машин (AWS)
+    title: Список виртуальных машин (Modern Cloud)
     params:
       - alias: dataset
         type: object
