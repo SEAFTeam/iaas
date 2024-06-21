@@ -32,12 +32,12 @@ entities:
                     (
                         $node_id := "seaf.ta.reverse.k8s.node." & $params.id;
                         $node    := $."seaf.ta.reverse.k8s.node".$spread()[$keys()[0] = $node_id];
-                        $some := 0;
                         {                        
                             "id"            : $params.id,
                             "node_id"       : $node_id,
                             "name"          : $node.*.name,
                             "arch"          : $node.*.architecture,
-                            "cpu"           : $node.*.cpu
+                            "cpu"           : $node.*.cpu,
+                            "addresses"     : $node.*.addresses
                         }
                     )

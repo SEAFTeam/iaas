@@ -47,6 +47,8 @@ entities:
                     - value: name
                       text: Название
                       link: link
+                    - value: addresses
+                      text: адреса
                 source: > 
                     (
                         $nodes := $."seaf.ta.reverse.k8s.node".$spread()[*.cluster = $params.id]; 
@@ -54,6 +56,7 @@ entities:
                             {
                                 "name" : $.*.name,
                                 "cluster": $.*.cluster,
+                                "addresses" : $join($.*.addresses.address, ', '),
                                 "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.*.id
                             }
                         )]
@@ -74,4 +77,84 @@ entities:
                                 "link" : '/entities/seaf.ta.reverse.k8s.namespace/get_namespace?id=' & $.*.id
                             }
                         )]
+                    )
+            schema_nodes:
+                type: smartants
+                source: >
+                    (
+                        $cluster := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $params.id];
+                        $cluster_name := $cluster.*.kubernetes_id; 
+                    
+                        $cluster_nodes := $."seaf.ta.reverse.k8s.node".*[cluster = $params.id];
+                        $c := $count($cluster_nodes);
+                    
+                        $nodes  := {
+                            $cluster_name : {
+                                "title" : "<<кластер>> " & $cluster_name
+                            }
+                        };
+                        
+                        $items := $cluster_nodes.(
+                            {
+                                $cluster_name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "k8snode"
+                                }
+                            }       
+                        );
+                        /*
+                        $items := $each($cluster_nodes, function ($node, $name) {
+                            {
+                                $cluster_name & "." & $node.name : {
+                                    "title"  : $node.name,
+                                    "symbol" : "k8snode"
+                                }
+                            }       
+                        }); 
+                        */
+
+                        /*
+                        $icons := { 
+                            "k8snode" : entities."reverse.k8s.icons".k8snode 
+                        };
+                        */
+                        $icons = entities."reverse.k8s.icons";
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : entities."reverse.k8s.icons"
+                        };
+                    )
+            schema_namespaces:
+                type: smartants
+                source: >
+                    (
+                        $cluster := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $params.id];
+                        $cluster_name := $cluster.*.kubernetes_id; 
+                    
+                        $cluster_namespaces := $."seaf.ta.reverse.k8s.namespace".*[cluster = $params.id];
+                    
+                        $nodes  := {
+                            $cluster_name : {
+                                "title" : "<<кластер>> " & $cluster_name
+                            }
+                        };
+                    
+                        $items := $cluster_namespaces.(
+                            {
+                                $cluster_name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "k8snamespace"
+                                }
+                            }       
+                        );
+                    
+                        $icons = entities."reverse.k8s.icons";
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : entities."reverse.k8s.icons"
+                        };
                     )

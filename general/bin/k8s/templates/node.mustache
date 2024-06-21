@@ -6,4 +6,9 @@
         cluster: {{parent.entity}}.{{parent.item.name}}
         architecture: {{status.node_info.architecture}}
         cpu: {{status.allocatable.cpu}}
+        addresses:
+        {{#status.addresses}}
+            - address: {{address}}
+              type: {{type}}
+        {{/status.addresses}}
     {{/items}}

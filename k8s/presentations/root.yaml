@@ -1,4 +1,5 @@
 imports:
+    - icons.yaml
     - cluster.yaml
     - node.yaml
     - namespace.yaml

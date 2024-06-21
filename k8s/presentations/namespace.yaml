@@ -21,7 +21,7 @@ entities:
                 source: >
                     (
                         $nsid := "seaf.ta.reverse.k8s.namespace." & $params.id;
-                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace = $nsid]; 
+                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace = $nsid];
                         [$deployments.$spread().(
                             {
                                 "name" : $.*.name,
