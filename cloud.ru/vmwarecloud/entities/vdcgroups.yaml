@@ -26,7 +26,7 @@ entities:
             type:
               title: Тип (внешняя/внутренняя)
               type: string
-            networkpoolid:
+            networkpool:
               title: Идентификатор пула сетей
               type: string
             localegress:
