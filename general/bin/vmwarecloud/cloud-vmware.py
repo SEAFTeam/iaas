@@ -895,7 +895,7 @@ def get_vms(site, access_token, api_init, prefix, dc):
             'subnets': [],
             'disks': [],
             'reverse': {
-                'reverse_type': 'VMwareCloud'
+                'reverse_type': 'VMwareCloud',
                 'original_id': vm_urn_id,
                 'addresses': [],
                 'subnet_titles': [],
