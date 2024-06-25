@@ -903,7 +903,7 @@ def get_vms(site, access_token, api_init, prefix, dc):
                 'vdc': vdc_id,
                 'vdc_title': vm['vdcName'],
                 'vapp': vapp_id,
-                'tenant': ''
+                'tenant': dc
             }
         }
 
