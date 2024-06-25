@@ -877,7 +877,7 @@ def get_vms(site, access_token, api_init, prefix, dc):
 
         yaml_structure = {
             'id': vm_id,
-            'type': 'Виртуальный'
+            'type': 'Виртуальный',
             'title': computername,
             'fqdn': computername,
             'description': vm_json['description'],
