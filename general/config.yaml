@@ -51,3 +51,25 @@ seaf.ta.reverse.general:
         ecss:
           model: seaf.ta.components.server
           view: seaf.ta.reverse.advanced.ecss
+      vmwareonprem:
+        vms:
+          model: seaf.ta.components.server
+          view: seaf.ta.reverse.vmwareonprem.vms
+        vapps:
+          model: seaf.ta.reverse.vmwareonprem.vapps
+          view: seaf.ta.reverse.vmwareonprem.vapps
+        vdcs:
+          model: seaf.ta.reverse.vmwareonprem.vdcs
+          view: seaf.ta.reverse.vmwareonprem.vdcs
+        networks:
+          model: seaf.ta.services.network
+          view: seaf.ta.reverse.vmwareonprem.networks
+        hosts:
+          model: seaf.ta.reverse.vmwareonprem.hosts
+          view: seaf.ta.reverse.vmwareonprem.hosts
+        dvswitches:
+          model: seaf.ta.components.network
+          view: seaf.ta.reverse.vmwareonprem.dvswitches
+        dvportgroups:
+          model: seaf.ta.reverse.vmwareonprem.dvportgroups
+          view: seaf.ta.reverse.vmwareonprem.dvportgroups

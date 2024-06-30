@@ -1,0 +1,53 @@
+functions:
+  reverse_vmwareonprem_vdcs:
+    title: Список VDC
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+        (       
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+                
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vapps.model;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $networks_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
+        
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $networks := $lookup(dataset, $networks_entity)[$domain_matcher($keys())];
+        
+            [[$vdcs.$spread().{
+                'id': $keys(),
+                'vdc': *
+            }].(
+                $vdc_id := id;
+                $dc := $lookup($dcs, vdc.dc);
+                $network_ids := vdc.networks;
+                {
+                    'id': id,
+                    'short_id': vdc.id,
+                    'title': vdc.title,
+                    'description': vdc.description,
+                    'vapps': $vapps.$spread()[*.vdc = $vdc_id].*.id,
+                    'vapp_titles': $vapps.$spread()[*.vdc = $vdc_id].*.title,
+                    'availablenetworks': vdc.networks,
+                    'availablenetwork_titles': $network_ids.($id := $; $lookup($networks, $id).title),
+                    'link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'entity': $vdcs_view,
+                    'entity_type': 'VMware On-Premise',
+                    'entity_title': "VDC в локальном кластере VMware",
+                    'dc': vdc.dc,
+                    'dc_title': $dc.title
+                }
+            )]
+        )
