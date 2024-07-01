@@ -109,7 +109,6 @@ entities:
                           'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
                       }
               );
-          
               $links := [$egws.(
                       $regexp := $eval('/.*\\.' & $.short_id & '$/');
                       $gwnode := $nodes[$regexp($.$keys())].$keys()[0];

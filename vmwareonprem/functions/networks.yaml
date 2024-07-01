@@ -53,7 +53,7 @@ functions:
                     'org': net.reverse.org,
                     'link': '/entities/' & $networks_view & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & net.reverse.vdc,
-                    'entity': $orgnets_view,
+                    'entity': $networks_view,
                     'entity_type': 'VMware On-Premise',
                     'entity_title': 'Сети в локальном кластере VMware',
                     'dc': $join(net.dc_id),

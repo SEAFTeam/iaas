@@ -6,15 +6,15 @@
 |--------------|---------------|
 | {{title}}    | {{&dc_title}} |
 
-{{#vdcg}}
-# VDC Groups
-![Реестр](@entity/{{entity}}/vdcgroups?id={{id}})
-{{/vdcg}}
-
 {{#description}}
 ## Описание
 {{.}}
 {{/description}}
+
+{{#hosts}}
+## Хосты
+![Реестр](@entity/{{entity}}/hosts?id={{id}})
+{{/hosts}}
 
 {{#networks}}
 ## Сети

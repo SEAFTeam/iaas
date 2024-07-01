@@ -67,11 +67,11 @@ entities:
                       $entity := $;
                           {
                               'app_component_name': $iter.component_name,
-                              'name': $entity.name,
+                              'name': $entity.title,
                               'link':$entity.link,
                               'entity_type': $entity.entity_type,
-                              'entity_name': $entity.entity_name,
-                              'dc': $entity.DC
+                              'entity_name': $entity.entity_title,
+                              'dc': $entity.dc
                           }
                   )
               )]
