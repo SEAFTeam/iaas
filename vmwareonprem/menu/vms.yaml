@@ -1,0 +1,40 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vms:
+    menu: >
+      (
+          $dataset := $;
+          $domain := '';
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+          $vms_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vms.model;
+          $vm_view := "seaf.ta.reverse.general".config.entities.vmwareonprem.vms.view;
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+      
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$vdcs.$spread().(
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Реестры/Серверы',
+                  'link': 'entities/' & $vm_view & '/list?domain=' & $domain
+              }
+          )];
+          $dynamic_vdc := $vdcs.$spread().(
+              $id := $keys()[0];
+              $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id];
+              $title := $.*.title;
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              $exists($vms) ? (
+                  {
+                      'location': $config.arch_menu & '/' & $dctitle & '/Виртуальные Датацентры/' & $title & '/VMs',
+                      'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                  }
+              )
+          );
+          $append($lists, $dynamic_vdc)
+      )

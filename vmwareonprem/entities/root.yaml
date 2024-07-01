@@ -1,0 +1,8 @@
+imports:
+  - dvswitches.yaml
+  - dvportgroups.yaml
+  - networks.yaml
+  - vdcs.yaml
+  - vapps.yaml
+  - vms.yaml
+  - hosts.yaml
