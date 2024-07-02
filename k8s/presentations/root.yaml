@@ -5,3 +5,5 @@ imports:
     - namespace.yaml
     - deployment.yaml
     - service.yaml
+    - function-icons.yaml
+    - icons-metadata.yaml

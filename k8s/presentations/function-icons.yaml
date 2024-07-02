@@ -1,0 +1,63 @@
+functions:
+    seaf.ta.reverse.k8s:
+        iconify: >
+            function($nodes)
+            {(
+                /* шаблон svg файла */
+                $svg := $.icons."seaf.ta.reverse.k8s.metadata".svg;
+                /* параметры шрифта */
+                $font := $.icons."seaf.ta.reverse.k8s.metadata".font;
+                /* шаблон строки текста */
+                $text := $.icons."seaf.ta.reverse.k8s.metadata".text;
+                /* параметры иконок */
+                $iconparams := $.icons."seaf.ta.reverse.k8s.metadata".icon;
+                /* содержимое иконки */
+                $content := "";
+            
+                /* формирование изображений для каждого элемента диаграммы */
+                $symbols := $nodes.$spread()[$exists(*.metasymbol)].(
+                    /* для каждой ноды формируем иконку */
+            
+                    $maxTextSize := $max(*.metasymbol.lines.($length($.text)));
+                    $lineCount   := $count(*.metasymbol.lines);
+                    $log("maxtextsize:");
+                    $log($maxTextSize);
+                    $log("count:");
+                    $log($lineCount);
+                    $log("here is an icon");
+                    $log(*.metasymbol.lines);
+                    $index := 0;
+                    $width  := $maxTextSize * $font.width  + 2 * $iconparams.padding;
+                    $height := $lineCount * $font.height + 2 * $iconparams.padding;
+                    
+                    /*
+                    $content := *.metasymbol.lines.(
+                        $res := $replace($text, "{{text}}", $.text);
+                        $res := $replace($res, "{{x}}", $iconparams.padding);
+                        
+            
+                    );
+                    */
+
+                    $content := $map(*.metasymbol.lines, function($v, $i){(
+                        $res := $replace($text, "{{text}}", $v.text);
+                        $res := $replace($res, "{{x}}", $string($iconparams.padding));
+                        $res := $replace($res, "{{y}}", $string(($i + 1) * $font.height + $iconparams.padding));
+                    )});
+                    
+                    $content := $join($content);
+                    $icon := $replace($svg, "{{width}}", $string($width));
+                    $icon := $replace($icon, "{{height}}", $string($height));
+                    $icon := $replace($icon, "{{content}}", $content);
+
+                    {
+                        *.symbol : $icon
+                    }
+                );
+                
+                $symbols := $append($symbols, $spread($.icons."reverse.k8s.icons"));
+            )}
+        multiline: >
+            function($nodes)
+            {(
+            )}
