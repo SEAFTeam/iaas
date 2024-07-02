@@ -120,7 +120,6 @@ entities:
 
                         $nodes := $nodes ~> | $ | $merge($items) |;
                         $symbols := $merge($iconify($nodes));
-                    
                         {
                             "nodes"     : $nodes,
                             "symbols"   : $symbols,

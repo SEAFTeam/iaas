@@ -3,16 +3,11 @@ functions:
         iconify: >
             function($nodes)
             {(
-                /* шаблон svg файла */
-                $svg := $.icons."seaf.ta.reverse.k8s.metadata".svg;
-                /* параметры шрифта */
-                $font := $.icons."seaf.ta.reverse.k8s.metadata".font;
-                /* шаблон строки текста */
-                $text := $.icons."seaf.ta.reverse.k8s.metadata".text;
-                /* параметры иконок */
-                $iconparams := $.icons."seaf.ta.reverse.k8s.metadata".icon;
                 /* содержимое иконки */
                 $content := "";
+                $iconizer := $eval($.functions."seaf.ta.reverse.k8s".init);
+                $log("iconizer");
+                $log($iconizer);
             
                 /* формирование изображений для каждого элемента диаграммы */
                 $symbols := $nodes.$spread()[$exists(*.metasymbol)].(
@@ -27,26 +22,18 @@ functions:
                     $log("here is an icon");
                     $log(*.metasymbol.lines);
                     $index := 0;
-                    $width  := $maxTextSize * $font.width  + 2 * $iconparams.padding;
-                    $height := $lineCount * $font.height + 2 * $iconparams.padding;
-                    
-                    /*
-                    $content := *.metasymbol.lines.(
-                        $res := $replace($text, "{{text}}", $.text);
-                        $res := $replace($res, "{{x}}", $iconparams.padding);
-                        
+                    $width  := $maxTextSize * $iconizer.font.width  + 2 * $iconizer.iconparams.padding;
+                    $height := $lineCount * $iconizer.font.height + 2 * $iconizer.iconparams.padding;
             
-                    );
-                    */
-
                     $content := $map(*.metasymbol.lines, function($v, $i){(
-                        $res := $replace($text, "{{text}}", $v.text);
-                        $res := $replace($res, "{{x}}", $string($iconparams.padding));
-                        $res := $replace($res, "{{y}}", $string(($i + 1) * $font.height + $iconparams.padding));
+                        $res := $replace($iconizer.text, "{{text}}", $v.text);
+                        $res := $replace($res, "{{x}}", $string($iconizer.iconparams.padding));
+                        $res := $replace($res, "{{y}}", $string(($i + 1) * $iconizer.font.height + $iconizer.iconparams.padding));
                     )});
                     
                     $content := $join($content);
-                    $icon := $replace($svg, "{{width}}", $string($width));
+            
+                    $icon := $replace($iconizer.svg, "{{width}}", $string($width));
                     $icon := $replace($icon, "{{height}}", $string($height));
                     $icon := $replace($icon, "{{content}}", $content);
 
@@ -58,6 +45,22 @@ functions:
                 $symbols := $append($symbols, $spread($.icons."reverse.k8s.icons"));
             )}
         multiline: >
-            function($nodes)
+            function()
             {(
             )}
+        init: >
+            /*
+            загрузка параметров для обработки иконок
+            */
+            (
+                {
+                    /* шаблон svg файла */
+                    "svg"   : $.icons."seaf.ta.reverse.k8s.metadata".svg,
+                    /* параметры шрифта */
+                    "font"  : $.icons."seaf.ta.reverse.k8s.metadata".font,
+                    /* шаблон строки текста */
+                    "text"  : $.icons."seaf.ta.reverse.k8s.metadata".text,
+                    /* параметры иконок */
+                    "iconparams" : $.icons."seaf.ta.reverse.k8s.metadata".icon
+                }
+            )
