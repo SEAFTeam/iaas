@@ -11,4 +11,5 @@
             - address: {{address}}
               type: {{type}}
         {{/status.addresses}}
+        {{metadata.labels.node-role.kubernetes.io/control-plane}}control-plane: true{{metadata.labels.node-role.kubernetes.io/control-plane}}
     {{/items}}
