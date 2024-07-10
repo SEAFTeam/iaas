@@ -5,48 +5,46 @@ functions:
             {(
                 /* содержимое иконки */
                 $content := "";
-                $iconizer := $eval($.functions."seaf.ta.reverse.k8s".init);
-                $log("iconizer");
-                $log($iconizer);
+                /* функция формирования иконок для прямоугольничков на схеме */ 
+                $rectanize := $eval($.functions."seaf.ta.reverse.k8s".rectanize);
+                /* функция формирования иконок со ссылками для листьев дерева */ 
+                $clickanize := $eval($.functions."seaf.ta.reverse.k8s".clickanize);
             
+                $symbols := $rectanize($nodes);
+                $symbols := $append($symbols, $clickanize($nodes));
+                $symbols := $append($symbols, $spread($.icons."reverse.k8s.icons"));
+            )}
+        rectanize: >
+            function($nodes)
+            {(
+                $iconizer := $eval($.functions."seaf.ta.reverse.k8s".init);
                 /* формирование изображений для каждого элемента диаграммы */
                 $symbols := $nodes.$spread()[$exists(*.metasymbol)].(
                     /* для каждой ноды формируем иконку */
             
                     $maxTextSize := $max(*.metasymbol.lines.($length($.text)));
                     $lineCount   := $count(*.metasymbol.lines);
-                    $log("maxtextsize:");
-                    $log($maxTextSize);
-                    $log("count:");
-                    $log($lineCount);
-                    $log("here is an icon");
-                    $log(*.metasymbol.lines);
                     $index := 0;
-                    $width  := $maxTextSize * $iconizer.font.width  + 2 * $iconizer.iconparams.padding;
-                    $height := $lineCount * $iconizer.font.height + 2 * $iconizer.iconparams.padding;
+                    $width  := $maxTextSize * $iconizer.font.width  + 2 * $iconizer.icon.padding;
+                    $height := $lineCount * $iconizer.font.height + 2 * $iconizer.icon.padding;
             
                     $content := $map(*.metasymbol.lines, function($v, $i){(
                         $res := $replace($iconizer.text, "{{text}}", $v.text);
-                        $res := $replace($res, "{{x}}", $string($iconizer.iconparams.padding));
-                        $res := $replace($res, "{{y}}", $string(($i + 1) * $iconizer.font.height + $iconizer.iconparams.padding));
+                        $res := $replace($res, "{{x}}", $string($iconizer.icon.padding));
+                        $res := $replace($res, "{{y}}", $string(($i + 1) * $iconizer.font.height + $iconizer.icon.padding));
                     )});
-                    
+            
                     $content := $join($content);
             
                     $icon := $replace($iconizer.svg, "{{width}}", $string($width));
                     $icon := $replace($icon, "{{height}}", $string($height));
                     $icon := $replace($icon, "{{content}}", $content);
-
+                    $log($icon, "text icon");
+    
                     {
                         *.symbol : $icon
                     }
                 );
-                
-                $symbols := $append($symbols, $spread($.icons."reverse.k8s.icons"));
-            )}
-        multiline: >
-            function()
-            {(
             )}
         init: >
             /*
@@ -60,7 +58,62 @@ functions:
                     "font"  : $.icons."seaf.ta.reverse.k8s.metadata".font,
                     /* шаблон строки текста */
                     "text"  : $.icons."seaf.ta.reverse.k8s.metadata".text,
+                    "link"  : $.icons."seaf.ta.reverse.k8s.metadata".link,
+                    "linkText" : $.icons."seaf.ta.reverse.k8s.metadata".linkText,
                     /* параметры иконок */
-                    "iconparams" : $.icons."seaf.ta.reverse.k8s.metadata".icon
+                    "icon" : $.icons."seaf.ta.reverse.k8s.metadata".icon
                 }
             )
+        clickanize: >
+            function($nodes)
+            {(
+                $iconizer := $eval($.functions."seaf.ta.reverse.k8s".init);
+                $icons := $.icons."reverse.k8s.icons";
+                /* формирование изображений для каждого элемента диаграммы, содержащего поле link */
+                $symbols := $nodes.$spread()[$exists(*.link)].(
+                    /* для каждой ноды формируем иконку */
+                    /* название иконки для ссылки */
+                    $iconName       := $.*.icon;
+                    /* собственно иконка */
+                    $icon   := $lookup($icons, $iconName);
+                    $lenght := $length($.*.title);
+                    $textWidth  := ($lenght * $iconizer.link.font.width) / 4;
+                    /* textHeight := ($iconizer.font.height + 2 * $iconizer.icon.padding) / 4; */
+                    $log($textWidth, "text width");
+                    
+
+                    /* определяем ширину иконки */
+                    $iconWidth  := $max([$textWidth, $iconizer.icon.width]);
+                    /* определяем высоту иконки */
+                    /* $iconHeight := $iconizer.icon.width + $textHeight; тут нужна какая-то магия SVG */
+                    $iconHeight := "25mm";
+            
+                    /* $dx := ($iconizer.icon.width - $textWidth)/4; */
+                    $dx := 0;
+                    $vbx := $dx > 0 ? 0 : $dx;
+
+                    /* формируем надпись */
+                    $content := $replace($iconizer.linkText, "{{text}}", $.*.title);
+                    /*
+                    $content := $replace($content, "{{x}}", $string(($iconWidth - $textWidth) / 2) &);
+                    $content := $replace($content, "{{y}}", $string($iconizer.icon.height));
+                    */
+                    $content := $replace($content, "{{dx}}", $string($dx));
+                    $content := $replace($content, "{{link}}", $.*.link);
+            
+                    
+
+
+                    /* склеиваем иконки */
+            
+                    $icon := $replace($icon, /height\s*=\s*\"?([^\"]+)\"?/, "height=\"" & $iconHeight & "\"", 1);
+                    $icon := $replace($icon, /width\s*=\s*\"?([^\"]+)\"?/, "width=\"" & $iconWidth & "mm\"", 1);
+                    $icon := $replace($icon, /viewBox\s*=\s*\"?([^\"]+)\"?/, "viewBox=\"" & $vbx & " 0 " & $iconWidth & " 25\"", 1);
+                    $icon := $replace($icon, "</svg>", $content & "</svg>");
+                    /* $log($icon, "ext icon"); */
+            
+                    {
+                        *.symbol : $icon
+                    }
+                );
+            )}

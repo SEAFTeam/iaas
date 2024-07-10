@@ -112,14 +112,17 @@ entities:
                             {
                                 $cluster_name & "." & $.name : {
                                     "title"  : $.name,
-                                    "symbol" : "k8snode",
-                                    "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.*.id
+                                    "symbol" : "node-" & $.id & "-icon",
+                                    "icon"   : "k8snode",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.id
                                 }
                             }       
                         );
 
                         $nodes := $nodes ~> | $ | $merge($items) |;
                         $symbols := $merge($iconify($nodes));
+                        /* $log($symbols, "$symbols"); */
                         {
                             "nodes"     : $nodes,
                             "symbols"   : $symbols,
@@ -164,7 +167,10 @@ entities:
                             {
                                 $cluster_name & "." & $.name : {
                                     "title"  : $.name,
-                                    "symbol" : "k8snamespace"
+                                    "symbol" : "ns-" & $.id & "-icon",
+                                    "icon"   : "k8snamespace",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.reverse.k8s.namespace/get_namespace?id=' & $.id
                                 }
                             }       
                         );
