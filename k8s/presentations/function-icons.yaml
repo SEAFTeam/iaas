@@ -39,7 +39,7 @@ functions:
                     $icon := $replace($iconizer.svg, "{{width}}", $string($width));
                     $icon := $replace($icon, "{{height}}", $string($height));
                     $icon := $replace($icon, "{{content}}", $content);
-                    $log($icon, "text icon");
+                    /* $log($icon, "text icon"); */
     
                     {
                         *.symbol : $icon

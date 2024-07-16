@@ -2,6 +2,20 @@
 import os
 import chevron
 
+# синтаксис mustache не предполагает итерацию по атрибутам объектов
+# поэтому пришлось написать свою функцию, которая превращает атрибуты объектов в массив
+def iterator(text, render):
+    #pprint(text)
+    #pprint("->" + render(text) + "<-")
+    parts = render(text).split("@kv")
+    output = ""
+    prefix = parts[0]
+    data   = eval(parts[1])
+    #pprint(data.keys())
+    for key in data.keys():
+        output = output + f'{prefix}{key}: {data[key]}\n'
+    return output
+
 # класс с логикой сериализации
 class Serializer:
     # конструктор
@@ -50,6 +64,8 @@ class Serializer:
         output = self.output(component)
         # путь и имя файла шаблона, они должны располагаться в каталоге template относительно текущего каталога
         template = f'templates/{component.name}.mustache'
+
+        context["iterator"] = iterator
         # читаем шаблон и рендерим итоговые данные
         with open(template, 'r') as f:
             data = chevron.render(f, context)

@@ -1,0 +1,9 @@
+@startuml
+
+title Схема пространства имён {{namespace.name}}
+\
+\
+\
+{{#services}}
+() "{{name}}"
+{{/services}}

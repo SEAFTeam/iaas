@@ -12,6 +12,109 @@ entities:
                             "name"          : $namespace.*.name
                         }
                     )
+            namespace_uml:
+                type: plantuml
+                template: templates/namespace.puml
+                source: >
+                    (
+                        $nsid       := "seaf.ta.reverse.k8s.namespace." & $params.id;
+                        $namespace  := $lookup($."seaf.ta.reverse.k8s.namespace", $nsid);
+                    
+                        $namespace_services     := $."seaf.ta.components.k8s_service".*[namespace = $nsid];
+                        $namespace_deployments  := $."seaf.ta.components.k8s_deployment".*[namespace = $nsid];
+                        $log($nsid, "nsid");
+                        $log($namespace, "namespace");
+                        {
+                            "namespace" : $namespace,
+                            "services"  : $namespace_services
+                        }
+                    )
+            namespace_schema:
+                type: smartants
+                source: >
+                    (
+                        /* загрузка функций-обработчиков */
+                        $iconify    := $eval($.functions."seaf.ta.reverse.k8s".iconify);
+                        $nsid       := "seaf.ta.reverse.k8s.namespace." & $params.id;
+                        $namespace  := $."seaf.ta.reverse.k8s.namespace".$spread()[$keys()[0] = $params.id];
+                        
+                        $namespace_services     := $."seaf.ta.components.k8s_service".*[namespace = $nsid];
+                        $namespace_deployments  := $."seaf.ta.components.k8s_deployment".*[namespace = $nsid];
+
+                        /* инициализация списка объектов диаграммы данными кластера */
+                        $nodes  := {
+                            $namespace.*.name : {
+                                "title" : "",
+                                "symbol"    : "namespace-" & $nsid & "-icon",
+                                "metasymbol" : {
+                                    "lines" : [
+                                        {
+                                            "text" : $namespace.*.name
+                                        }
+                                    ]
+                                }
+                            }
+                        };
+                    
+                        $items := $namespace_services.(
+                            {
+                                $namespace.*.name & "." & $.name : {
+                                    "symbol" : "svc-frame-" & $.id & "-icon",
+                                    "metasymbol" : {
+                                        "lines" : [
+                                            {
+                                                "text": "123"
+                                            }   
+                                        ]   
+                                    }
+                                }
+                            }       
+                        );
+                    
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        $items := $namespace_services.(
+                            {
+                                $namespace.*.name & "." & $.name  & ".content" : {
+                                    "title"  : $.name,
+                                    "symbol" : "svc-" & $.id & "-icon",
+                                    "icon"   : "k8sservice",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.id
+                                }
+                            }       
+                        );
+                    
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        $items := $namespace_deployments.(
+                            {
+                                $namespace.*.name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "dpmt-" & $.id & "-icon",
+                                    "icon"   : "k8sdeployment",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.id
+                                }
+                            }       
+                        );
+                                        
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                    
+                        $log($namespace_services, "services for " & $nsid);
+                        $symbols := $merge($iconify($nodes));
+                    
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : $symbols,
+                            "config" : {
+                                "hideBoundaryTitles": true
+                            }
+                            /* "symbols"   : entities."reverse.k8s.icons" */
+                        };
+                    
+                    )
             namespace_deployments:
                 type: table
                 headers:

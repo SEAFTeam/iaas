@@ -14,3 +14,9 @@ entities:
                             "containers"        : $deployment.*.containers
                         }
                     )
+            deployment-schema:
+                type: smartants
+                source: >
+                    (
+                        
+                    )
