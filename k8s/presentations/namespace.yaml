@@ -22,11 +22,47 @@ entities:
                     
                         $namespace_services     := $."seaf.ta.components.k8s_service".*[namespace = $nsid];
                         $namespace_deployments  := $."seaf.ta.components.k8s_deployment".*[namespace = $nsid];
+                        
+                        /* определение связей между сервисами и деплойментами */
+                        $namespace_links     := $namespace_services.(
+                                $service := $;
+                                $selector := $service.selector;
+                                $selectorLabels := $keys($service.selector);
+                                $deployments := $filter($namespace_deployments, function($deployment) {
+                                    (
+                                        $labels := $deployment.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $log($key, "$key");
+                                                $log($selectorLabels, "$selectorLabels");
+                                                $log($key in $selectorLabels, "$key in $selectorLabels");
+                                                $not($key in $selectorLabels)
+                                                  or 
+                                                $lookup($selector, $key) != $lookup($labels, $key)
+                                            )
+                                        });
+                                        
+                                        $count($mistatches = 0); 
+                                    )
+                                });
+                                
+                                {
+                                    "service" : $service,
+                                    "deployments" : $deployments
+                                }       
+                        );
+                        
+                        /*
+                        $log($namespace_links, "links");
                         $log($nsid, "nsid");
                         $log($namespace, "namespace");
+                        */
+                    
                         {
                             "namespace" : $namespace,
-                            "services"  : $namespace_services
+                            "services"  : $namespace_services,
+                            "deployments" : $namespace_deployments,
+                            "links" : $namespace_links
                         }
                     )
             namespace_schema:
@@ -102,7 +138,7 @@ entities:
                         $nodes := $nodes ~> | $ | $merge($items) |;
                     
                     
-                        $log($namespace_services, "services for " & $nsid);
+                        /* $log($namespace_services, "services for " & $nsid); */
                         $symbols := $merge($iconify($nodes));
                     
                         {

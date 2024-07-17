@@ -1,7 +1,14 @@
 {{#items}}
     {{entity}}.{{metadata.uid}}:
-        deployment_id: {{metadata.uid}}
+        id: {{metadata.uid}}
+        safeID: {{safeID}}
         name: {{metadata.name}}
+        {{#metadata.labels}}
+        labels:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/metadata.labels}}
         namespace: {{parent.entity}}.{{parent.item.metadata.uid}}
         namespace-name: {{parent.item.metadata.name}}
         update_strategy: {{spec.strategy.type}}

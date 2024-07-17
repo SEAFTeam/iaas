@@ -1,6 +1,7 @@
     {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
+        safeID: {{safeID}}
         name: {{metadata.name}}
         version: {{status.node_info.kubelet_version}}
         cluster: {{parent.entity}}.{{parent.item.name}}
@@ -12,4 +13,11 @@
               type: {{type}}
         {{/status.addresses}}
         {{metadata.labels.node-role.kubernetes.io/control-plane}}control-plane: true{{metadata.labels.node-role.kubernetes.io/control-plane}}
+        {{#metadata.labels}}
+        labels:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/metadata.labels}}
+
     {{/items}}

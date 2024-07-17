@@ -1,6 +1,13 @@
     {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
+        safeID: {{safeID}}
         name: {{metadata.name}}
         cluster: {{parent.entity}}.{{parent.item.name}}
+        {{#metadata.labels}}
+        labels:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/metadata.labels}}
     {{/items}}

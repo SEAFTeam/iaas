@@ -1,6 +1,7 @@
     {{#items}}
         {{entity}}.{{metadata.uid}}:
             id: {{metadata.uid}}
+            safeID: {{safeID}}
             name: {{metadata.name}}
             type: {{spec.type}}
             namespace: {{parent.entity}}.{{parent.item.metadata.uid}}

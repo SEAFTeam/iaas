@@ -1,9 +1,19 @@
 @startuml
 
+
 title Схема пространства имён {{namespace.name}}
-\
-\
-\
+
+
 {{#services}}
-() "{{name}}"
+() "{{name}}" as {{safeID}} <<{{type}}>>
 {{/services}}
+
+{{#deployments}}
+component "{{name}}" as {{safeID}} <<deployment>>
+{{/deployments}}
+
+{{#links}}
+    {{#deployments}}
+        {{service.safeID}} - {{safeID}}
+    {{/deployments}}
+{{/links}}

@@ -18,6 +18,11 @@ class Extractor:
             print(f'ENTITIES: {self.name}')
             pprint(items)
 
+        # формирование идентификаторов, нейтральных с т.з. движков отображения
+        for item in items:
+            if hasattr(item, 'metadata') and hasattr(item.metadata, 'uid'):
+                item.safeID = f'G{item.metadata.uid.replace("-", "")}'
+
         # формирование контекста
         context = {}
         context['entity'] = self.entity()
