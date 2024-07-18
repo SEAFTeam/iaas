@@ -1,19 +1,23 @@
 @startuml
+skinparam linetype ortho
+left to right direction
 
+node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
+    {{#services}}
+        rectangle "{{name}}" as {{safeID}} <<{{type}}>>
+    {{/services}}
 
-title Схема пространства имён {{namespace.name}}
+    together {
+        {{#deployments}}
+        component "== {{name}}\nреплик: {{replicas}}" as {{safeID}} <<deployment>> {
+        }
+        {{/deployments}}
+    }
 
+    {{#links}}
+        {{#links.deployments}}
+            {{service.safeID}} -- {{safeID}}
+        {{/links.deployments}}
+    {{/links}}
 
-{{#services}}
-() "{{name}}" as {{safeID}} <<{{type}}>>
-{{/services}}
-
-{{#deployments}}
-component "{{name}}" as {{safeID}} <<deployment>>
-{{/deployments}}
-
-{{#links}}
-    {{#deployments}}
-        {{service.safeID}} - {{safeID}}
-    {{/deployments}}
-{{/links}}
+}

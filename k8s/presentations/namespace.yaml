@@ -33,16 +33,21 @@ entities:
                                         $labels := $deployment.labels;
                                         $mismatches := $filter($selectorLabels, function($key) {
                                             (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                
+                                                /*
                                                 $log($key, "$key");
-                                                $log($selectorLabels, "$selectorLabels");
-                                                $log($key in $selectorLabels, "$key in $selectorLabels");
-                                                $not($key in $selectorLabels)
+                                                $log($key in $labels, "$key in $labels");
+                                                $not($key in $labels)
                                                   or 
                                                 $lookup($selector, $key) != $lookup($labels, $key)
+                                                */
+                                                $not ($depLabel = $selLabel);
                                             )
                                         });
                                         
-                                        $count($mistatches = 0); 
+                                        $not($count($mismatches) > 0); 
                                     )
                                 });
                                 
@@ -51,7 +56,7 @@ entities:
                                     "deployments" : $deployments
                                 }       
                         );
-                        
+                    
                         /*
                         $log($namespace_links, "links");
                         $log($nsid, "nsid");
