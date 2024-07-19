@@ -7,6 +7,7 @@ from kubernetes import client, config
 from extractor import Extractor
 from node import NodeExtractor
 from namespace import NamespaceExtractor
+from pv import PersistentVolumeExtractor
 
 class ClusterExtractor(Extractor):
     # конструктор
@@ -45,6 +46,12 @@ class ClusterExtractor(Extractor):
             parent['entity'] = self.entity()
             namespaces.extract(serializer, parent)
 
+            # выгрузка namespaces
+            pvs = PersistentVolumeExtractor(kube)
+            parent = {}
+            parent['item'] = context
+            parent['entity'] = self.entity()
+            pvs.extract(serializer, parent)
             # выгрузка namespace
 
             #for namespace in namespaces.items:

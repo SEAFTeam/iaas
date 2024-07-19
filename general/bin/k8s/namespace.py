@@ -4,6 +4,7 @@ from extractor  import Extractor
 # извлекатель деплойментов
 from deployment import DeploymentExtractor
 from service import ServiceExtractor
+from pvc import PersistentVolumeClaimExtractor
 
 class NamespaceExtractor(Extractor):
     # конструктор
@@ -35,3 +36,9 @@ class NamespaceExtractor(Extractor):
             parent['entity'] = self.entity()
             services.extract(serializer, parent)
 
+            # извлечение PVs
+            pvs = PersistentVolumeClaimExtractor(self.kube, namespace)
+            parent = {}
+            parent['item'] = namespace
+            parent['entity'] = self.entity()
+            pvs.extract(serializer, parent)

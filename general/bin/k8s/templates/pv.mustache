@@ -1,0 +1,9 @@
+{{#items}}
+    {{entity}}.{{metadata.uid}}:
+        id: {{metadata.uid}}
+        safeID: {{safeID}}
+        name: {{metadata.name}}
+        capacity: {{spec.capacity.storage}}
+        volumeMode: {{spec.volume_mode}}
+        hostPath: {{spec.host_path.path}}
+{{/items}}
