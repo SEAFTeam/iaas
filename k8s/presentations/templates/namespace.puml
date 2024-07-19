@@ -1,22 +1,62 @@
 @startuml
-skinparam linetype ortho
+skinparam linetype polyline
 left to right direction
 
-node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
-    {{#services}}
-        rectangle "{{name}}" as {{safeID}} <<{{type}}>>
-    {{/services}}
+!function   $safeID($value)
+!$parts = %splitstr($value, "-")
+!$text = "sid"
+!foreach $item in $parts
+!$text = $text + "_" + $item
+!endfor
+!return $text
+!endfunction
 
+' рендеринг объектов namespace
+node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
+    'сервисы в данном namespace
+    {{#services}}
+        rectangle "{{name}}" as {{safeID}} <<{{type}}>> {
+            rectangle {
+                {{#ports}}
+                    portin " " as {{safeID}}_in_{{port}}_{{protocol}}
+                    portout " " as {{safeID}}_out_{{targetPort}}_{{protocol}}
+                    card "{{name}}:{{protocol}}" as {{safeID}}_{{port}}_{{targetPort}}_{{protocol}}
+                    {{safeID}}_in_{{port}}_{{protocol}} -0)- {{safeID}}_{{port}}_{{targetPort}}_{{protocol}} : {{port}}
+                    {{safeID}}_{{port}}_{{targetPort}}_{{protocol}} -0)- {{safeID}}_out_{{targetPort}}_{{protocol}} : {{targetPort}}
+                {{/ports}}
+            }
+        }
+        ' отображение NodePort на границе NS
+        {{#ports}}
+            {{#nodePort}}
+                portin " " as {{safeID}}_node_in_{{port}}
+                {{safeID}}_node_in_{{port}} -0)- {{safeID}}_in_{{port}}_{{protocol}} : {{nodePort}}
+            {{/nodePort}}
+        {{/ports}}
+    {{/services}}
     together {
         {{#deployments}}
         component "== {{name}}\nреплик: {{replicas}}" as {{safeID}} <<deployment>> {
+            {{#containers}}
+                component "== {{name}}\n====\n{{{image}}}" <<container>> {
+                    {{#ports}}
+                        portin " " as {{safeID}}_in_{{port}}_{{protocol}}
+                    {{/ports}}
+                    {{#mounts}}
+                        artifact "{{name}}\n{{{path}}}"
+                    {{/mounts}}
+                }
+            {{/containers}}
         }
         {{/deployments}}
     }
 
     {{#links}}
         {{#links.deployments}}
-            {{service.safeID}} -- {{safeID}}
+            {{service.safeID}} -[hidden]--- {{safeID}}
+            {{#service.ports}}
+                {{service.safeID}}_out_{{port}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}}
+            {{/service.ports}}
         {{/links.deployments}}
     {{/links}}
 

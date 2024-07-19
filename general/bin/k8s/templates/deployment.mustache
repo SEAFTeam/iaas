@@ -24,5 +24,14 @@
                     protocol: {{protocol}}
                     port: {{container_port}}
             {{/ports}}
+               mounts:
+            {{#volume_mounts}}
+                 -  name: {{name}}
+                    path: {{mount_path}}
+            {{/volume_mounts}}
         {{/spec.template.spec.containers}}
+        volumes:
+        {{#spec.template.spec.volumes}}
+            -  name: {{name}}
+        {{/spec.template.spec.volumes}}
 {{/items}}
