@@ -39,7 +39,7 @@ entities:
               $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
               $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
               $cdcs := $."seaf.ta.services.dc";
-              $cdmss.$spread().(
+              [$cdmss.$spread().(
                   $subnet_id := $.*.subnet_id;
                   $vpc_id := $.*.vpc_id;
                   $id := $keys()[0];
@@ -59,7 +59,7 @@ entities:
                       'dc': $dc,
                       'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=' & $id
                   }
-              )
+              )]
           )
       dms_md:
         type: markdown
