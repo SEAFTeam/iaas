@@ -1,7 +1,7 @@
 entities:
-    seaf.ta.reverse.k8s.node:
+    seaf.ta.components.k8s.node:
         presentations:
-            table_view:
+            list:
                 type: table
                 headers:
                 - value: name
@@ -25,13 +25,13 @@ entities:
                         )]
                     )
                     
-            get_node:
+            get:
                 type: markdown
                 template: templates/node.md
                 source: >
                     (
-                        $node_id := "seaf.ta.reverse.k8s.node." & $params.id;
-                        $node    := $."seaf.ta.reverse.k8s.node".$spread()[$keys()[0] = $node_id];
+                        $node_id := "seaf.ta.components.k8s.node." & $params.id;
+                        $node    := $."seaf.ta.components.k8s.node".$spread()[$keys()[0] = $node_id];
                         {                        
                             "id"            : $params.id,
                             "node_id"       : $node_id,

@@ -1,10 +1,9 @@
     {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
-        safeID: {{safeID}}
         name: {{metadata.name}}
         version: {{status.node_info.kubelet_version}}
-        cluster: {{parent.entity}}.{{parent.item.name}}
+        clusterID: {{parent.entity}}.{{parent.item.name}}
         architecture: {{status.node_info.architecture}}
         cpu: {{status.allocatable.cpu}}
         addresses:

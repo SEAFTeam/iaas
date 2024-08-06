@@ -12,10 +12,19 @@ left to right direction
 !endfunction
 
 ' рендеринг объектов namespace
-node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
+frame "{{namespace.name}}" as {{namespace.safeID}} {
+
+    {{#pvcs}}
+    together {
+        frame "{{name}}\n{{volumeName}}\n{{volumeMode}}\n{{capacity}}\n" as $safeID("pvc_" + "{{name}}") <<claim>>
+        'pvc_{{$safeID(name)}} -- dep_vol_{{$safeID(name)}}
+    }
+    ' Persistent Volume Claims
+    {{/pvcs}}
+
     'сервисы в данном namespace
     {{#services}}
-        rectangle "{{name}}" as {{safeID}} <<{{type}}>> {
+        component "{{name}}" as {{safeID}} <<{{type}}>> {
             rectangle {
                 {{#ports}}
                     portin " " as {{safeID}}_in_{{port}}_{{protocol}}
@@ -36,14 +45,25 @@ node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
     {{/services}}
     together {
         {{#deployments}}
-        component "== {{name}}\nреплик: {{replicas}}" as {{safeID}} <<deployment>> {
+        component "== {{name}}\nреплик: {{replicas}}\n" as {{safeID}} <<deployment>> {
+            {{#volumes}}
+                card "{{name}}\n{{#claim}}claim: {{name}}{{/claim}}" as $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
+                {{#claim}}$safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}"){{/claim}}
+                'card $safeID("ABC" + {{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
+            {{/volumes}}
             {{#containers}}
-                component "== {{name}}\n====\n{{{image}}}" <<container>> {
+                component "== {{name}}\n====\n{{{image}}}\n\n" <<container>> {
                     {{#ports}}
                         portin " " as {{safeID}}_in_{{port}}_{{protocol}}
                     {{/ports}}
                     {{#mounts}}
-                        artifact "{{name}}\n{{{path}}}"
+                        'точка монтирования пути на volume
+                        artifact "volume: {{name}}\n{{{path}}}" as $safeID({{safeID}} + "_dep_mnt_" + "{{name}}") <<mount>>
+                        $safeID({{safeID}} + "_dep_mnt_" + "{{name}}") -- $safeID({{safeID}} + "_dep_vlm_" + "{{name}}")
+                        '$safeID({{safeID}} + "_dep_mnt_" + {{name}}) --
+
+                        '{{safeID}}_dep_mnt_{{$safeID(name)}} -- dep_vol_{{$safeID(name)}}
+                        'card $safeID("XXX_" + {{name}})
                     {{/mounts}}
                 }
             {{/containers}}
@@ -55,9 +75,10 @@ node "{{namespace.name}}" as {{namespace.safeID}} <<namespace>> {
         {{#links.deployments}}
             {{service.safeID}} -[hidden]--- {{safeID}}
             {{#service.ports}}
-                {{service.safeID}}_out_{{port}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}}
+                {{service.safeID}}_out_{{port}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}} : {{targetPort}}
             {{/service.ports}}
         {{/links.deployments}}
     {{/links}}
 
 }
+'ABC

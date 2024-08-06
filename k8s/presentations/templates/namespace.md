@@ -4,11 +4,11 @@
 
 ## Схема
 
-![puml](@entity/seaf.ta.reverse.k8s.namespace/namespace_uml?id={{id}})
+![puml](@entity/seaf.ta.components.k8s.namespace/uml?id={{id}})
 
 ## Deployments
-![Получаем deps ns](@entity/seaf.ta.reverse.k8s.namespace/namespace_deployments?id={{id}})
+![Получаем deps ns](@entity/seaf.ta.components.k8s.namespace/deployments?id={{id}})
 
 ## Сервисы
-![Получаем services ns](@entity/seaf.ta.reverse.k8s.namespace/namespace_services?id={{id}})
+![Получаем services ns](@entity/seaf.ta.components.k8s.namespace/services?id={{id}})
 

@@ -1,8 +1,8 @@
 entities:
-    seaf.ta.reverse.k8s.node:
+    seaf.ta.components.k8s.node:
         title: Kubernetes cluster node
         objects:
-            cce:
+            node:
                 route: "/"
                 title: Kubernetes cluster node
         schema:
@@ -14,7 +14,7 @@ entities:
                         id:
                             title: ID ноды
                             type: string
-                        cluster:
+                        clusterID:
                             title: ID кластера ноды
                             type: string
                         name:
@@ -23,3 +23,7 @@ entities:
                         version:
                             title: версия k8s
                             type: string
+                    required:
+                        - id
+                        - clusterID
+                        - name

@@ -3,6 +3,8 @@
         id: {{metadata.uid}}
         safeID: {{safeID}}
         name: {{metadata.name}}
+        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespace-name: {{parent.item.metadata.name}}
         volumeName: {{spec.volume_name}}
         volumeMode: {{spec.volume_mode}}
         capacity: {{status.capacity.storage}}

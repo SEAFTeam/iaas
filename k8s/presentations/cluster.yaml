@@ -1,7 +1,7 @@
 entities:
-    seaf.ta.services.k8s:
+    seaf.ta.components.k8s.cluster:
         presentations:
-            rx_list:
+            list:
                 type: table
                 headers:
                 - value: name
@@ -15,53 +15,55 @@ entities:
                   sortable: true
                 source: >
                     (
-                        $clusters := $."seaf.ta.services.k8s"; 
+                        $clusters := $."seaf.ta.components.k8s.cluster"; 
                         [$clusters.$spread().(
                             {
-                                "name" : $.*.kubernetes_id,
-                                "fqdn" : $.*.cluster_fqdn,
-                                "link" : '/entities/seaf.ta.services.k8s/rx_get?id=' & $.*.kubernetes_id
+                                "name" : $.*.id,
+                                "fqdn" : $.*.fqdn,
+                                "link" : '/entities/seaf.ta.components.k8s.cluster/get?id=' & $.*.id
                             }
                         )]
                     )
-            rx_get:
+            get:
                 type: markdown
                 template: templates/cluster.md
                 source: > 
                     (
-                        $cluster_id := "seaf.ta.services.k8s." & $params.id;
-                        $cluster    := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $cluster_id];
-                        $nodes      := $."seaf.ta.reverse.k8s.node".$spread()[$.*.cluster = $cluster_id];
+                        $cluster_id := "seaf.ta.components.k8s.cluster." & $params.id;
+                        $cluster    := $."seaf.ta.components.k8s.cluster".$spread()[$keys()[0] = $cluster_id];
+                        $nodes      := $."seaf.ta.components.k8s.node".$spread()[$.*.clusterID = $cluster_id];
                         $node_count := $count($nodes);
                         $some := 0;
                         {                        
                             "id"            : $params.id,
                             "cluster_id"    : $cluster_id,
-                            "fqdn"          : $cluster.*.cluster_fqdn,
+                            "fqdn"          : $cluster.*.fqdn,
                             "node_count"    : $node_count
                         }
                     )
-            rx_cluster_nodes:
+            nodes:
                 type: table
                 headers:
                     - value: name
                       text: Название
                       link: link
+                    - value: version
+                      text: Версия k8s
                     - value: addresses
                       text: адреса
                 source: > 
                     (
-                        $nodes := $."seaf.ta.reverse.k8s.node".$spread()[*.cluster = $params.id]; 
+                        $nodes := $."seaf.ta.components.k8s.node".$spread()[*.clusterID = $params.id]; 
                         [$nodes.$spread().(
                             {
                                 "name" : $.*.name,
-                                "cluster": $.*.cluster,
                                 "addresses" : $join($.*.addresses.address, ', '),
-                                "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.*.id
+                                "version" : $.*.version,
+                                "link" : '/entities/seaf.ta.components.k8s.node/get?id=' & $.*.id
                             }
                         )]
                     )
-            rx_cluster_namespaces:
+            namespaces:
                 type: table
                 headers:
                     -   value: name
@@ -69,12 +71,11 @@ entities:
                         link: link
                 source: >
                     (
-                        $namespaces := $."seaf.ta.reverse.k8s.namespace".$spread()[*.cluster = $params.id]; 
+                        $namespaces := $."seaf.ta.components.k8s.namespace".$spread()[*.clusterID = $params.id]; 
                         [$namespaces.$spread().(
                             {
                                 "name" : $.*.name,
-                                "cluster": $.*.cluster,
-                                "link" : '/entities/seaf.ta.reverse.k8s.namespace/get_namespace?id=' & $.*.id
+                                "link" : '/entities/seaf.ta.components.k8s.namespace/get?id=' & $.*.id
                             }
                         )]
                     )

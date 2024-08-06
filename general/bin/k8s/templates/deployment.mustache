@@ -9,7 +9,7 @@
             @kv{{{.}}}
         {{/iterator}}
         {{/metadata.labels}}
-        namespace: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
         namespace-name: {{parent.item.metadata.name}}
         update_strategy: {{spec.strategy.type}}
         replicas: {{spec.replicas}}
@@ -33,5 +33,9 @@
         volumes:
         {{#spec.template.spec.volumes}}
             -  name: {{name}}
+               {{#persistent_volume_claim}}
+               claim:
+                    name: {{claim_name}}
+               {{/persistent_volume_claim}}
         {{/spec.template.spec.volumes}}
 {{/items}}

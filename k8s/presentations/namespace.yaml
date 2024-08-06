@@ -1,27 +1,28 @@
 entities:
-    seaf.ta.reverse.k8s.namespace:
+    seaf.ta.components.k8s.namespace:
         presentations:
-            get_namespace:
+            get:
                 type: markdown
                 template: templates/namespace.md
                 source: >
                     (
-                        $namespace      := $."seaf.ta.reverse.k8s.namespace".$spread()[$.*.id = $params.id];
+                        $namespace := $."seaf.ta.components.k8s.namespace".$spread()[$.*.id = $params.id];
                         {                        
                             "id"            : $params.id,
                             "name"          : $namespace.*.name
                         }
                     )
-            namespace_uml:
+            uml:
                 type: plantuml
                 template: templates/namespace.puml
                 source: >
                     (
-                        $nsid       := "seaf.ta.reverse.k8s.namespace." & $params.id;
-                        $namespace  := $lookup($."seaf.ta.reverse.k8s.namespace", $nsid);
+                        $nsid       := "seaf.ta.components.k8s.namespace." & $params.id;
+                        $namespace  := $lookup($."seaf.ta.components.k8s.namespace", $nsid);
                     
-                        $namespace_services     := $."seaf.ta.components.k8s_service".*[namespace = $nsid];
-                        $namespace_deployments  := $."seaf.ta.components.k8s_deployment".*[namespace = $nsid];
+                        $namespace_services     := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
+                        $namespace_deployments  := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
+                        $pvcs := $."seaf.ta.components.k8s.pvc".*[namespaceID = $nsid];
                         
                         /* определение связей между сервисами и деплойментами */
                         $namespace_links     := $namespace_services.(
@@ -61,13 +62,16 @@ entities:
                         $log($namespace_links, "links");
                         $log($nsid, "nsid");
                         $log($namespace, "namespace");
+                        $log($pvcs, "pvcs");
                         */
-                    
+                        $log($namespace_services, "services");                    
                         {
                             "namespace" : $namespace,
                             "services"  : $namespace_services,
                             "deployments" : $namespace_deployments,
-                            "links" : $namespace_links
+                            "links" : $namespace_links,
+                            "pvcs" : $pvcs
+                    
                         }
                     )
             namespace_schema:
@@ -156,7 +160,7 @@ entities:
                         };
                     
                     )
-            namespace_deployments:
+            deployments:
                 type: table
                 headers:
                     - value: name
@@ -164,17 +168,17 @@ entities:
                       link: link
                 source: >
                     (
-                        $nsid := "seaf.ta.reverse.k8s.namespace." & $params.id;
-                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace = $nsid];
+                        $nsid := "seaf.ta.components.k8s.namespace." & $params.id;
+                        $deployments := $."seaf.ta.components.k8s.deployment".$spread()[*.namespaceID = $nsid];
                         [$deployments.$spread().(
                             {
                                 "name" : $.*.name,
-                                "link" : '/entities/seaf.ta.components.k8s_deployment/get_deployment?id=' & $.*.deployment_id
+                                "link" : '/entities/seaf.ta.components.k8s.deployment/get?id=' & $.*.id
                             }
                         )]
 
                     )
-            namespace_services:
+            services:
                 type: table
                 headers:
                     - value: name
@@ -184,13 +188,13 @@ entities:
                       text: тип
                 source: >
                     (
-                        $nsid := "seaf.ta.reverse.k8s.namespace." & $params.id;
-                        $services := $."seaf.ta.components.k8s_service".$spread()[*.namespace = $nsid]; 
+                        $nsid := "seaf.ta.components.k8s.namespace." & $params.id;
+                        $services := $."seaf.ta.components.k8s.service".$spread()[*.namespaceID = $nsid]; 
                         [$services.$spread().(
                             {
                                 "name"  : $.*.name,
                                 "type"  : $.*.type,
-                                "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.*.id
+                                "link" : '/entities/seaf.ta.components.k8s.service/get?id=' & $.*.id
                             }
                         )]
 
