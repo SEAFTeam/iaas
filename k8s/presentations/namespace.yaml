@@ -58,19 +58,23 @@ entities:
                                 }       
                         );
                     
+                        /* связи между volume и persistent volume claim */
+                        $pvc_links := $filter($namespace_deployments.volumes, function($v) { $exists($v.claim)} );
+                        $log($pvc_links, "pvc_links");
                         /*
                         $log($namespace_links, "links");
                         $log($nsid, "nsid");
                         $log($namespace, "namespace");
                         $log($pvcs, "pvcs");
-                        */
                         $log($namespace_services, "services");                    
+                        */
                         {
                             "namespace" : $namespace,
                             "services"  : $namespace_services,
                             "deployments" : $namespace_deployments,
                             "links" : $namespace_links,
-                            "pvcs" : $pvcs
+                            "pvcs" : $pvcs,
+                            "pvcLinks" : $pvc_links
                     
                         }
                     )

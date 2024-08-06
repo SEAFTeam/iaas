@@ -48,9 +48,11 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
         component "== {{name}}\nреплик: {{replicas}}\n" as {{safeID}} <<deployment>> {
             {{#volumes}}
                 card "{{name}}\n{{#claim}}claim: {{name}}{{/claim}}" as $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
-                {{#claim}}$safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}"){{/claim}}
                 'card $safeID("ABC" + {{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
             {{/volumes}}
+            {{#pvcLinks}}
+                $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}")
+            {{/pvcLinks}}
             {{#containers}}
                 component "== {{name}}\n====\n{{{image}}}\n\n" <<container>> {
                     {{#ports}}
