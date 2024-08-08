@@ -83,4 +83,12 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
     {{/links}}
 
 }
+
+{{#pvs}}
+    ' persistent volume
+    folder "{{name}}\n{{capacity}}\n{{volumeMode}}" <<persistent volume>> as {{safeID}}
+    ' it's link to PVC
+    $safeID("pvc_" + "{{claimRef.name}}") -- {{safeID}}
+
+{{/pvs}}
 'ABC

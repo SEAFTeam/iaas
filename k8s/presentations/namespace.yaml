@@ -60,8 +60,15 @@ entities:
                     
                         /* связи между volume и persistent volume claim */
                         $pvc_links := $filter($namespace_deployments.volumes, function($v) { $exists($v.claim)} );
-                        $log($pvc_links, "pvc_links");
+                    
+                        /* связи между pv и pvc */
+                    
+                        $log($namespace, "namespace");
+                        $pvs := $."seaf.ta.components.k8s.pv".*[claimRef.namespace = $namespace.name];
+                        $log($pvs, "pvs");
+                        
                         /*
+                        $log($pvc_links, "pvc_links");
                         $log($namespace_links, "links");
                         $log($nsid, "nsid");
                         $log($namespace, "namespace");
@@ -74,7 +81,8 @@ entities:
                             "deployments" : $namespace_deployments,
                             "links" : $namespace_links,
                             "pvcs" : $pvcs,
-                            "pvcLinks" : $pvc_links
+                            "pvcLinks" : $pvc_links,
+                            "pvs" : $pvs
                     
                         }
                     )
