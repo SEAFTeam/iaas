@@ -6,4 +6,10 @@
         capacity: {{spec.capacity.storage}}
         volumeMode: {{spec.volume_mode}}
         hostPath: {{spec.host_path.path}}
+        {{#spec.claim_ref}}
+        claimRef:
+            name: {{name}}
+            namespace: {{namespace}}
+            uid: {{uid}}
+        {{/spec.claim_ref}}
 {{/items}}
