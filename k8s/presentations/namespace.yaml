@@ -75,6 +75,7 @@ entities:
                         $log($pvcs, "pvcs");
                         $log($namespace_services, "services");                    
                         */
+                        $log($namespace_links, "links");
                         {
                             "namespace" : $namespace,
                             "services"  : $namespace_services,

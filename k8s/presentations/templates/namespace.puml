@@ -74,14 +74,13 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
     }
 
     {{#links}}
-        {{#links.deployments}}
-            {{service.safeID}} -[hidden]--- {{safeID}}
+        {{#deployments}}
+            {{service.safeID}} -[hidden]- {{safeID}}
             {{#service.ports}}
                 {{service.safeID}}_out_{{port}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}} : {{targetPort}}
             {{/service.ports}}
-        {{/links.deployments}}
+        {{/deployments}}
     {{/links}}
-
 }
 
 {{#pvs}}
