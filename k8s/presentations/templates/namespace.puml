@@ -40,6 +40,7 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
             {{#nodePort}}
                 portin " " as {{safeID}}_node_in_{{port}}
                 {{safeID}}_node_in_{{port}} -0)- {{safeID}}_in_{{port}}_{{protocol}} : {{nodePort}}
+                '{{safeID}}_node_in_{{port}} -[hidden]- {{safeID}}_in_{{port}}_{{protocol}} : {{nodePort}}
             {{/nodePort}}
         {{/ports}}
     {{/services}}
@@ -54,7 +55,7 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
                 $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}")
             {{/pvcLinks}}
             {{#containers}}
-                component "== {{name}}\n====\n{{{image}}}\n\n" <<container>> {
+                component "== {{name}}\n====\n{{{image}}}\n\n\n\n" <<container>> {
                     {{#ports}}
                         portin " " as {{safeID}}_in_{{port}}_{{protocol}}
                     {{/ports}}
@@ -73,6 +74,12 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
         {{/deployments}}
     }
 
+    together {
+        {{#stateful_sets}}
+        component "== {{name}}\nреплик: {{replicas}}\n" as {{safeID}} <<statefulset>> {
+        }
+        {{/stateful_sets}}
+    }
     {{#links}}
         {{#deployments}}
             {{service.safeID}} -[hidden]- {{safeID}}

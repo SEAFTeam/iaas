@@ -20,8 +20,10 @@ entities:
                         $nsid       := "seaf.ta.components.k8s.namespace." & $params.id;
                         $namespace  := $lookup($."seaf.ta.components.k8s.namespace", $nsid);
                     
-                        $namespace_services     := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
-                        $namespace_deployments  := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
+                        $namespace_services       := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
+                        $namespace_deployments    := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
+                        $namespace_stateful_sets  := $."seaf.ta.components.k8s.stateful_set".*[namespaceID = $nsid];
+                    
                         $pvcs := $."seaf.ta.components.k8s.pvc".*[namespaceID = $nsid];
                         
                         /* определение связей между сервисами и деплойментами */
@@ -36,14 +38,6 @@ entities:
                                             (
                                                 $depLabel := $lookup($labels, $key);
                                                 $selLabel := $lookup($selector, $key); 
-                                                
-                                                /*
-                                                $log($key, "$key");
-                                                $log($key in $labels, "$key in $labels");
-                                                $not($key in $labels)
-                                                  or 
-                                                $lookup($selector, $key) != $lookup($labels, $key)
-                                                */
                                                 $not ($depLabel = $selLabel);
                                             )
                                         });
@@ -51,10 +45,26 @@ entities:
                                         $not($count($mismatches) > 0); 
                                     )
                                 });
-                                
+                    
+                                $statefulSets := $filter($namespace_stateful_sets, function($deployment) {
+                                    (
+                                        $labels := $deployment.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                $not ($depLabel = $selLabel);
+                                            )
+                                        });
+                    
+                                        $not($count($mismatches) > 0); 
+                                    )
+                                });
+
                                 {
-                                    "service" : $service,
-                                    "deployments" : $deployments
+                                    "service"       : $service,
+                                    "deployments"   : $deployments,
+                                    "stateful_sets" : $statefulSets
                                 }       
                         );
                     
@@ -63,28 +73,28 @@ entities:
                     
                         /* связи между pv и pvc */
                     
-                        $log($namespace, "namespace");
                         $pvs := $."seaf.ta.components.k8s.pv".*[claimRef.namespace = $namespace.name];
-                        $log($pvs, "pvs");
                         
                         /*
+                        $log($namespace, "namespace");
+                        $log($pvs, "pvs");
                         $log($pvc_links, "pvc_links");
                         $log($namespace_links, "links");
                         $log($nsid, "nsid");
                         $log($namespace, "namespace");
                         $log($pvcs, "pvcs");
                         $log($namespace_services, "services");                    
-                        */
                         $log($namespace_links, "links");
+                        */
                         {
                             "namespace" : $namespace,
                             "services"  : $namespace_services,
                             "deployments" : $namespace_deployments,
+                            "stateful_sets" : $namespace_stateful_sets,
                             "links" : $namespace_links,
                             "pvcs" : $pvcs,
                             "pvcLinks" : $pvc_links,
                             "pvs" : $pvs
-                    
                         }
                     )
             namespace_schema:
