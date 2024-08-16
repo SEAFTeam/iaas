@@ -20,20 +20,26 @@ entities:
                         $nsid       := "seaf.ta.components.k8s.namespace." & $params.id;
                         $namespace  := $lookup($."seaf.ta.components.k8s.namespace", $nsid);
                     
-                        $namespace_services       := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
-                        $namespace_deployments    := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
-                        $namespace_stateful_sets  := $."seaf.ta.components.k8s.stateful_set".*[namespaceID = $nsid];
-                    
-                        $pvcs := $."seaf.ta.components.k8s.pvc".*[namespaceID = $nsid];
+                        $services       := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
+                        $deployments    := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
+                        $statefulsets   := $."seaf.ta.components.k8s.stateful_set".*[namespaceID = $nsid];
+                        $pvcs           := $."seaf.ta.components.k8s.pvc".*[namespaceID = $nsid];
                         
+                        /* слияние деплойментов и stateful sets для определения связей */
+                        $deployments  := $deployments ~> | $ | { "type": "deployment"}|;
+                        $statefulsets := $statefulsets ~> | $ | { "type": "statefulset"}|;
+                        $targets := $append($deployments, $statefulsets);
+                    
                         /* определение связей между сервисами и деплойментами */
-                        $namespace_links     := $namespace_services.(
-                                $service := $;
-                                $selector := $service.selector;
+                        $links     := $services.(
+                                $service        := $;
+                                $selector       := $service.selector;
                                 $selectorLabels := $keys($service.selector);
-                                $deployments := $filter($namespace_deployments, function($deployment) {
+                    
+                                /* filter linked deployments and SSs */
+                                $items := $filter($targets, function($item) {
                                     (
-                                        $labels := $deployment.labels;
+                                        $labels := $item.labels;
                                         $mismatches := $filter($selectorLabels, function($key) {
                                             (
                                                 $depLabel := $lookup($labels, $key);
@@ -46,36 +52,22 @@ entities:
                                     )
                                 });
                     
-                                $statefulSets := $filter($namespace_stateful_sets, function($deployment) {
-                                    (
-                                        $labels := $deployment.labels;
-                                        $mismatches := $filter($selectorLabels, function($key) {
-                                            (
-                                                $depLabel := $lookup($labels, $key);
-                                                $selLabel := $lookup($selector, $key); 
-                                                $not ($depLabel = $selLabel);
-                                            )
-                                        });
-                    
-                                        $not($count($mismatches) > 0); 
-                                    )
-                                });
-
                                 {
-                                    "service"       : $service,
-                                    "deployments"   : $deployments,
-                                    "stateful_sets" : $statefulSets
+                                    "source"       : $service,
+                                    "targets"      : $items
                                 }       
                         );
                     
                         /* связи между volume и persistent volume claim */
-                        $pvc_links := $filter($namespace_deployments.volumes, function($v) { $exists($v.claim)} );
+                        $pvc_links := $filter($targets.volumes, function($v) { $exists($v.claim)} );
                     
                         /* связи между pv и pvc */
                     
                         $pvs := $."seaf.ta.components.k8s.pv".*[claimRef.namespace = $namespace.name];
-                        
+                    
+                        $log($links, "links");
                         /*
+                        $log($targets, "targets");
                         $log($namespace, "namespace");
                         $log($pvs, "pvs");
                         $log($pvc_links, "pvc_links");
@@ -88,13 +80,12 @@ entities:
                         */
                         {
                             "namespace" : $namespace,
-                            "services"  : $namespace_services,
-                            "deployments" : $namespace_deployments,
-                            "stateful_sets" : $namespace_stateful_sets,
-                            "links" : $namespace_links,
+                            "services"  : $services,
+                            "links" : $links,
                             "pvcs" : $pvcs,
                             "pvcLinks" : $pvc_links,
-                            "pvs" : $pvs
+                            "pvs" : $pvs,
+                            "targets" : $targets
                         }
                     )
             namespace_schema:

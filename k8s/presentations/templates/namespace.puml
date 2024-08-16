@@ -16,8 +16,7 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
 
     {{#pvcs}}
     together {
-        frame "{{name}}\n{{volumeName}}\n{{volumeMode}}\n{{capacity}}\n" as $safeID("pvc_" + "{{name}}") <<claim>>
-        'pvc_{{$safeID(name)}} -- dep_vol_{{$safeID(name)}}
+        frame "=={{name}}\n| UID | //{{id}}// |\n| название тома | ""{{volumeName}}"" |\n| режим | {{volumeMode}} |\n| ёмкость | {{capacity}} |\n" as $safeID("pvc_" + "{{name}}") <<claim>>
     }
     ' Persistent Volume Claims
     {{/pvcs}}
@@ -51,9 +50,9 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
                 card "{{name}}\n{{#claim}}claim: {{name}}{{/claim}}" as $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
                 'card $safeID("ABC" + {{safeID}} + "_dep_vlm_" + "{{name}}") <<volume>>
             {{/volumes}}
-            {{#pvcLinks}}
-                $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}")
-            {{/pvcLinks}}
+            '{{#pvcLinks}}
+            '    $safeID({{safeID}} + "_dep_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}")
+            '{{/pvcLinks}}
             {{#containers}}
                 component "== {{name}}\n====\n{{{image}}}\n\n\n\n" <<container>> {
                     {{#ports}}
@@ -74,25 +73,47 @@ frame "{{namespace.name}}" as {{namespace.safeID}} {
         {{/deployments}}
     }
 
+    {{#targets}}
     together {
-        {{#stateful_sets}}
-        component "== {{name}}\nреплик: {{replicas}}\n" as {{safeID}} <<statefulset>> {
+        component "=={{name}}\n| UID | {{id}} |\n| реплик | {{replicas}} |" as {{safeID}} <<{{type}}>> {
+        {{#volumes}}
+            card "| name | **{{name}}** |\n| UID | //{{id}}// |\n{{#claim}}| claim | ""{{name}}"" |{{/claim}}" as $safeID({{safeID}} + "_vlm_" + "{{name}}") <<volume>>
+            {{#claim}}
+            '$safeID({{safeID}} + "_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{name}}")
+            {{/claim}}
+        {{/volumes}}
+        {{#pvcLinks}}
+            $safeID({{safeID}} + "_vlm_" + "{{name}}") -- $safeID("pvc_" + "{{claim.name}}")
+        {{/pvcLinks}}
+        {{#containers}}
+            component "=={{name}}\n| образ | //{{{image}}}// |\n| image pull policy | {{imagePullPolicy}} |\n\n\n\n" <<container>> {
+            {{#ports}}
+                portin " " as {{safeID}}_in_{{port}}_{{protocol}}
+            {{/ports}}
+            {{#mounts}}
+                'точка монтирования пути на volume
+                artifact "=={{name}}\n| путь | {{{path}}} |\n" as $safeID({{safeID}} + "_mnt_" + "{{name}}") <<mount>>
+                $safeID({{safeID}} + "_mnt_" + "{{name}}") -- $safeID({{safeID}} + "_vlm_" + "{{name}}")
+            {{/mounts}}
+            }
+        {{/containers}}
         }
-        {{/stateful_sets}}
     }
+    {{/targets}}
+
     {{#links}}
-        {{#deployments}}
-            {{service.safeID}} -[hidden]- {{safeID}}
-            {{#service.ports}}
-                {{service.safeID}}_out_{{port}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}} : {{targetPort}}
-            {{/service.ports}}
-        {{/deployments}}
+        {{#targets}}
+            {{source.safeID}} -[hidden]- {{safeID}}
+            {{#source.ports}}
+                {{source.safeID}}_out_{{targetPort}}_{{protocol}} -- {{safeID}}_in_{{targetPort}}_{{protocol}} : WOW{{targetPort}}
+            {{/source.ports}}
+        {{/targets}}
     {{/links}}
 }
 
 {{#pvs}}
     ' persistent volume
-    folder "{{name}}\n{{capacity}}\n{{volumeMode}}" <<persistent volume>> as {{safeID}}
+    folder "=={{name}}\n| UID | {{id}} |\n| ёмкость | {{capacity}} |\n| режим | {{volumeMode}} |\n" <<persistent volume>> as {{safeID}}
     ' it's link to PVC
     $safeID("pvc_" + "{{claimRef.name}}") -- {{safeID}}
 
