@@ -1,21 +1,21 @@
     {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
-        name: {{metadata.name}}
+        title: {{metadata.name}}
         version: {{status.node_info.kubelet_version}}
-        clusterID: {{parent.entity}}.{{parent.item.name}}
+        k8s_cluster_id: {{parent.entity}}.{{parent.item.name}}
         architecture: {{status.node_info.architecture}}
         cpu: {{status.allocatable.cpu}}
+        {{metadata.labels.node-role.kubernetes.io/control-plane}}is_control_plane: true{{metadata.labels.node-role.kubernetes.io/control-plane}}
         addresses:
         {{#status.addresses}}
             - address: {{address}}
               type: {{type}}
         {{/status.addresses}}
-        {{metadata.labels.node-role.kubernetes.io/control-plane}}control-plane: true{{metadata.labels.node-role.kubernetes.io/control-plane}}
         {{#metadata.labels}}
         labels:
         {{#iterator}}
-            @kv{{{.}}}
+            - @kv{{{.}}}
         {{/iterator}}
         {{/metadata.labels}}
 
