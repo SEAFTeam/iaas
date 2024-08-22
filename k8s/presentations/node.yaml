@@ -1,5 +1,5 @@
 entities:
-    seaf.ta.components.k8s.node:
+    seaf.ta.components.k8s_node:
         presentations:
             list:
                 type: table
@@ -30,14 +30,18 @@ entities:
                 template: templates/node.md
                 source: >
                     (
-                        $node_id := "seaf.ta.components.k8s.node." & $params.id;
-                        $node    := $."seaf.ta.components.k8s.node".$spread()[$keys()[0] = $node_id];
+                        $node_id := "seaf.ta.components.k8s_node." & $params.id;
+                        $node  := $lookup($."seaf.ta.components.k8s_node", $node_id);
+                        $log($node, "node");
+                        $log($params.id, "params.id");
+                        $log($node_id, "node_id");
+                        /* $node    := $."seaf.ta.components.k8s.node".$spread()[$keys()[0] = $node_id]; */
                         {                        
                             "id"            : $params.id,
                             "node_id"       : $node_id,
-                            "name"          : $node.*.name,
-                            "arch"          : $node.*.architecture,
-                            "cpu"           : $node.*.cpu,
-                            "addresses"     : $node.*.addresses
+                            "name"          : $node.name,
+                            "arch"          : $node.architecture,
+                            "cpu"           : $node.cpu,
+                            "addresses"     : $node.addresses
                         }
                     )

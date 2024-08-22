@@ -1,37 +1,38 @@
 entities:
-    seaf.ta.components.k8s.cluster:
+    seaf.ta.services.k8s:
         presentations:
-            list:
+            k8s_list:
                 type: table
                 headers:
-                - value: name
-                  text: Название
-                  width: 200
-                  sortable: true
-                  link: link
                 - value: fqdn
                   text: FQDN
                   width: 200
                   sortable: true
+                  link: link
+                - value: name
+                  text: Название
+                  width: 200
+                  sortable: true
                 source: >
                     (
-                        $clusters := $."seaf.ta.components.k8s.cluster"; 
+                        $clusters := $."seaf.ta.services.k8s"; 
                         [$clusters.$spread().(
                             {
                                 "name" : $.*.id,
                                 "fqdn" : $.*.fqdn,
-                                "link" : '/entities/seaf.ta.components.k8s.cluster/get?id=' & $.*.id
+                                "link" : '/entities/seaf.ta.services.k8s/k8s_get?id=' & $.*.id
                             }
                         )]
                     )
-            get:
+            k8s_get:
                 type: markdown
                 template: templates/cluster.md
                 source: > 
                     (
-                        $cluster_id := "seaf.ta.components.k8s.cluster." & $params.id;
-                        $cluster    := $."seaf.ta.components.k8s.cluster".$spread()[$keys()[0] = $cluster_id];
-                        $nodes      := $."seaf.ta.components.k8s.node".$spread()[$.*.clusterID = $cluster_id];
+                        $cluster_id := "seaf.ta.services.k8s." & $params.id;
+                        $cluster    := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $cluster_id];
+                        /* $nodes      := $."seaf.ta.components.k8s_node".$spread()[$.*.k8s_cluster_id = $cluster_id]; */
+                        $nodes := $."seaf.ta.components.k8s_node".*[k8s_cluster_id = $cluster_id];
                         $node_count := $count($nodes);
                         $some := 0;
                         {                        
@@ -53,15 +54,15 @@ entities:
                       text: адреса
                 source: > 
                     (
-                        $nodes := $."seaf.ta.components.k8s.node".$spread()[*.clusterID = $params.id]; 
-                        [$nodes.$spread().(
+                        $nodes := $."seaf.ta.components.k8s_node".*[k8s_cluster_id = $params.id];
+                        $nodes[].(
                             {
-                                "name" : $.*.name,
-                                "addresses" : $join($.*.addresses.address, ', '),
-                                "version" : $.*.version,
-                                "link" : '/entities/seaf.ta.components.k8s.node/get?id=' & $.*.id
+                                "name" : $.title,
+                                "addresses" : $join($.addresses.address, ', '),
+                                "version" : $.version,
+                                "link" : '/entities/seaf.ta.components.k8s_node/get?id=' & $.id
                             }
-                        )]
+                        )
                     )
             namespaces:
                 type: table
@@ -71,7 +72,8 @@ entities:
                         link: link
                 source: >
                     (
-                        $namespaces := $."seaf.ta.components.k8s.namespace".$spread()[*.clusterID = $params.id]; 
+                        $namespaces := $."seaf.ta.components.k8s_namespace".$spread()[*.clusterID = $params.id];
+                        
                         [$namespaces.$spread().(
                             {
                                 "name" : $.*.name,
