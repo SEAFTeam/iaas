@@ -1,0 +1,63 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.vdcs:
+    menu: >
+      (
+          $domain := '';
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+          $vdcs_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.view;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+      
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
+          $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$orgs.$spread().(
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/VDC',
+                  'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
+              }
+          )];
+          /*$static := [
+              {
+                  'location': $config.arch_menu & '/Cloud.ru/Облако VMware/Реестры/VDC',
+                  'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
+              }
+          ];*/
+          $dynamic_vdc := $vdcs.$spread()[$not($keys() in $vdcgroups.*.vdcs.id)].(
+              $id := $keys()[0];
+              $title := $.*.title;
+              $vdc := $;
+              $org := $orgs.$spread()[$keys() = $vdc.*.org];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
+              $orgtitle := $.*.org_title;
+              {
+                  'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title,
+                  'link': 'entities/' & $vdcs_view & '/card?id=' & $id
+              }
+          );
+          $dynamic_vdcgroup := $vdcs.$spread()[$keys() in $vdcgroups.*.vdcs.id].(
+              $id := $keys()[0];
+              $title := $.*.title;
+              $vdcgroup := $vdcgroups.$spread()[$id in *.vdcs.id];
+              $vdc := $;
+              $org := $orgs.$spread()[$keys() = $vdc.*.org];
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
+              $orgtitle := $.*.org_title;
+              $vdcgroup.$spread().(
+                {
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title,
+                    'link': 'entities/' & $vdcs_view & '/card?id=' & $id
+                }
+              )
+          );
+          $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup); 
+          $append($lists, $dynamic)
+      )

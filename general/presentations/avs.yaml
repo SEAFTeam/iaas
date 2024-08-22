@@ -40,7 +40,7 @@ entities:
           - value: id
             text: ID
           - value: name
-            text: Имя сервера
+            text: Наименование сервера
             sortable: true
             align: left
             link: vm_link
@@ -76,7 +76,7 @@ entities:
           (
               $id := $params.id;
               $av := $reverse.general_avs($)[id = $id];
-              $vms := $reverse_enterprise_vms($)[name in $av.hosts];
+              $vms := $reverse_vmwarecloud_vms($)[name in $av.hosts];
           )
 
       no_av:
@@ -85,7 +85,7 @@ entities:
           - value: id
             text: ID
           - value: name
-            text: Имя сервера
+            text: Наименование сервера
             sortable: true
             align: left
             link: vm_link
@@ -121,5 +121,5 @@ entities:
           (
               $domain := $params.domain;
               $avs := $reverse_general_avs($, $domain);
-              $reverse_enterprise_vms($, $domain)[$not(name in $avs.hosts)];
+              $reverse_vmwarecloud_vms($, $domain)[$not(name in $avs.hosts)];
           )

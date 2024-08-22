@@ -7,7 +7,7 @@
 ## Платформы доступные в модуле "Расширение IaaS"
 
 - [Advanced](advanced/README.md)
-- [Enterprise](enterprise/README.md)
+- [Облако VMware](vmwarecloud/README.md)
 - vSphere/vCenter - On-Prem виртуализация на базе VMware
 - ML Space - планируется
 
@@ -27,7 +27,7 @@
 |- _metamodel_                      - Подключенные пакеты метамоделей
 |  |- iaas                          - Пакет метамодели
 |  |  |- cloud.ru                   - Модель провайдера
-|  |  |  |- enterprise              - Платформа Enterprise
+|  |  |  |- vmwarecloud             - Платформа VMware
 |  |  |  |- advanced                - Платформа Advanced
 |  |  |- docs                       - Роадмап
 |  |  |- general                    - Общее для всех модулей 

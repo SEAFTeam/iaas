@@ -9,12 +9,13 @@ entities:
       type: object
       patternProperties:
         "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          $ref: "#/$defs/seaf.ta.services.base.entity"
           type: object
           properties:
             id:
               title: Идентификатор RDS
             name:
-              title: Имя БД
+              title: Наименование БД
               type: string
               minLength: 3
             description:
@@ -61,7 +62,7 @@ entities:
                 type: object
                 properties:
                   key:
-                    title: Имя ключа
+                    title: Наименование ключа
                     type: string
                   value:
                     title: Значение ключа
@@ -87,7 +88,7 @@ entities:
                     title: Идентификатор ноды
                     type: string
                   name:
-                    title: Имя ноды
+                    title: Наименование ноды
                     type: string
                   role:
                     title: Роль ноды (master/slave)

@@ -1,0 +1,53 @@
+seaf.ta.reverse.general:
+  config:
+    doc_menu: Документы/IaaS
+    arch_menu: Архитектура/IaaS
+    functions:
+      server:
+        - 'reverse_vmwarecloud_vms'
+        - 'reverse_advanced_ecss'
+    entities:
+      dc:
+        model: seaf.ta.services.dc
+        view: seaf.ta.services.dc
+      edrs:
+        model: seaf.ta.reverse.general.edrs
+        view: seaf.ta.reverse.general.edrs
+      avs:
+        model: seaf.ta.reverse.general.avs
+        view: seaf.ta.reverse.general.avs
+      vmwarecloud:   # Сущности облака VMware
+        vms:
+          model: seaf.ta.components.server
+          view: seaf.ta.reverse.vmwarecloud.vms
+        vapps:
+          model: seaf.ta.reverse.vmwarecloud.vapps
+          view: seaf.ta.reverse.vmwarecloud.vapps
+        vdcs:
+          model: seaf.ta.reverse.vmwarecloud.vdcs
+          view: seaf.ta.reverse.vmwarecloud.vdcs
+        vdcgroups:
+          model: seaf.ta.reverse.vmwarecloud.vdcgroups
+          view: seaf.ta.reverse.vmwarecloud.vdcgroups
+        orgnets:
+          model: seaf.ta.services.network
+          view: seaf.ta.reverse.vmwarecloud.orgnets
+        vappnets:
+          model: seaf.ta.services.network
+          view: seaf.ta.reverse.vmwarecloud.vappnets
+        egws:
+          model: seaf.ta.components.network
+          view: seaf.ta.reverse.vmwarecloud.egws
+        egws_nat:
+          model: seaf.ta.reverse.vmwarecloud.egws_nat
+          view: seaf.ta.reverse.vmwarecloud.egws_nat
+        egws_fw:
+          model: seaf.ta.reverse.vmwarecloud.egws_fw
+          view: seaf.ta.reverse.vmwarecloud.egws_fw
+        orgs:
+          model: seaf.ta.reverse.vmwarecloud.orgs
+          view: seaf.ta.reverse.vmwarecloud.org
+      advanced:   # Сущности облака advanced
+        ecss:
+          model: seaf.ta.components.server
+          view: seaf.ta.reverse.advanced.ecss

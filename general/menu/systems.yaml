@@ -1,8 +1,8 @@
 entities:
-  seaf.ta.reverse.general:
+  seaf.ta.reverse.general.systems:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           $systems := $$.components.$spread()[*.type = 'service'];
           $components := $$.components.$spread()[*.type = 'component'];
           $links := $$."seaf.ta.reverse.general.links";
@@ -13,8 +13,8 @@ entities:
               $regexp := $eval("/" & $system_path & "$/");
               $systems[$match($keys()[0], $regexp)];
           ));
-          [$available_systems.({
+          $menu := $append($menu, [$available_systems.({
               "link": "entities/seaf.ta.reverse.general.systems/systems_ta?id=" & $keys()[0],
               "location": $config.arch_menu & "/Системы/" & $.*.title
-          })]
+          })])
       )

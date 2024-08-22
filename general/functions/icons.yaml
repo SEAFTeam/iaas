@@ -2,7 +2,7 @@ icons:
   reverse.general:
     svg_vm: >
       (
-      $name := $.name;
+      $title := $.title;
       $ip := $.ip;
       $x := $.x;
       $y := $.y;
@@ -21,7 +21,7 @@ icons:
                       & '<rect x="0" y="0" width="36" height="36" fill-opacity="0"/>'
                   & '</svg>'
                   & '<a href="' & $href & '">'
-                    & '<text fill="#0000FF" width="200" x="100" y="80" text-anchor="middle" font-size="12" stroke="#000" stroke-width="0">' & $name & '</text>'
+                    & '<text fill="#0000FF" width="200" x="100" y="80" text-anchor="middle" font-size="12" stroke="#000" stroke-width="0">' & $title & '</text>'
                   & '</a>' & $ipstring
                 & '</svg>';
       $symbol
@@ -253,7 +253,7 @@ icons:
 
     svg_vapp_header: >
       (
-          $name := $.name;
+          $title := $.title;
           $href := $.href;
           $color := '#AED9E0';
           $rowHeight := 20;
@@ -261,11 +261,11 @@ icons:
           $fontWidth := 10;
           $padding := 8;
           $maxLength := 280;
-          $nameTextRows := $row_maker($name, 35);
-          $titleRows :=  $count($nameTextRows);
+          $titleTextRows := $row_maker($title, 35);
+          $titleRows :=  $count($titleTextRows);
           $titleHeight := $titleRows * $rowHeight + $rowHeight + $padding;
           $height := $titleHeight;
-          $title :=  $nameTextRows#$i.(
+          $title :=  $titleTextRows#$i.(
               $y := ($i + 1) * 20 + 20;
               '<a href="' & $href & '"><text fill="#000000" x="50" y="' & $y & '" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan fill="#0000FF">' & $ & '</tspan></text></a>'
           );
@@ -278,7 +278,7 @@ icons:
                                              & '<path d="M160,204.48,77.2,241.64c-17.6,8-17.6,21.1,0,29.1l148,67.49c16.89,7.7,44.69,7.7,61.58,0l148-67.49c17.7-8,17.7-21.1.1-29.1L352,204.48" '
                                              & 'style="fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"/>'
                                          & '</svg>';
-          $symbol := '<svg id="' & $name & '" width="300" height="' & ($height) & '" x="1" y="1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+          $symbol := '<svg id="' & $title & '" width="300" height="' & ($height) & '" x="5" y="5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                                   & '<rect fill="#FFF" x="0" y="0" width="300" height="' & $titleHeight &'" rx="10"/>'
                                   & '<text fill="#000000" x="50" y="20" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan font-weight="bold">vApp</tspan></text>'
                                   & $join($title)
@@ -288,7 +288,7 @@ icons:
 
     svg_vdcgnet_header: >
       (
-          $name := $.name;
+          $title := $.title;
           $href := $.href;
           $color := '#AED9E0';
           $rowHeight := 20;
@@ -296,11 +296,11 @@ icons:
           $fontWidth := 10;
           $padding := 8;
           $maxLength := 280;
-          $nameTextRows := $row_maker($name, 35);
-          $titleRows :=  $count($nameTextRows);
+          $titleTextRows := $row_maker($title, 35);
+          $titleRows :=  $count($titleTextRows);
           $titleHeight := $titleRows * $rowHeight + $rowHeight + $padding;
           $height := $titleHeight;
-          $title :=  $nameTextRows#$i.(
+          $title :=  $titleTextRows#$i.(
               $y := ($i + 1) * 20 + 20;
               '<a href="' & $href & '"><text fill="#000000" x="50" y="' & $y & '" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan fill="#0000FF">' & $ & '</tspan></text></a>'
           );
@@ -347,7 +347,7 @@ icons:
                                           	& '</g>'
                                           & '</g>'
                                           & '</svg>';
-          $symbol := '<svg id="' & $name & '" width="300" height="' & ($height) & '" x="1" y="1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+          $symbol := '<svg id="' & $title & '" width="300" height="' & ($height) & '" x="5" y="5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                                   & '<rect fill="#FFF" x="0" y="0" width="300" height="' & $titleHeight &'" rx="10"/>'
                                   & '<text fill="#000000" x="50" y="20" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan font-weight="bold">VDC Group Network</tspan></text>'
                                   & $join($title)
@@ -357,7 +357,7 @@ icons:
 
     svg_vappnet_header: >
       (
-          $name := $.name;
+          $title := $.title;
           $href := $.href;
           $color := '#AED9E0';
           $rowHeight := 20;
@@ -365,11 +365,11 @@ icons:
           $fontWidth := 10;
           $padding := 8;
           $maxLength := 280;
-          $nameTextRows := $row_maker($name, 35);
-          $titleRows :=  $count($nameTextRows);
+          $titleTextRows := $row_maker($title, 35);
+          $titleRows :=  $count($titleTextRows);
           $titleHeight := $titleRows * $rowHeight + $rowHeight + $padding;
           $height := $titleHeight;
-          $title :=  $nameTextRows#$i.(
+          $title :=  $titleTextRows#$i.(
               $y := ($i + 1) * 20 + 20;
               '<a href="' & $href & '"><text fill="#000000" x="50" y="' & $y & '" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan fill="#0000FF">' & $ & '</tspan></text></a>'
           );
@@ -416,7 +416,7 @@ icons:
                        	& '</g>'
                        & '</g>'
                        & '</svg>';
-          $symbol := '<svg id="' & $name & '" width="300" height="' & ($height) & '" x="1" y="1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+          $symbol := '<svg id="' & $title & '" width="300" height="' & ($height) & '" x="5" y="5" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                                   & '<rect fill="#FFF" x="0" y="0" width="300" height="' & $titleHeight &'" rx="10"/>'
                                   & '<text fill="#000000" x="50" y="20" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan font-weight="bold">vApp Network</tspan></text>'
                                   & $join($title)
@@ -426,7 +426,7 @@ icons:
 
     svg_block: >
       (
-      $name := $.name;
+      $title := $.title;
       $description := $.description;
       $type := $.type;
       $href := $.href;
@@ -531,9 +531,9 @@ icons:
       $fontWidth := 10;
       $padding := 8;
       $maxLength := 280;
-      $nameTextRows := $row_maker($name, 35);
+      $titleTextRows := $row_maker($title, 35);
       $descTextRows := $row_maker($description, 35);
-      $titleRows :=  $count($nameTextRows);
+      $titleRows :=  $count($titleTextRows);
       $descriptionRows := $count($descTextRows);
       $detailsTextRows := $details.$spread().({$keys(): $row_maker($.*, 31)});
       $detailsRows := $count($detailsTextRows.**);
@@ -541,7 +541,7 @@ icons:
       $descriptionHeight := $descriptionRows * $rowHeight + $rowHeight + $padding;
       $detailsHeight := $detailsRows * $rowHeight + $rowHeight + $padding;
       $height := $titleHeight + $descriptionHeight + $detailsHeight;
-      $title :=  $nameTextRows#$i.(
+      $title :=  $titleTextRows#$i.(
           $y := ($i + 1) * 20 + 20;
           '<a href="' & $href & '"><text fill="#000000" x="50" y="' & $y & '" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan fill="#0000FF">' & $ & '</tspan></text></a>'
       );
@@ -558,7 +558,7 @@ icons:
           );
           $result := $begin & $join($end, '');
       );
-      $symbol := '<svg id="' & $name & '" width="300" height="' & ($height + 20) & '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+      $symbol := '<svg id="' & $title & '" width="300" height="' & ($height + 20) & '" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                               & '<rect fill="#FFF" x="0" y="0" width="300" height="' & ($height + 20) & '" rx="10" stroke="#000"/>'
                               & '<rect fill="' & $color & '" x="0" y="0" width="300" height="' & $titleHeight &'" rx="10" stroke="#000"/>'
                               & '<text fill="#000000" x="50" y="20" text-anchor="start" font-size="14" stroke="#000" stroke-width="0"><tspan font-weight="bold">' & $type &'</tspan></text>'
@@ -572,10 +572,10 @@ icons:
 
     svg_nsx_gateway: >
       (
-          $name := $.name;
+          $title := $.title;
           $href := $.href;
-          $namerows := $row_maker($name, 15);
-          $title :=  $namerows#$i.(
+          $titlerows := $row_maker($title, 15);
+          $title :=  $titlerows#$i.(
               $y := $i * 20 + 75;
                   '<text fill="#0000FF" width="96" x="60" y="' & $y & '" text-anchor="middle" font-size="12" stroke="#000" stroke-width="0">' & $ & '</text>'
           );

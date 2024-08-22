@@ -9,13 +9,14 @@ entities:
       type: object
       patternProperties:
         "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          $ref: "#/$defs/seaf.ta.services.base.entity"
           type: object
           properties:
             id:
               title: Идентификатор сервиса DMS
               type: string
             name:
-              title: Имя сервиса DMS
+              title: Наименование сервиса DMS
               type: string
             engine:
               title: Движок сервиса DMS (rabbit или kafka)

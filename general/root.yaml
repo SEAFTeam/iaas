@@ -5,3 +5,4 @@ imports:
   - functions/root.yaml
   - datasets/root.yaml
   - docs/root.yaml
+  - config.yaml

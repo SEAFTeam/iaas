@@ -127,7 +127,7 @@ entities:
         type: table
         headers:
           - value: name
-            text: Имя сервера
+            text: Наименование сервера
             sortable: true
             align: left
             link: link

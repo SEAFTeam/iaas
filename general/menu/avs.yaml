@@ -5,7 +5,7 @@ entities:
           $domain := '';
           $av_entity_matcher := /.*\.avs$/;
           $entity := $$.entities.$spread()[$av_entity_matcher($keys())].$keys()[0];
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           [
               {
                   'location': $config.arch_menu & '/Кибербезопасность/AV',

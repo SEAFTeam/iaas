@@ -15,7 +15,7 @@ entities:
               title: Id Nat Gateway
               type: string
             name:
-              title: Имя Nat Gateway
+              title: Наименование Nat Gateway
               type: string
             description:
               title: Описание хранилища РК

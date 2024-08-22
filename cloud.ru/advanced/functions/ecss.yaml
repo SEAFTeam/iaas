@@ -1,0 +1,74 @@
+functions:
+  reverse_advanced_ecss:
+    title: Список виртуальных машин (Modern Cloud)
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+      (
+          $domain := domain;
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+          $ecs_entity_matcher := /.*\.advanced\.ecss$/;
+          $vpc_entity_matcher := /.*\.advanced\.vpcs/;
+          $edr_entity_matcher := /.*\.general\.edrs$/;
+          $av_entity_matcher := /.*\.general\.avs$/;
+          $dcs_entity_matcher := /.*\.services\.dc$/;
+          $dcs_entity := dataset.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
+          $dcs := dataset.$spread()[$dcs_entity_matcher($keys())].*;
+          $ecs_entity_full := dataset.entities.$spread()[$ecs_entity_matcher($keys())];
+          $ecs_entity := $ecs_entity_full.$keys()[0];
+          $vpc_entity := dataset.entities.$spread()[$vpc_entity_matcher($keys())].$keys()[0];
+          $ecss := dataset.$spread()[$ecs_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+          $vpcs := dataset.$spread()[$vpc_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+          $edrs := dataset.$spread()[$edr_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+          $avs := dataset.$spread()[$av_entity_matcher($keys())].*.$spread()[$domain_matcher($keys())];
+          [[$ecss.$spread().{
+              'id': $keys(),
+              'vm': *
+          }].(
+              $disks := $join(vm.disks.(*.device & ' - ' & *.type & ' - ' & *.size & 'Gb'), '\n');
+              $addresses := $count(vm.addresses) > 1 ? $join(vm.addresses.($ != null ? $), ', ') : vm.addresses;
+              $vpc_id := vm.vpc_id;
+              $subnets := $count(vm.subnets) > 1 ? $join(vm.subnets.($ != null ? $), ', ') : vm.subnets;
+              $vpc := $vpcs.$spread()[$keys() = $vpc_id];
+              $av := vm.name in $avs.**.hosts ? true : false;
+              $edr := vm.name in $edrs.**.hosts ? true : false;
+              $dc := $dcs.$spread()[$keys() = $vpc.*.DC];
+              $tags := $join(vm.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
+              {
+                  'id': id,
+                  'short_id': vm.id,
+                  'name': vm.name,
+                  'description': vm.description,
+                  'os_type': vm.os.type,
+                  'os_bit': vm.os.bit,
+                  'cpu_qty': vm.cpu.cores,
+                  'ram': vm.ram / 1024,
+                  'flavor': vm.flavor,
+                  'disks': $disks,
+                  'nic_qty': vm.nic_qty,
+                  'addresses': vm.addresses,
+                  'av': $av,
+                  'edr': $edr,
+                  'subnet_ids': vm.subnets,
+                  'az': vm.az,
+                  'tags': $tags,
+                  'tenant': vm.tenant,
+                  'vpc_id': vm.vpc_id,
+                  'vpc_name': $vpc.*.name,
+                  'link': '/entities/' & $ecs_entity & '/card?id=' & id,
+                  'vpc_link': '/entities/' & $vpc_entity & '/card?id=' & $vdc_id,
+                  'entity': $ecs_entity,
+                  'entity_type': $ecs_entity_full.*.description,
+                  'entity_name': $ecs_entity_full.*.title,
+                  'DC': $dc.$keys()[0],
+                  'dc_name': $dc.*.title
+              }
+          )]
+      )

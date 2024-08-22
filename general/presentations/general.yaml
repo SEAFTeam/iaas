@@ -1,20 +1,13 @@
 entities:
   seaf.ta.reverse.general:
-    # Конфигурация размещения меню
-    config:
-      doc_menu: Документы/IaaS
-      arch_menu: Архитектура/IaaS
-
     presentations:
-
+    # Конфигурация размещения меню
       metamodel_huawei:
         type: mermaid
         template: templates/schema_huawei.mmd
-
-      metamodel_vcloud:
+      metamodel_vmwarecloud:
         type: mermaid
-        template: templates/schema_vcloud.mmd
-
+        template: templates/schema_vmwarecloud.mmd
       list_of_content:
         type: markdown
         template: templates/list_of_contents.md
@@ -39,7 +32,6 @@ entities:
                   'menu': $menu
               }
           )
-
       root:
         type: plantuml
         template: templates/root.puml
@@ -47,14 +39,17 @@ entities:
           (
               $id := $params.id;
               $txt := $params.txt;
+              $org := $params.org;
               $matcher := $eval("/^seaf\\.ta\\." & $id & ".*$/");
               $functions := $.entities.$spread()[$matcher($keys()[0])].*.menu;
               $menu := $functions.(
                   $item := $;
                   $matcher := /^(.*)$/;
                   $enterprise_matcher := /.*(\/Реестры\/.*|\/Организации\/[a-zA-Z0-9\s-_]+\/[a-zA-Z0-9\s_-]+$)/;
-                  $items := $eval($item)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
-                  $items := $txt = 'Enterprise' ? $items[$enterprise_matcher(location)] : $items;
+                  $items := $eval($item, $$)[location ~> $matcher][location != 'undefined'][$not($contains(link, "readme"))];
+                  $items := $txt = 'Облако VMware' ? $items[$enterprise_matcher(location)] : $items;
+                  $org_matcher := $exists($org) ? $eval("/.*\\/" & $org & "\\/.*$/");
+                  $items := $exists($org) ? $items[$org_matcher(location)] : $items;
                   $items.({
                     'location': $matcher($.location).groups[0],
                     'link': '"/' & $.link & '"'

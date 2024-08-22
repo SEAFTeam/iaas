@@ -1,0 +1,602 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.orgnets:
+    presentations:
+      card:
+        title: Карточка объекта
+        type: markdown
+        template: templates/orgnet_card.md
+        source: >
+          (   
+              $id := $params.id;
+              $fn_egw := $$.functions."reverse.enterprise".egws;
+              $orgnets := $reverse_vmwarecloud_orgnets($)[id = $id];
+              $egws := $reverse_vmwarecloud_egws($)[$id in gatewayinterfaces.network];
+              $orgnets ~> | $ | {'egws': $egws} |
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn_svg_block := $$.icons."reverse.general".svg_block;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $fn_svg_vapp := $$.icons."reverse.general".svg_vapp_header;
+              $orgnet := $reverse_vmwarecloud_orgnets($)[id = $id];
+              $orgnets := $reverse_vmwarecloud_orgnets($);
+              $egws := $reverse_vmwarecloud_egws($)[$id in gatewayinterfaces.network];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[parentnetwork = $orgnet.id];
+              $vapps := $reverse_vmwarecloud_vapps($)[id in $vappnets.vapp];
+              $vms := $reverse_vmwarecloud_vms($)[vapp in $vapps.id];
+              $nodes := {$orgnet.org.$split('.')[-1]: {'title': 'Организация: ' & $orgnet.org_title}};
+              $nodes := $append($nodes, {$orgnet.org.$split('.')[-1] & '.' & $orgnet.vdc.$split('.')[-1]: {'title': 'VDC: ' & $orgnet.vdc_title}});
+              $nodes := $append($nodes, {$orgnet.org.$split('.')[-1] & '.' & $orgnet.vdc.$split('.')[-1] & '.' & $orgnet.short_id: {'title': 'orgNet: ' & $orgnet.title}});
+              $nodes := $append($nodes, $vapps.(
+                      $prefix := $orgnet.org.$split('.')[-1] & '.' & $orgnet.vdc.$split('.')[-1] & '.' & $orgnet.short_id;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'vapp-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vms.(
+                      $prefix := $orgnet.org.$split('.')[-1] & '.' & $orgnet.vdc.$split('.')[-1] & '.' & $orgnet.short_id & '.' & $.vapp.$split('.')[-1];
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $egws.(
+                      $prefix := $orgnet.org.$split('.')[-1] & '.' & $orgnet.vdc.$split('.')[-1];
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'egw-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $extnets := $egws.(
+                  $.gatewayinterfaces.(
+                      $netid := $.network;
+                      $not($orgnet.id = $netid) and $not($netid in $orgnets.id) ? (
+                          $
+                      )
+                  )
+              );
+              $intnets := $egws.(
+                  $.gatewayinterfaces.(
+                      $netid := $.network;
+                      $not($orgnet.id = $netid) and ($netid in $orgnets.id) ? (
+                          $orgnets[id = $netid]
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $extnets.(
+                      {
+                          $.network.$split('.')[-1]: {
+                              'title': $.title,
+                              'symbol': 'extnet-' & $.network.$split('.')[-1],
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $intnets.(
+                      $prefix := $.org.$split('.')[-1] & '.' & $.vdc.$split('.')[-1];
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'orgnet-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, 
+                  $exists($extnets) ? 
+                      {
+                          'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
+                      }
+              );
+          
+              $links := [$egws.(
+                      $regexp := $eval('/.*\\.' & $.short_id & '$/');
+                      $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
+                      $.gatewayinterfaces.(
+                          $ipaddress := $exists($.subnetparticipation.ipaddress) ? $.subnetparticipation.ipaddress : 'Routing' ;
+                          $regexp := $eval('/(.*\\.|^)' & $.network.$split('.')[-1] & '$/');
+                          $style := $.network.$split('.')[-1] in $intnets.short_id or $.network.$split('.')[-1] = $orgnet.short_id ? '->' : '-[#AED900]->';
+                          $nodes[$regexp($.$keys())].(
+                              {
+                                  'from': $gwnode,
+                                  'to': $keys()[0],
+                                  'style': $style,
+                                  'title': $ipaddress
+                              }
+                          )
+                      )
+                )];
+              $links := $append($links,
+                  $exists($extnets) ? 
+                     $extnets.(
+                          {
+                              'from': $.network.$split('.')[-1],
+                              'to': 'internet',
+                              'title': 'Внешняя сеть в интернет',
+                              'style': '->'
+                          }
+                      )
+              );
+              
+              $symbols := $vms.(
+                  $href := $.link;
+                  $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $href});
+                  {
+                      $.short_id: $icon
+                  }
+              );
+              $symbols := $append($symbols, $vapps.(
+                      $href := $.link;
+                      $icon := $eval($fn_svg_vapp, {'title': $.title, 'description': $.description, 'href': $href, 'type':'vApp'});
+                      {
+                          'vapp-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $egws.(
+                      $href := $.link;
+                      $icon := $eval($fn_svg_nsx_gateway, {'title': $.title, 'href': $href});
+                      {
+                          'egw-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $extnets.(
+                      $netranges := $join($.subnetparticipation.($.ipranges.($.startaddress & '-' & $.endAddress)), ' ');
+                      $gateway := $join($.subnetparticipation.($.gateway), ' ');
+                      $netmask := $join($.subnetparticipation.($.netmask), ' ');
+                      $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
+                      $icon := $eval($fn_svg_block, {'title': $.title, 'type':'extNet', 'details': $data});
+                      {
+                          'extnet-' & $.network.$split('.')[-1]: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $intnets.(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_block, {'title': $.title, 'description': $.description, 'href': $.link, 'type':'orgNet', 'details': $data});
+                      {
+                          'orgnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, 
+                  ($exists($extnets) ? 
+                      ( $icon := $eval($fn_svg_internet);
+                        {
+                            'internet': $icon
+                        }
+                      )
+                  )
+              );
+              {
+                'nodes': $merge($nodes),
+                'symbols': $merge($symbols),
+                'links': $links,
+                'config': {                 
+                    'distance': 120,
+                    'trackWidth': 24
+                }
+              };
+          )
+
+      schema_vdcgroup:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn_svg_block := $$.icons."reverse.general".svg_block;
+              $fn_svg_nsx_gateway := $$.icons."reverse.general".svg_nsx_gateway;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $fn_svg_vapp := $$.icons."reverse.general".svg_vapp_header;
+              $fn_svg_vdcgnet_header := $$.icons."reverse.general".svg_vdcgnet_header;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $orgnet := $reverse_vmwarecloud_orgnets($)[id = $id];
+              $vdcgroup := $reverse_vmwarecloud_vdcgroups($)[id = $orgnet.vdcgroup];
+              $vdcs := $reverse_vmwarecloud_vdcs($)[id in $vdcgroup.vdcs];
+              $egws := $reverse_vmwarecloud_egws($)[vdcgroup in $vdcgroup.id];
+              $vdcgorgnets := $reverse_vmwarecloud_orgnets($)[vdcgroup = $vdcgroup.id];
+              $vdcorgnets := $reverse_vmwarecloud_orgnets($)[vdc in $vdcs.id];
+              $vappnetsorgnet := $reverse_vmwarecloud_vappnets($)[parentnetwork = $orgnet.id];
+              $vapps := $reverse_vmwarecloud_vapps($)[id in $vappnetsorgnet.vapp];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp in $vapps.id];
+              $vms := $reverse_vmwarecloud_vms($)[vapp in $vapps.id];
+              $org := $reverse_vmwarecloud_orgs($)[id = $vdcgroup.org];
+              $nodes := {$vdcgroup.org.$split('.')[-1]:{'title': 'Организация: ' & $org.title}};
+              $nodes := $append($nodes, {$vdcgroup.org.$split('.')[-1] & '.' & $vdcgroup.short_id: {'title': 'VDC Group: ' & $vdcgroup.title}});
+              $baseprefix := $vdcgroup.org.$split('.')[-1] & '.' & $vdcgroup.short_id;
+              $nodes := $append($nodes, $vdcs.(
+                      {
+                          $baseprefix & '.' & $.short_id: {
+                              'title': 'VDC: ' & $.title
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vdcorgnets.(
+                      $vdc_shortid := $.vdc.$split('.')[-1];
+                      $prefix := $baseprefix & '.' & $vdc_shortid;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': 'orgNet: ' & $.title,
+                              'symbol': 'orgnet-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vdcgorgnets[id != $id].(
+                      $id := $.id;
+                      $tmp := $;
+                      $net_in_vdcs := $vdcs[$id in availablenetworks]; /* В этих видиси доступна данная сеточка */
+                      $net_in_vdcs.(
+                          $prefix := $baseprefix & '.' & $.short_id;
+                          {
+                              $prefix & '.' & $tmp.short_id: {
+                                  'title': 'VDC Group orgNet: ' & $tmp.title,
+                                  'symbol': 'orgnet-' & $tmp.short_id,
+                                  'hideTitle': true
+                              }
+                          }
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $vdcgorgnets[id = $id].(
+                      $id := $.id;
+                      $tmp := $;
+                      $net_in_vdcs := $vdcs[$id in availablenetworks]; /* В этих видиси доступна данная сеточка */
+                      $net_in_vdcs.(
+                          $prefix := $baseprefix & '.' & $.short_id;
+                          {
+                              $prefix & '.' & $tmp.short_id: {
+                                  'title': 'VDC Group orgNet: ' & $tmp.title,
+                                  'symbol': 'orgnet-' & $tmp.short_id,
+                                  'hideTitle': true
+                              }
+                          }
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $vapps.(
+                      $vapp := $;
+                      $vapp_id := $.id;
+                      $vdc_shortid := $.vdc.$split('.')[-1];
+                      $parentnetwork := $vappnets[vapp = $vapp_id].($.parentnetwork);
+                      $prefix := $baseprefix & '.' & $vdc_shortid & '.' & $orgnet.short_id;
+                      {
+                          $prefix & '.' & $vapp.short_id: {
+                              'title': $vapp.title,
+                              'symbol': 'vapp-' & $vapp.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vappnets.(
+                      $vappnet := $;
+                      $vapp := $vapps[id = $vappnet.vapp];
+                      $vdc_shortid := $vapp.vdc.$split('.')[-1];
+                      $prefix := $baseprefix & '.' & $vdc_shortid & '.' & $orgnet.short_id & '.' & $vapp.short_id;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'vappnet-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vms.(
+                      $vm := $;
+                      $subnets := $vm.subnets.($id := $; $vappnets[id = $id]);
+                      $nodematcher := $count($subnets) = 1 ? $eval('/.*\\.' & $subnets.short_id & '$/') : $eval('/.*\\.' & $vm.vapp.$split('.')[-1] & '$/');
+                      $nodes[$nodematcher($.$keys())].(
+                          {
+                              $.$keys() & '.' & $vm.short_id: {
+                                  'title': $vm.title,
+                                  'symbol': 'vm-' & $vm.short_id,
+                                  'hideTitle': true
+                              }
+                          }
+                      )
+                  )
+              );
+              $nodes := $append($nodes, $egws.(
+                      {
+                          $baseprefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'egw-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $externalNetworks := $egws.($.gatewayinterfaces[iftype = 'uplink']);
+              $nodes := $append($nodes, $externalNetworks.(
+                          {
+                              $.network.$split('.')[-1]: {
+                                  'title': $.title,
+                                  'symbol': 'extnet-' & $.network.$split('.')[-1],
+                                  'hideTitle': true
+                              }
+                          }          
+                  )
+              );
+              $nodes := $append($nodes, 
+                  $exists($externalNetworks) ? 
+                      {
+                          'internet': {'title': 'Internet', 'symbol': 'internet', 'hideTitle': true}
+                      }
+              );
+              $links := [$egws.(
+                  $regexp := $eval('/.*\\.' & $.short_id & '/');
+                  $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
+                  $.gatewayinterfaces.(
+                    $ipaddress := $.subnetparticipation.ipaddress;
+                    $regexp := $eval('/.*\\.' & $.network.$split('.')[-1] & '$/');
+                    $nodes[$regexp($.$keys())].(
+                        {
+                            'from': $gwnode,
+                            'to': $keys()[0],
+                            'style': '<->',
+                            'title': $ipaddress
+                        }
+                    )
+                  )
+              )];
+              /* Внешняя сеть */
+              $links := $append($links, 
+                  [$egws.(
+                      $regexp := $eval('/.*\\.' & $.short_id & '/');
+                      $gwnode := $nodes[$regexp($.$keys())].$keys()[0];
+                      $.gatewayinterfaces.(
+                          $ipaddress := $.subnetparticipation.ipaddress;
+                          $regexp := $eval('/^' & $.network.$split('.')[-1] & '$/');
+                          $nodes[$regexp($.$keys())].(
+                              {
+                                  'from': $gwnode,
+                                  'to': $keys()[0],
+                                  'style': '-[#AED900]->',
+                                  'title': $ipaddress
+                              }
+                          )
+                      )
+                )]
+              );
+              $links := $append($links,
+                  [$vdcgorgnets.(
+                      $orgnet_id := $.id;
+                      $orgnet := $;
+                      $regexp := $eval('/.*\\.' & $.short_id & '$/');
+                      $orgnetnodes := $nodes[$regexp($.$keys())].$keys()[0];
+                      $map($orgnetnodes, function($v, $i, $a){
+                          $i+1 < $count($a) ? (
+                            {
+                                'from': $v,
+                                'to': $a[$i+1],
+                                'style': '-[#000000]-',
+                                'title': 'Orgnet shared with VDCs'
+                            }
+                          )
+                      })
+                  )]
+              );
+              $links := $append($links,
+                  $exists($externalNetworks) ? 
+                     $externalNetworks.(
+                          {
+                              'from': $.network.$split('.')[-1],
+                              'to': 'internet',
+                              'title': 'Внешняя сеть в интернет',
+                              'style': '->'
+                          }
+                      )
+              );
+              $links := $append($links, 
+                  $vms.(
+                      $vm := $;
+                      $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
+                      $count($subnets) > 1 ? (
+                          $vmregexp := $eval('/.*\\.' & $vm.short_id & '$/');
+                          $vmnode := $nodes[$vmregexp($.$keys())].$keys()[0];
+                          $subnets.(
+                              $subnetregexp := $eval('/.*\\.' & $.short_id & '$/');
+                              $subnetnode := $nodes[$subnetregexp($.$keys())].$keys()[0];
+                              $subnetnode.(
+                                  {
+                                      'from': $vmnode,
+                                      'to': $,
+                                      'style': '-',
+                                      'title': 'Directly connected'
+                                  }
+                              )
+                          )
+                      )
+                  )
+              );
+              $symbols := $vms.(
+                  $href := $.link;
+                  $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $href});
+                  {
+                      'vm-' & $.short_id: $icon
+                  }
+              );
+              $symbols := $append($symbols, $vapps.(
+                      $vapp := $.id;
+                      $vapp_nets := $eval($fn_vappnets)[vapp = $vapp];
+                      $netranges := $join($vapp_nets.($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress))), ' ');
+                      $fencemode := $join($vapp_nets.($.fencemode), ' ');
+                      $vmscount := $count($vms[vapp = $vapp]);
+                      $data := {'Vm`s in vapp': $string($vmscount), 'Networks': $netranges, 'Fence mode': $fencemode};
+                      $icon := $eval($fn_svg_vapp, {'title': $.title, 'description': $.description, 'href': $.link, 'type':'vApp', 'details': $data});
+                      {
+                          'vapp-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, 
+                  $vappnets.(
+                      $fn_svg_vappnet_header := $$.icons."reverse.general".svg_vappnet_header;
+                      $href := $.link;
+                      $icon := $eval($fn_svg_vappnet_header, {'title': $.title, 'href': $href});
+                      {
+                          'vappnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vdcorgnets.(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_block, {'title': $.title, 'description': $.description, 'href': $.link, 'type':'orgNet', 'details': $data});
+                      {
+                          'orgnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vdcgorgnets[id != $id].(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_block, {'title': $.title, 'description': $.description, 'href': $.link, 'type':'vdcgorgNet', 'details': $data});
+                      {
+                          'orgnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vdcgorgnets[id = $id].(
+                      $netranges := $join($.ipscopes.($.ipranges.($.startaddress & '-' & $.endaddress)), ' ');
+                      $dnssrv := $join($.dns, ', ');
+                      $fencemode := $.fencemode;
+                      $data := {'Networks': $netranges, 'DNS Servers': $dnssrv, 'Fence Mode': $fencemode};
+                      $icon := $eval($fn_svg_vdcgnet_header, {'title': $.title, 'href': $.link});
+                      {
+                          'orgnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $egws.(
+                      $icon := $eval($fn_svg_nsx_gateway, {'title': $.title, 'href': $.link});
+                      {
+                          'egw-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $externalNetworks.(
+                      $netranges := $join($.subnetparticipation.($.ipranges.($.startaddress & '-' & $.endAddress)), ' ');
+                      $gateway := $join($.subnetparticipation.($.gateway), ' ');
+                      $netmask := $join($.subnetparticipation.($.netmask), ' ');
+                      $data := {'Networks': $netranges, 'Gateway': $gateway, 'Netmask': $netmask};
+                      $icon := $eval($fn_svg_block, {'title': $.title, 'type':'extNet', 'details': $data});
+                      {
+                          'extnet-' & $.network.$split('.')[-1]: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, 
+                  ($exists($externalNetworks) ? 
+                      ( $icon := $eval($fn_svg_internet);
+                        {
+                            'internet': $icon
+                        }
+                      )
+                  )
+              );
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links,
+                  'config': {                 
+                      'distance': 200,
+                      'trackWidth': 12
+                  }
+              };
+          )
+
+      list:
+        title: Реестр сетей
+        type: table
+        headers:
+          - value: title
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: link
+            width: 300
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+          - value: type
+            text: Тип сети
+            sortable: true
+            align: left
+          - value: gateway
+            text: Адрес шлюза
+            align: left
+          - value: netmask
+            text: Маска подсети
+            align: left
+          - value: fencemode
+            text: Fence Mode
+            align: left
+          - value: connected
+            text: Статус подключения
+            align: left
+          - value: addresses
+            text: Диапазоны адресов
+            align: left
+          - value: vdc_title
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_title
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+        source: >
+          (
+              $domain := $params.domain;
+              $vdc := $params.vdc;
+              $vdcgroup_id := $params.vdcgroup_id;
+              $tmp := $exists($vdc) ? (
+                  [$reverse_vmwarecloud_orgnets($, $domain)[vdc = $vdc]]
+              ) : (
+                  $exists($vdcgroup_id) ? (
+                      $vdcgroup := $reverse_vmwarecloud_vdcgroups($, $domain)[id = $vdcgroup_id];
+                      [$reverse_vmwarecloud_orgnets($, $domain)[id in $vdcgroup.networks]]
+                  ) : (
+                      [$reverse_vmwarecloud_orgnets($, $domain)]
+                  )
+              );
+          )

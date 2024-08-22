@@ -5,7 +5,7 @@ entities:
         type: table
         headers:
           - value: name
-            text: Имя кластера
+            text: Наименование кластера
             width: 200
             sortable: true
             link: link

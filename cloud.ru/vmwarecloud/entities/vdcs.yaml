@@ -1,0 +1,45 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.vdcs:
+    title: Виртуальные датацентры VDCs
+    objects:
+      vdc:
+        route: "/"
+        title: Виртуальный датацентр VDC
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор VDC
+              type: string
+            original_id:
+              title: Идентификатор VDC (полный)
+              type: string
+            title:
+              title: Наименование VDC
+              type: string
+            org_title:
+              title: Наименование организации
+              type: string
+            org:
+              title: Идентификатор организации
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
+            availablenetworks:
+              title: Список доступных сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    title: Идентификатор сети
+                    oneOf:
+                      - type: string
+                      - $ref: "#/$rels/seaf.ta.services.network.network"
+                  title:
+                     title: Наименование сети
+                     type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"

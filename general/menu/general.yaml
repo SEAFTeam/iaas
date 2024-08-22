@@ -3,38 +3,19 @@ entities:
   seaf.ta.reverse.general:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
-          [{
-                      "location": $config.arch_menu,
-                      "link": "entities/seaf.ta.reverse.general/root?id=reverse&txt=Расширение IaaS"
-          },
-          {
-                      "location": $config.arch_menu & "/Cloud.ru",
-                      "link": "entities/seaf.ta.reverse.general/list_of_content?id=reverse.cloud_ru&txt=Cloud.ru"
-          }, 
-          {
-                      "location": $config.arch_menu & "/Cloud.ru/Advanced",
-                      "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.advanced&txt=Advanced"
-          }, 
-          {
-                      "location": $config.arch_menu & "/Cloud.ru/Enterprise",
-                      "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.enterprise&txt=Enterprise"
-          },
-          {
-                      "location": $config.doc_menu,
-                      "link": "entities/seaf.ta.reverse.general/readme"
-          },
-          {
-                      "location": $config.doc_menu &  "/Cloud.ru",
-                      "link": "entities/seaf.ta.reverse.general/readme_cloud_ru"
-          },
-          {
-                      "location": $config.doc_menu &  "/Cloud.ru/Advanced",
-                      "link": "entities/seaf.ta.reverse.general/readme_cloud_advanced"
-          },
-          {
-                      "location": $config.doc_menu &  "/Cloud.ru/Enterprise",
-                      "link": "entities/seaf.ta.reverse.general/readme_cloud_enterprise"
-          }
-        ];
+          $config := "seaf.ta.reverse.general".config;
+          [
+              {
+                  "location": $config.arch_menu,
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse&txt=Расширение IaaS"
+              },
+              {
+                  "location": $config.arch_menu & "/Cloud.ru",
+                  "link": "entities/seaf.ta.reverse.general/list_of_content?id=reverse.cloud_ru&txt=Cloud.ru"
+              },
+              {
+                  "location": $config.arch_menu & "/Cloud.ru/Advanced",
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.cloud_ru.advanced&txt=Advanced"
+              }
+          ];
       )
