@@ -1,0 +1,39 @@
+C4Component
+    title Схема метамодели реверса архитектуры в Cloud.ru Advanced
+
+    Container_Boundary(SEAF.TA.REVERSE.general, "Расширение метамодели для общих сущностей в IaaS Reverse") {
+        Component(links, "Сущность-связь", "seaf.ta.reverse.general.links", "links")
+
+        Rel(links, server, "Связывает")
+        Rel(links, vapps, "Связывает")
+        Rel(links, vdcs, "Связывает")
+        Rel(links, component, "Связывает")
+    }
+
+    Container_Boundary(SEAF.TA.SERVICES, "Технические сервисы (seaf-core)") {
+        Component(dc, "Датацентр", "seaf.ta.services.dc", "dc")
+        Component(network, "Networks", "Сети", "networks")
+    }
+
+    Container_Boundary(COMPONENTS, "Прикладные компоненты (seaf-core)") {
+        Component(component, "Прикладной сервис/компонент", "components", "components")
+    }
+
+    Container_Boundary(SEAF.TA.COMPONENTS, "Технические компоненты (seaf-core)") {
+        Component(server, "Virtual Machines", "Виртуальные машины", "server")
+        Component(networkс, "DV Swiches", "DV свитчи", "networkс")
+    }
+
+    Container_Boundary(SEAF.TA.REVERSE.vmwareonprem, "Расширение метамодели для экспорта конфигурации IaaS VMware vCenter") {
+        Component(vdcs, "VDCs", "Виртуальные датацентры", "vdcs")
+        Component(dvportgroups, "DV Port Groups", "DV Порт-группы", "dvportgroups")
+        Component(vapps, "vApps", "Виртуальные приложения", "vapps")
+
+        Rel(vdcs, dc, "Находится в")
+        Rel(network, vdcs, "Находится в")
+        Rel(vapps, vdcs, "Находится в")
+        Rel(server, vapps, "Находится в")
+        Rel(server, vdcs, "Находится в")
+    }
+
+    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")

@@ -2,3 +2,4 @@ imports:
   - vms.yaml
   - vdcs.yaml
   - networks.yaml
+  - hosts.yaml

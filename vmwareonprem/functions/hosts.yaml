@@ -1,0 +1,49 @@
+functions:
+  reverse_vmwareonprem_hosts:
+    title: Список Хостов
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+      (       
+          $domain := domain;
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+          $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+          $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+          $hosts_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.hosts.model;
+          $hosts_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.hosts.view;
+      
+      
+          $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+          $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+          $hosts := $lookup(dataset, $hosts_entity)[$domain_matcher($keys())];
+      
+          [[$hosts.$spread().{
+              'id': $keys(),
+              'host': *
+          }].(
+              $dc := $lookup($dcs, host.dc);
+              {
+                  'id': id,
+                  'short_id': host.id,
+                  'title': host.title,
+                  'description': host.description,
+                  'software': host.product.name & ' ' & host.product.version,
+                  'link': '/entities/' & $hosts_view & '/card?id=' & id,
+                  'entity': $hosts_view,
+                  'entity_type': 'VMware On-Premise',
+                  'entity_title': "ESXi хосn виртуализации в локальном кластере VMware",
+                  'vdc': host.vdc,
+                  'vdc_title': host.vdc_title,
+                  'dc': host.dc,
+                  'dc_title': $dc.title
+              }
+          )]
+      )
