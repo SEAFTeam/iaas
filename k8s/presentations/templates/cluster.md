@@ -12,7 +12,7 @@
 ![Получаем ноды кластера](@entity/seaf.ta.services.k8s/nodes?id={{cluster_id}})
 
 ## Namespaces
-![Получаем ns кластера](@entity/seaf.ta.services.k8s.cluster/namespaces?id={{cluster_id}})
+![Получаем ns кластера](@entity/seaf.ta.services.k8s/namespaces?id={{cluster_id}})
 
 
 

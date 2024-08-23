@@ -1,12 +1,12 @@
 entities:
-    seaf.ta.components.k8s.namespace:
+    seaf.ta.components.k8s_namespace:
         presentations:
             get:
                 type: markdown
                 template: templates/namespace.md
                 source: >
                     (
-                        $namespace := $."seaf.ta.components.k8s.namespace".$spread()[$.*.id = $params.id];
+                        $namespace := $."seaf.ta.components.k8s_namespace".$spread()[$.*.id = $params.id];
                         {                        
                             "id"            : $params.id,
                             "name"          : $namespace.*.name

@@ -1,41 +1,61 @@
 {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
-        safeID: {{safeID}}
-        name: {{metadata.name}}
+        title: {{metadata.name}}
         {{#metadata.labels}}
         labels:
         {{#iterator}}
-            @kv{{{.}}}
+            - @kv{{{.}}}
         {{/iterator}}
         {{/metadata.labels}}
-        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
-        namespace-name: {{parent.item.metadata.name}}
+        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
         update_strategy: {{spec.strategy.type}}
         replicas: {{spec.replicas}}
+        termination_grace_period_seconds: {{spec.template.spec.termination_grace_period_seconds}}
         containers:
         {{#spec.template.spec.containers}}
             -  name: {{name}}
                image: {{image}}
                imagePullPolicy: {{image_pull_policy}}
                ports:
-            {{#ports}}
+               {{#ports}}
                  -  name: {{name}}
                     protocol: {{protocol}}
                     port: {{container_port}}
-            {{/ports}}
+               {{/ports}}
+               {{#liveness_probe.http_get}}
+               liveness_probe:
+                 path: {{liveness_probe.http_get.path}}
+                 port: {{liveness_probe.http_get.port}}
+                 failure_threshold: {{liveness_probe.failure_threshold}}
+               {{/liveness_probe.http_get}}
+               {{#startup_probe.http_get}}
+               startup_probe:
+                 path: {{startup_probe.http_get.path}}
+                 port: {{startup_probe.http_get.port}}
+                 failure_threshold: {{startup_probe.failure_threshold}}
+               {{/startup_probe.http_get}}
+               {{#readiness_probe.http_get}}
+               readiness_probe:
+                 path: {{readiness_probe.http_get.path}}
+                 port: {{readiness_probe.http_get.port}}
+                 failure_threshold: {{readiness_probe.failure_threshold}}
+               {{/readiness_probe.http_get}}
                mounts:
-            {{#volume_mounts}}
+               {{#volume_mounts}}
                  -  name: {{name}}
                     path: {{mount_path}}
-            {{/volume_mounts}}
+               {{/volume_mounts}}
         {{/spec.template.spec.containers}}
         volumes:
         {{#spec.template.spec.volumes}}
             -  name: {{name}}
                {{#persistent_volume_claim}}
                claim:
-                    name: {{claim_name}}
+                   name: {{claim_name}}
+                   {{#read_only}}
+                   read_only: {{read_only}}
+                   {{/read_only}}
                {{/persistent_volume_claim}}
         {{/spec.template.spec.volumes}}
 {{/items}}

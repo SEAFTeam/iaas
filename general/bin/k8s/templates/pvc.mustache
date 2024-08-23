@@ -1,11 +1,9 @@
 {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
-        safeID: {{safeID}}
-        name: {{metadata.name}}
-        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
-        namespace-name: {{parent.item.metadata.name}}
+        title: {{metadata.name}}
+        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
         volumeName: {{spec.volume_name}}
-        volumeMode: {{spec.volume_mode}}
+        volume_mode: {{spec.volume_mode}}
         capacity: {{status.capacity.storage}}
 {{/items}}

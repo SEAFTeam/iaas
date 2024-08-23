@@ -39,7 +39,7 @@ entities:
                         {                        
                             "id"            : $params.id,
                             "node_id"       : $node_id,
-                            "name"          : $node.name,
+                            "title"         : $node.title,
                             "arch"          : $node.architecture,
                             "cpu"           : $node.cpu,
                             "addresses"     : $node.addresses

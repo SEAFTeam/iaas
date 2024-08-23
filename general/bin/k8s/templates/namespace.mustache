@@ -1,13 +1,12 @@
     {{#items}}
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
-        safeID: {{safeID}}
-        name: {{metadata.name}}
-        clusterID: {{parent.entity}}.{{parent.item.name}}
+        title: {{metadata.name}}
+        k8s_cluster_id: {{parent.entity}}.{{parent.item.name}}
         {{#metadata.labels}}
         labels:
         {{#iterator}}
-            @kv{{{.}}}
+            - @kv{{{.}}}
         {{/iterator}}
         {{/metadata.labels}}
     {{/items}}
