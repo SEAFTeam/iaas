@@ -1,0 +1,82 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vms:
+    presentations:
+      list:
+        type: table
+        headers:
+          - value: title
+            text: Наименование сервера
+            sortable: true
+            align: left
+            link: link
+            width: 300
+          - value: os_type
+            text: ОС
+            sortable: true
+            align: center
+            width: 200
+          - value: os_bit
+            text: Разрядность
+            sortable: true
+            align: left
+          - value: av
+            text: Наличие антивируса
+            sortable: true
+            align: left
+          - value: edr
+            text: Наличие EDR агента
+            sortable: true
+            align: left
+          - value: cpu_qty
+            text: Процессор (ядра)
+            align: left
+          - value: ram
+            text: ОЗУ (Гб)
+            align: left
+            sortable: true
+          - value: disks
+            text: Диски
+            align: left
+            width: 200
+          - value: nic_qty
+            text: Сетевые адаптеры
+            align: left
+          - value: addresses
+            text: IP адреса
+            align: left
+          - value: vapp
+            text: vApp
+            align: left
+            width: 200
+            link: vapp_link
+          - value: subnets
+            text: Subnet
+            align: left
+            width: 200
+          - value: tags
+            text: Теги
+            align: left
+            width: 300
+          - value: vdc
+            text: VDC
+            link: vdc_link
+          - value: dc_title
+            text: Датацентр
+        source: > 
+          (
+              $domain := $params.domain;
+              $vdc := $params.vdc;
+              $dataset := $$;
+              $tmp := $exists($vdc) ? [$reverse_vmwareonprem_vms($dataset, $domain)[vdc = $vdc]] : [$reverse_vmwareonprem_vms($dataset, $domain)];
+              $tmp ~> | $ | {'edr': (edr = true ? '✅' : '❌'), 'av': (av = true ? '✅' : '❌')  } |
+          )
+
+      card:
+        type: markdown
+        template: templates/vm_card.md
+        source: >
+          (
+              $id := $params.id;
+              $dataset := $$;
+              $reverse_vmwareonprem_vms($dataset)[id = $id]
+          )
