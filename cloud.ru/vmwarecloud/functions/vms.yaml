@@ -21,10 +21,10 @@ functions:
             $vapps_views := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
             $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
             $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.view;
-            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.edrs.model;
-            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.avs.model;
+            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
+            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
-            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
         
             $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
             $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
