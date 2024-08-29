@@ -8,5 +8,5 @@
 | порт | target port | node port |
 |----|----|----|
 {{#ports}}
-| {{port}} | {{targetPort}} | {{nodePort}} |
+| {{port}} | {{target_port}} | {{node_port}} |
 {{/ports}}

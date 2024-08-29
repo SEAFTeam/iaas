@@ -1,22 +1,16 @@
 entities:
-    seaf.ta.components.k8s.deployment:
+    seaf.ta.components.k8s_deployment:
         presentations:
             get:
                 type: markdown
                 template: templates/deployment.md
                 source: >
                     (
-                        $deployment := $."seaf.ta.components.k8s.deployment".$spread()[$.*.id = $params.id];
+                        $deployment := $."seaf.ta.components.k8s_deployment".$spread()[$.*.id = $params.id];
                         {                        
                             "name"              : $deployment.*.name,
-                            "updateStrategy"    : $deployment.*.update_strategy,
+                            "update_strategy"    : $deployment.*.update_strategy,
                             "replicas"          : $deployment.*.replicas,
                             "containers"        : $deployment.*.containers
                         }
-                    )
-            deployment-schema:
-                type: smartants
-                source: >
-                    (
-                        
                     )

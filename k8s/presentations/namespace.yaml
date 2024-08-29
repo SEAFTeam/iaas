@@ -183,12 +183,12 @@ entities:
                       link: link
                 source: >
                     (
-                        $nsid := "seaf.ta.components.k8s.namespace." & $params.id;
-                        $deployments := $."seaf.ta.components.k8s.deployment".$spread()[*.namespaceID = $nsid];
+                        $nsid := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace_id = $nsid];
                         [$deployments.$spread().(
                             {
-                                "name" : $.*.name,
-                                "link" : '/entities/seaf.ta.components.k8s.deployment/get?id=' & $.*.id
+                                "name" : $.*.title,
+                                "link" : '/entities/seaf.ta.components.k8s_deployment/get?id=' & $.*.id
                             }
                         )]
 
@@ -203,13 +203,13 @@ entities:
                       text: тип
                 source: >
                     (
-                        $nsid := "seaf.ta.components.k8s.namespace." & $params.id;
-                        $services := $."seaf.ta.components.k8s.service".$spread()[*.namespaceID = $nsid]; 
+                        $nsid := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $services := $."seaf.ta.components.k8s_service".$spread()[*.namespace_id = $nsid]; 
                         [$services.$spread().(
                             {
-                                "name"  : $.*.name,
+                                "name"  : $.*.title,
                                 "type"  : $.*.type,
-                                "link" : '/entities/seaf.ta.components.k8s.service/get?id=' & $.*.id
+                                "link" : '/entities/seaf.ta.components.k8s_service/get?id=' & $.*.id
                             }
                         )]
 
