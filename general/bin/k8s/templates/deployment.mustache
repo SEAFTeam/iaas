@@ -16,7 +16,7 @@
         {{#spec.template.spec.containers}}
             -  name: {{name}}
                image: {{image}}
-               imagePullPolicy: {{image_pull_policy}}
+               image_pull_policy: {{image_pull_policy}}
                ports:
                {{#ports}}
                  -  name: {{name}}

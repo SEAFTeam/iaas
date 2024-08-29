@@ -2,12 +2,12 @@
     {{entity}}.{{metadata.uid}}:
         id: {{metadata.uid}}
         safeID: {{safeID}}
-        name: {{metadata.name}}
+        title: {{metadata.name}}
         capacity: {{spec.capacity.storage}}
-        volumeMode: {{spec.volume_mode}}
-        hostPath: {{spec.host_path.path}}
+        volume_mode: {{spec.volume_mode}}
+        host_path: {{spec.host_path.path}}
         {{#spec.claim_ref}}
-        claimRef:
+        claim_ref:
             name: {{name}}
             namespace: {{namespace}}
             uid: {{uid}}

@@ -17,13 +17,13 @@ entities:
                 template: templates/namespace.puml
                 source: >
                     (
-                        $nsid       := "seaf.ta.components.k8s.namespace." & $params.id;
-                        $namespace  := $lookup($."seaf.ta.components.k8s.namespace", $nsid);
+                        $nsid       := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $namespace  := $lookup($."seaf.ta.components.k8s_namespace", $nsid);
                     
-                        $services       := $."seaf.ta.components.k8s.service".*[namespaceID = $nsid];
-                        $deployments    := $."seaf.ta.components.k8s.deployment".*[namespaceID = $nsid];
-                        $statefulsets   := $."seaf.ta.components.k8s.stateful_set".*[namespaceID = $nsid];
-                        $pvcs           := $."seaf.ta.components.k8s.pvc".*[namespaceID = $nsid];
+                        $services       := $."seaf.ta.components.k8s_service".*[namespace_id = $nsid];
+                        $deployments    := $."seaf.ta.components.k8s_deployment".*[namespace_id = $nsid];
+                        /* $statefulsets   := $."seaf.ta.components.k8s_stateful_set".*[namespaceID = $nsid]; */
+                        $pvcs           := $."seaf.ta.components.k8s_pvc".*[namespace_id = $nsid];
                         
                         /* слияние деплойментов и stateful sets для определения связей */
                         $deployments  := $deployments ~> | $ | { "type": "deployment"}|;
@@ -63,10 +63,11 @@ entities:
                     
                         /* связи между pv и pvc */
                     
-                        $pvs := $."seaf.ta.components.k8s.pv".*[claimRef.namespace = $namespace.name];
+                        $pvs := $."seaf.ta.components.k8s_pv".*[claim_ref.namespace = $namespace.title];
                     
-                        $log($links, "links");
                         /*
+                        $log($deployments, "deployments");
+                        $log($links, "links");
                         $log($targets, "targets");
                         $log($namespace, "namespace");
                         $log($pvs, "pvs");
