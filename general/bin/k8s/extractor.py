@@ -14,14 +14,17 @@ class Extractor:
     def extract(self, serializer, parent = None):
         items = self.load()
 
+        if len(items) == 0:
+            return
+
         if os.environ.get('debug.dump') is not None and self.name in os.environ.get('debug.dump'):
             print(f'ENTITIES: {self.name}')
             pprint(items)
 
         # формирование идентификаторов, нейтральных с т.з. движков отображения
-        for item in items:
-            if hasattr(item, 'metadata') and hasattr(item.metadata, 'uid'):
-                item.safeID = f'G{item.metadata.uid.replace("-", "")}'
+        # for item in items:
+        #    if hasattr(item, 'metadata') and hasattr(item.metadata, 'uid'):
+        #        item.safeID = f'G{item.metadata.uid.replace("-", "")}'
 
         # формирование контекста
         context = {}

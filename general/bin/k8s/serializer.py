@@ -1,6 +1,7 @@
 # класс и модуль сериализатор объектов reverse engineering
 import os
-import chevron
+from jinja2 import FileSystemLoader, Environment
+from pprint import pprint
 
 # синтаксис mustache не предполагает итерацию по атрибутам объектов
 # поэтому пришлось написать свою функцию, которая превращает атрибуты объектов в массив
@@ -35,7 +36,7 @@ class Serializer:
         fileName = self.output(component)
         # инициализация YAML файла
         with open(fileName, mode="wt", encoding="utf-8") as file:
-            print(f'{component.entity()}:', file=file)
+            print(f'{component.entity()}:', file=file, end='')
 
     # функция формирования файла для записи сущностей типа компонента
     def output(self, component):
@@ -63,12 +64,17 @@ class Serializer:
         # полный путь и имя YAML файла для сериализации
         output = self.output(component)
         # путь и имя файла шаблона, они должны располагаться в каталоге template относительно текущего каталога
-        template = f'templates/{component.name}.mustache'
+        #template = f'templates/{component.name}.mustache'
 
         context["iterator"] = iterator
+        environment = Environment(loader=FileSystemLoader("templates/"))
+        template = environment.get_template(f'{component.name}.j2')
+        data = template.render(context)
+        #data += '\n'
         # читаем шаблон и рендерим итоговые данные
-        with open(template, 'r') as f:
-            data = chevron.render(f, context)
+        #with open(template, 'r') as f:
+        #    pprint(f)
+        #    data = Template(f).render(context)
 
         # запись сформированной выгрузки в конец файла
         with open(output, 'a') as out:

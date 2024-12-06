@@ -1,0 +1,4 @@
+    {% for cluster in items %}
+    {{entity}}.{{cluster.name}}:
+        id: {{cluster.name}}
+        fqdn: {{cluster.cluster_fqdn}}{% endfor %}

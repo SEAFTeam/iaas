@@ -19,19 +19,44 @@ entities:
                     (
                         $nsid       := "seaf.ta.components.k8s_namespace." & $params.id;
                         $namespace  := $lookup($."seaf.ta.components.k8s_namespace", $nsid);
+                        $cluster    := $lookup($."seaf.ta.services.k8s", $namespace.k8s_cluster_id);
                     
                         $services       := $."seaf.ta.components.k8s_service".*[namespace_id = $nsid];
                         $deployments    := $."seaf.ta.components.k8s_deployment".*[namespace_id = $nsid];
-                        /* $statefulsets   := $."seaf.ta.components.k8s_stateful_set".*[namespaceID = $nsid]; */
-                        $pvcs           := $."seaf.ta.components.k8s_pvc".*[namespace_id = $nsid];
+                        /* $statefulsets   := $."seaf.ta.components.k8s_stateful_set".*[namespace_id = $nsid]; */
+                        /* $pvcs           := $."seaf.ta.components.k8s_pvc".*[namespace_id = $nsid]; */
                         
-                        /* слияние деплойментов и stateful sets для определения связей */
+                        /* добавление в кластер точек взаимодействия извне */
+                        /* LoadBalancer - TBD */
+                         
+                        /* добавление в NS точек взаимодействия внутри кластера */
+                    
+                        $services := $services.(
+                            $service := $;
+                    
+                            $service := $service ~> | ports | { "ref" : $service.id & "_" & $.port & "_" & $.protocol }|;
+                            /*
+                            $service.ports.{
+                                "service"   : $service,     
+                                "ref"       : $service.id & "_" & $.port & "_" & $.protocol,
+                                "port"      : $.port,
+                                "protocol"  : $.protocol
+                            };
+                            */
+                        ); 
+                    
+                        /* $log($services, "services"); */
+                    
+                        /* обогатим сервисы точками с абсолютными ссылками */
+                    
+                    
+                        /* слияние деплойментов и stateful sets для определения связей - пока не используются SS */
                         $deployments  := $deployments ~> | $ | { "type": "deployment"}|;
-                        $statefulsets := $statefulsets ~> | $ | { "type": "statefulset"}|;
-                        $targets := $append($deployments, $statefulsets);
+                        /* $statefulsets := $statefulsets ~> | $ | { "type": "statefulset"}|; */
+                        $targets      := $append($deployments, $statefulsets);
                     
                         /* определение связей между сервисами и деплойментами */
-                        $links     := $services.(
+                        $service_links     := $services.(
                                 $service        := $;
                                 $selector       := $service.selector;
                                 $selectorLabels := $keys($service.selector);
@@ -47,7 +72,7 @@ entities:
                                                 $not ($depLabel = $selLabel);
                                             )
                                         });
-                                        
+                    
                                         $not($count($mismatches) > 0); 
                                     )
                                 });
@@ -57,15 +82,65 @@ entities:
                                     "targets"      : $items
                                 }       
                         );
+
+                        $deployment_ports := $deployments.(
+                            $deployment := $; /* сохраняем контекст */
+                            $container_ports := $deployment.containers.ports;
+                            $probe_ports     := $deployment.containers.*.port.(
+                                {
+                                    "port" : $,
+                                    "protocol" : "TCP"
+                                }
+                            );
                     
-                        /* связи между volume и persistent volume claim */
-                        $pvc_links := $filter($targets.volumes, function($v) { $exists($v.claim)} );
+                            $ports := $append($container_ports, $probe_ports);
+                            
+                            {
+                                $deployment.id : {
+                                    "ports" : $ports
+                                }
+                            }   
+                        );
+                        
+                        $log($deployment_ports, "deployment ports");
                     
-                        /* связи между pv и pvc */
+                        $port_dictionary := $service_links.(
+                            $service := $; /* сохраняем контекст */
+                        );
+                        /* TBD для каждого target_port сервиса надо для соответствующего деплоймента записать порты */
+                        /* $log($service_links, "service links"); */
                     
-                        $pvs := $."seaf.ta.components.k8s_pv".*[claim_ref.namespace = $namespace.title];
+                        /* в каждый port надо добавить соответствующее поле */
+                        $services := $services.(
+                            $service := $;
+                            $service := $service ~> | ports | { "target_port_number" : $some } |;
+                            $service;
+                        );
                     
+                        $log($services, "services");
+                    
+                        $deployments := $deployments.(
+                            $deployment := $;
+                            /*$services := $service_links[targets[id = $deployment.id]].source; */
+                            $deployment := $deployment ~> | $ | { "ports" : $service_links[targets[id = $deployment.id]].source.ports } |;
+                            /* $deployment := $deployment ~> | containers.ports | { "ref" : $deployment.id & "_" & $.port & "_" & $.protocol }|; */
+
+                            /* $deployment.ports := $service_links[targets[id = $deployment.id]].source.ports; */
+                            /* сопоставление портов сервиса и портов деплоймента, которые могут быть и не описаны */
+                    
+                            /* $log($services.ports, "for deployment " & $deployment.title); */
+                            /* $deployment := $deployment ~> |  | */
+                            $deployment;
+                        );
+                        
+                        
+                        
+                   
                         /*
+                        $log($deployments, "deployments");
+                        $log($service_links, "links");
+                        $log($port_links, "port_links");
+                        $log($service_links, "links");
                         $log($deployments, "deployments");
                         $log($links, "links");
                         $log($targets, "targets");
@@ -78,15 +153,15 @@ entities:
                         $log($pvcs, "pvcs");
                         $log($namespace_services, "services");                    
                         $log($namespace_links, "links");
+                            "service_links"     : $service_links,
+                            "port_links"        : $port_links
+                            "namespace_ports"   : $cluster_ips,
                         */
                         {
-                            "namespace" : $namespace,
-                            "services"  : $services,
-                            "links" : $links,
-                            "pvcs" : $pvcs,
-                            "pvcLinks" : $pvc_links,
-                            "pvs" : $pvs,
-                            "targets" : $targets
+                            "cluster"           : $cluster,
+                            "namespace"         : $namespace,
+                            "services"          : $services,
+                            "deployments"       : $deployments
                         }
                     )
             namespace_schema:

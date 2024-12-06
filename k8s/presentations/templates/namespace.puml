@@ -11,102 +11,85 @@ left to right direction
 !return $text
 !endfunction
 
-frame "{{namespace.title}}" as $safeID("{{namespace.id}}") {
-    ' Persistent Volume Claims
-    {{#pvcs}}
-    together {
-        frame "=={{title}}\n| UID | //{{id}}// |\n| название тома | ""{{volume_name}}"" |\n| режим | {{volume_mode}} |\n| ёмкость | {{capacity}} |\n" as $safeID("pvc_" + "{{title}}") <<claim>>
-    }
-    {{/pvcs}}
-
-    'сервисы в данном namespace
+' сам кластер
+rectangle "=={{cluster.id}}" <<cluster>> {
     {{#services}}
-        component "{{title}}" as $safeID("{{id}}") <<{{type}}>> {
-            rectangle {
-                {{#ports}}
-                    portin " " as $safeID("{{id}}_in_{{port}}_{{protocol}}")
-                    portout " " as $safeID("{{id}}_out_{{target_port}}_{{protocol}}")
-                    card "{{name}}:{{protocol}}" as $safeID("{{id}}_{{port}}_{{target_port}}_{{protocol}}")
-                    $safeID("{{id}}_in_{{port}}_{{protocol}}") -0)- $safeID("{{id}}_{{port}}_{{target_port}}_{{protocol}}") : {{port}}
-                    $safeID("{{id}}_{{port}}_{{target_port}}_{{protocol}}") -0)- $safeID("{{id}}_out_{{target_port}}_{{protocol}}") : {{target_port}}
-                {{/ports}}
-            }
-        }
-        ' отображение NodePort на границе NS
         {{#ports}}
-            {{#node_port}}
-                portin " " as $safeID("{{id}}_node_in_{{port}}")
-                $safeID("{{id}}_node_in_{{port}}") -0)- $safeID("{{id}}_in_{{port}}_{{protocol}}") : {{node_port}}
-            {{/node_port}}
+            interface "{{port}}\n{{protocol}}" as $safeID("if_{{ref}}")
+            'interface "$safeID("if_{{ref}}")" as $safeID("if_{{ref}}")
         {{/ports}}
     {{/services}}
 
-    together {
-        {{#deployments}}
-        component "== {{title}}\nреплик: {{replicas}}\n" as $safeID("{{id}}") <<deployment>> {
-            {{#volumes}}
-                card "{{name}}\n{{#claim}}claim: {{name}}{{/claim}}" as $safeID("{{id}}_dep_vlm_{{name}}") <<volume>>
-            {{/volumes}}
-            {{#pvcLinks}}
-                $safeID("{{id}}_dep_vlm_{{name}}") -- $safeID("pvc_{{claim.name}}")
-            {{/pvcLinks}}
-            {{#containers}}
-                component "== {{name}}\n====\n{{{image}}}\n\n\n\n" <<container>> {
-                {{#ports}}
-                    portin " " as $safeID("{{safeID}}_in_{{port}}_{{protocol}}")
-                {{/ports}}
-                {{#mounts}}
-                    'точка монтирования пути на volume
-                    artifact "volume: {{name}}\n{{{path}}}" as $safeID("{{id}}_dep_mnt_{{name}}") <<mount>>
-                    $safeID("{{id}}_dep_mnt_{{name}}") -- $safeID("{{id}}_dep_vlm_{{name}}")
-                {{/mounts}}
-                }
-            {{/containers}}
-        }
-        {{/deployments}}
-    }
+    ' целевой namespace в кластере
+    frame "{{namespace.title}}" as $safeID("{{namespace.id}}") {
+        ' порты, входящие в NS
+        {{#services}}
+            '{{#ports}}
+            '    portin " " as $safeID("ns_pin_{{ref}}")
+            '    $safeID("if_{{ref}}") -- $safeID("ns_pin_{{ref}}")
+            '{{/ports}}
+        {{/services}}
 
-    {{#targets}}
-    together {
-        component "=={{title}}\n| UID | {{id}} |\n| реплик | {{replicas}} |" as $safeID("{{id}}") <<{{type}}>> {
-        {{#volumes}}
-            card "| name | **{{name}}** |\n| UID | //{{id}}// |\n{{#claim}}| claim | ""{{name}}"" |{{/claim}}" as $safeID("{{id}}_vlm_{{name}}") <<volume>>
-            {{#claim}}
-            {{/claim}}
-        {{/volumes}}
-        {{#pvcLinks}}
-            $safeID("{{id}}_vlm_{{name}}") -- $safeID("pvc_{{claim.name}}")
-        {{/pvcLinks}}
-        {{#containers}}
-            component "=={{name}}\n| образ | //{{{image}}}// |\n| image pull policy | {{image_pull_policy}} |\n\n\n\n" <<container>> {
-            {{#ports}}
-                portin " " as $safeID("{{id}}_in_{{port}}_{{protocol}}")
-            {{/ports}}
-            {{#mounts}}
-                'точка монтирования пути на volume
-                artifact "=={{name}}\n| путь | {{{path}}} |\n" as $safeID("{{id}}_mnt_{{name}}") <<mount>>
-                $safeID("{{id}}_mnt_{{name}}") -- $safeID("{{id}}_vlm_{{name}}")
-            {{/mounts}}
+        'сервисы в данном namespace
+        {{#services}}
+            component "**{{title}}**\n" as $safeID("{{id}}") <<{{type}}>> {
+                'rectangle {
+                    {{#ports}}
+                        'portin "{{port}}" as $safeID("svc_pin_{{ref}}")
+                        rectangle "{{port}}:{{name}}:{{target_port}} " as $safeID("card_port_{{ref}}") {
+                            portin " " as $safeID("card_port_in_{{ref}}")
+                            portout " " as $safeID("card_port_out_{{ref}}")
+                        }
+                        'portout "{{targ" as $safeID("card_port_in_{{ref}}")
+
+                        $safeID("if_{{ref}}") -- $safeID("card_port_in_{{ref}}")
+                        '$safeID("svc_pin_{{ref}}") <-- $safeID("ns_pin_{{ref}}")
+                        '$safeID("card_port_in_{{ref}}") <-- $safeID("svc_pin_{{ref}}")
+                        '$safeID("card_port_out_{{ref}}") -[hidden]-> $safeID("svc_pout_{{ref}}")
+                        '$safeID("card_port_out_{{ref}}") -[hidden]-> $safeID("svc_pout_{{ref}}")
+                        '$safeID("card_port_out_{{ref}}") -r- $safeID("svc_pout_{{ref}}")
+                    {{/ports}}
+                '}
             }
-        {{/containers}}
-        }
+        {{/services}}
+
+        ' деплойменты
+        'together {
+            {{#deployments}}
+                'component "=={{title}}\n| UID | {{id}} |\n| реплик | {{replicas}} |\n" as $safeID("{{id}}") <<{{type}}>> {
+                component "{{title}}" as $safeID("{{id}}") <<{{type}}>> {
+                    {{#ports}}
+                        '$safeID("card_port_out_{{ref}}") -[hidden]-- $safeID("{{id}}") : {{target_port}}
+                        portin $safeID("dpm_pin_{{ref}}_{{target_port}}") as $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                        $safeID("card_port_out_{{ref}}") -[hidden]- $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                        $safeID("card_port_out_{{ref}}") -[norank]- $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                        $safeID("card_port_out_{{ref}}") -[hidden]- $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                        'interface " " as $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                        '$safeID("card_port_out_{{ref}}") -- $safeID("dpm_pin_{{ref}}_{{target_port}}")
+                    {{/ports}}
+                    {{#volumes}}
+                        card "| name | **{{name}}** |\n| UID | //{{id}}// |\n{{#claim}}| claim | ""{{name}}"" |{{/claim}}" as $safeID("{{id}}_vlm_{{name}}") <<volume>> {
+                        }
+                        {{#claim}}
+                        {{/claim}}
+                    {{/volumes}}
+                    {{#containers}}
+                        component "=={{name}}\n| образ | //{{{image}}}// |\n| image pull policy | {{image_pull_policy}} |\n\n\n\n" <<container>> {
+                            {{#liveness_probe.port}}
+                                rectangle "{{{liveness_probe.path}}}" <<liveness>> {
+                                    portin " " as $safeID("{{id}}_cnt_pin_{{name}}_{{.}}")
+                                }
+                            }
+                            {{/liveness_probe.port}}
+                            {{#mounts}}
+                                'точка монтирования пути на volume
+                                artifact "=={{name}}\n| путь | {{{path}}} |\n" as $safeID("{{id}}_mnt_{{name}}") <<mount>>
+                                $safeID("{{id}}_mnt_{{name}}") -- $safeID("{{id}}_vlm_{{name}}")
+                            {{/mounts}}
+                        }
+                    {{/containers}}
+                }
+            {{/deployments}}
+        '}
     }
-    {{/targets}}
-
-
-    {{#links}}
-        {{#targets}}
-            $safeID("{{source.id}}") -[hidden]- $safeID("{{id}}")
-            {{#source.ports}}
-                $safeID("{{source.id}}_out_{{target_port}}_{{protocol}}") -- $safeID("{{id}}_in_{{target_port}}_{{protocol}}") : {{target_port}}
-            {{/source.ports}}
-        {{/targets}}
-    {{/links}}
 }
-
-{{#pvs}}
-    ' persistent volume
-    folder "=={{title}}\n| UID | {{id}} |\n| ёмкость | {{capacity}} |\n| режим | {{volume_mode}} |\n" <<persistent volume>> as $safeID("{{id}}")
-    ' it's link to PVC
-    $safeID("pvc_" + "{{claim_ref.name}}") -- $safeID("{{id}}")
-{{/pvs}}

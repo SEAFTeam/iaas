@@ -1,0 +1,59 @@
+    {% for deployment in items %}
+    {{entity}}.{{deployment.metadata.uid}}:
+        id: {{deployment.metadata.uid}}
+        title: {{deployment.metadata.name}}
+        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        update_strategy: {{deployment.spec.strategy.type}}
+        replicas: {{deployment.spec.replicas}}
+        termination_grace_period_seconds: {{deployment.spec.template.spec.termination_grace_period_seconds}}
+        labels: {% for key, value in deployment.metadata.labels.items() %}
+            - {{key}} : {{value}} {% endfor %}
+        {% if deployment.spec.template.spec.volumes is not none %}volumes:
+            {%- for volume in deployment.spec.template.spec.volumes %}
+            -  name: {{volume.name}}
+               {%- if volume.persistent_volume_claim is not none %}
+               claim:
+                   name: {{volume.claim_name}}
+                   read_only: {{volume.read_only}}
+               {%- endif %}
+            {%- endfor %}
+        {%- endif %}
+        containers:
+            {%- for container in deployment.spec.template.spec.containers %}
+            -  name: {{container.name}}
+               image: {{container.image}}
+               image_pull_policy: {{container.image_pull_policy}}
+               {%- if container.ports is not none %}
+               ports:
+                   {%- for port in container.ports %}
+                   -  name: {{port.name}}
+                      protocol: {{port.protocol}}
+                      port: {{port.container_port}}
+                   {%- endfor %}
+               {%- endif %}
+               {%- if container.liveness_probe is not none and container.liveness_probe.http_get is not none%}
+               liveness_probe:
+                   path: {{container.liveness_probe.http_get.path}}
+                   port: {{container.liveness_probe.http_get.port}}
+                   failure_threshold: {{container.liveness_probe.failure_threshold}}
+               {%- endif %}
+               {%- if container.startup_probe is not none and container.startup_probe.http_get is not none %}
+               startup_probe:
+                   path: {{container.startup_probe.http_get.path}}
+                   port: {{container.startup_probe.http_get.port}}
+                   failure_threshold: {{container.startup_probe.failure_threshold}}
+               {%- endif %}
+               {%- if container.readiness_probe is not none and container.readiness_probe.http_get is not none  %}
+               readiness_probe:
+                   path: {{container.readiness_probe.http_get.path}}
+                   port: {{container.readiness_probe.http_get.port}}
+                   failure_threshold: {{container.readiness_probe.failure_threshold}}
+               {%- endif %}
+               {%- if container.volume_mounts is not none %}
+               mounts:
+                   {%- for mount in container.volume_mounts %}
+                   -  name: {{mount.name}}
+                      path: {{mount.mount_path}}
+                   {%- endfor %}
+               {%- endif %}
+            {%- endfor %}{% endfor %}

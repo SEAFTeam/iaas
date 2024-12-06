@@ -32,11 +32,11 @@ class NamespaceExtractor(Extractor):
             deployments.extract(serializer, parent)
 
             # извлечение SS
-            sets = StatefulSetExtractor(self.kube, namespace)
-            parent = {}
-            parent['item'] = namespace
-            parent['entity'] = self.entity()
-            sets.extract(serializer, parent)
+            # sets = StatefulSetExtractor(self.kube, namespace)
+            # parent = {}
+            # parent['item'] = namespace
+            # parent['entity'] = self.entity()
+            # sets.extract(serializer, parent)
 
             # извлечение сервисов
             services = ServiceExtractor(self.kube, namespace)
@@ -53,8 +53,8 @@ class NamespaceExtractor(Extractor):
             pvs.extract(serializer, parent)
 
             # извлечение NPs
-            nps = NetworkPolicyExtractor(self.kube, namespace)
-            parent = {}
-            parent['item'] = namespace
-            parent['entity'] = self.entity()
-            nps.extract(serializer, parent)
+            # nps = NetworkPolicyExtractor(self.kube, namespace)
+            # parent = {}
+            # parent['item'] = namespace
+            # parent['entity'] = self.entity()
+            # nps.extract(serializer, parent)

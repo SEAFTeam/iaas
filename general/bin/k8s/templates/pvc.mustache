@@ -1,9 +1,0 @@
-{{#items}}
-    {{entity}}.{{metadata.uid}}:
-        id: {{metadata.uid}}
-        title: {{metadata.name}}
-        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
-        volume_name: {{spec.volume_name}}
-        volume_mode: {{spec.volume_mode}}
-        capacity: {{status.capacity.storage}}
-{{/items}}
