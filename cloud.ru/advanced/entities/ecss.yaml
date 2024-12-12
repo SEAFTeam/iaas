@@ -1,6 +1,7 @@
 entities:
   seaf.ta.reverse.cloud_ru.advanced.ecss:
-    title: 'Виртуальный сервер (SberCloud Advanced)'
+    title: Виртуальный сервер
+    description: Compute resource (AWS Virtual Machine)
     objects:
       ecs:
         route: "/"
@@ -16,7 +17,7 @@ entities:
               type: string
               minLength: 5
             name:
-              title: Имя сервера
+              title: Наименование сервера
               type: string
               minLength: 3
             description:
@@ -91,7 +92,7 @@ entities:
                 type: object
                 properties:
                   key:
-                    title: Имя ключа
+                    title: Наименование ключа
                     type: string
                   value:
                     title: Значение ключа

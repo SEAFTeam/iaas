@@ -5,7 +5,7 @@ entities:
           $domain := '';
           $edr_entity_matcher := /.*\.edrs$/;
           $entity := $$.entities.$spread()[$edr_entity_matcher($keys())].$keys()[0];
-          $config := entities."seaf.ta.reverse.general".config;
+          $config := "seaf.ta.reverse.general".config;
           [
               {
                   'location': $config.arch_menu & '/Кибербезопасность/EDR',

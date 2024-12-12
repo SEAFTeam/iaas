@@ -1,0 +1,44 @@
+C4Component
+    title Схема метамодели реверса архитектуры в Cloud.ru Advanced
+
+    Container_Boundary(SEAF.TA.SERVICES, "Технические сервисы (seaf-core)") {
+        Component(dc, "Датацентр", "seaf.ta.services.dc", "dc")
+    }
+
+    Container_Boundary(COMPONENTS, "Прикладные компоненты (seaf-core)") {
+        Component(component, "Прикладной сервис/компонент", "components", "components")
+    }
+
+    Container_Boundary(SEAF.TA.COMPONENTS, "Технические компоненты (seaf-core)") {
+        Component(server, "Virtual Machines", "Виртуальные машины", "server")
+    }
+
+    Container_Boundary(SEAF.TA.REVERSE.vmwarecloud, "Расширение метамодели для экспорта конфигурации IaaS VMware") {
+        Component(orgs, "Organization", "Организация", "orgs")
+        Component(orgnets, "Organization Networks", "Сети организации", "orgnets")
+        Component(vdcgroups, "VDC Groups", "Группы виртуальных датацентров", "vdcgroups")
+        Component(vdcs, "VDCs", "Виртуальные датацентры", "vdcs")
+        Component(egws, "Edge Gateways", "Пограничные шлюзы", "egws")
+        Component(vapps, "vApps", "Виртуальные приложения", "vapps")
+        Component(vappnets, "vApp Networks", "Сети виртуальных приложений", "subnets")
+        Component(links, "Cущность-связь", "Для связи прикладного и технического словев", "links")
+
+        Rel(orgs, dc, "Находится в")
+        Rel(vdcgroups, orgs, "Находится в")
+        Rel(vdcs, vdcgroups, "Находится в")
+        Rel(vdcs, orgs, "Находится в")
+        Rel(orgnets, vdcs, "Находится в")
+        Rel(orgnets, vdcgroups, "Находится в")
+        Rel(vapps, vdcs, "Находится в")
+        Rel(vappnets, orgnets, "Подключена к")
+        Rel(vappnets, vapps, "Управляется ")
+        Rel(server, vapps, "Находится в")
+
+        Rel(links, server, "Связывает")
+        Rel(links, vapps, "Связывает")
+        Rel(links, vdcs, "Связывает")
+        Rel(links, orgs, "Связывает")
+        Rel(links, component, "Связывает")
+    }
+
+    UpdateLayoutConfig($c4ShapeInRow="4", $c4BoundaryInRow="1")

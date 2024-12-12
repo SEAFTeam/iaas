@@ -1,0 +1,92 @@
+functions:
+    reverse_vmwarecloud_egws_fw:
+        title: Список FW правил на Edge
+        params:
+            - alias: dataset
+              type: object
+              title: Озеро данных
+              required: true  # Признак обязательности параметра функции
+            - alias: domain
+              type: string
+              title: Домен организации
+              required: false  # Признак обязательности параметра функции
+        code: >
+            (
+                $domain := domain;
+                $domain_matcher := $eval('/^' & $domain & '.*/');
+            
+                $egws_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+                $egws_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
+                $egws_fw_entity := dataset."seaf.ta.reverse.general".config.entities.egws_fw.model;
+                $egws_fw_view := dataset."seaf.ta.reverse.general".config.entities.egws_fw.view;
+                $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+                $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.orgs.model;
+            
+                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+                $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
+                $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+                $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+                        
+                [[$egws_fw.$spread().{
+                    'id': $keys(),
+                    'fw': *
+                }].(
+                    $gw_id := fw.gw;
+                    $egw := $egws[$keys() = $gw_id];
+                    $org_id := $egw.*.org;
+                    $org := $orgs.$spread()[$keys() = $org_id];
+                    $orgtitle := $org.*.title;
+                    $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                    $context := $;
+                    $src := $not($exists(fw.sourceFirewallGroups.*)) ? 'Any' : $append(
+                            ($not(null in fw.sourceFirewallGroups.**.members) ? fw.sourceFirewallGroups.**.members), 
+                            ($not(null in fw.sourceFirewallGroups.**.ip_addresses) ? fw.sourceFirewallGroups.**.ip_addresses));
+                    $dst := $not($exists(fw.destinationFirewallGroups.*)) ? 'Any' : $append(
+                            ($not(null in fw.destinationFirewallGroups.**.members) ? fw.destinationFirewallGroups.**.members), 
+                            ($not(null in fw.destinationFirewallGroups.**.ip_addresses) ? fw.destinationFirewallGroups.**.ip_addresses));
+                    $ports := $not($exists(fw.port_profiles.*)) ? {'port': 'Any', 'protocol': 'Any' } : (
+                            fw.port_profiles.*.(
+                                $proto := protocol;
+                                $dst_ports := ($exists($.dst_ports) and $count($.dst_ports) > 0) ? $join($.dst_ports, ", ") : "Any";
+                                $dst_ports.(
+                                    {'port': $, 'protocol': $proto}
+                                )
+                            )
+                    );
+                    $src.(
+                        $source := $;
+                        $dst.(
+                            $destination := $;
+                            $ports.(
+                                $port_profile := $;
+                                {
+                                    'id': $context.id,
+                                    'short_id': $context.fw.id,
+                                    'gw': $context.fw.gw,
+                                    'title': $context.fw.title,
+                                    'description': $context.fw.description,
+                                    'enabled': $context.fw.enabled,
+                                    'source': $source,
+                                    'destination': $destination,
+                                    'ip_protocol': $context.fw.ip_protocol,
+                                    'action': $context.fw.action,
+                                    'direction': $context.fw.direction,
+                                    'protocol': $port_profile.protocol,
+                                    'port': $port_profile.port,
+                                    'egw_title': $egw.*.title,
+                                    'egw': $egw.$keys()[0],
+                                    'org': $org_id,
+                                    'org_title': $orgtitle,
+                                    'link': '/entities/' & $egws_fw_view & '/card?id=' & id,
+                                    'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
+                                    'entity': $egws_fw_view,
+                                    'entity_type': 'VMware Cloud',
+                                    'entity_title': 'Правила NAT на Edge в облаке VMware',
+                                    'dc': $dc.$keys()[0],
+                                    'dc_title': $dc.*.title
+                                }
+                            )
+                        )
+                    )
+                )]
+            )

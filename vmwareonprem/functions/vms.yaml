@@ -1,0 +1,84 @@
+functions:
+  reverse_vmwareonprem_vms:
+    title: Список виртуальных машин
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $vms_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vms.model;
+            $vms_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vms.view;
+            $vapps_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vapps.model;
+            $vapps_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vapps.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
+            $edrs_entity := dataset."seaf.ta.reverse.general".config.entities.edrs.model;
+            $avs_entity := dataset."seaf.ta.reverse.general".config.entities.avs.model;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+        
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareOnprem"];
+            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $edrs := $lookup(dataset, $edrs_entity)[$domain_matcher($keys())];
+            $avs := $lookup(dataset, $avs_entity)[$domain_matcher($keys())];
+        
+            [[$vms.$spread().{
+                'id': $keys(),
+                'vm': *
+            }].(
+                $disks := $join(vm.disks.(*.device & ' - ' & *.size & 'Gb'), '\n');
+                $addresses := $count(vm.reverse.addresses) > 1 ? $join(vm.reverse.addresses.($ != null ? $), ', ') : vm.reverse.addresses;
+                $vapp_id := vm.reverse.vapp;
+                $vapp := $exists($vapp_id) and $vapp_id != None ? $lookup($vapps, $vapp_id);
+                $subnets := $count(vm.reverse.subnet_titles) > 1 ? $join(vm.reverse.subnet_titles.($ != null ? $), ', ') : vm.reverse.subnet_titles;
+                $vdc_id := vm.reverse.vdc;
+                $vdc := $lookup($vdcs, $vdc_id);
+                $av := vm.title in $avs.**.hosts ? true : false;
+                $edr := vm.title in $edrs.**.hosts ? true : false;
+                $dc := $lookup($dcs, $vdc.dc);
+                $tags := $join(vm.reverse.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
+                {
+                    'id': id,
+                    'short_id': vm.id,
+                    'title': vm.title,
+                    'description': vm.description,
+                    'os_type': vm.os.type,
+                    'os_bit': vm.os.bit,
+                    'cpu_qty': vm.cpu.cores,
+                    'ram': vm.ram / 1024,
+                    'flavor': null,
+                    'disks': $disks,
+                    'nic_qty': vm.nic_qty,
+                    'addresses': vm.reverse.addresses,
+                    'vapp_title': $vapp.title,
+                    'vapp': $vapp_id,
+                    'av': $av,
+                    'edr': $edr,
+                    'subnets': $subnets,
+                    'subnet_ids': vm.subnets,
+                    'az': null,
+                    'tags': $tags,
+                    'vdc_title': vm.reverse.vdc_title,
+                    'vdc': vm.reverse.vdc,
+                    'tenant': 'Нет тенанта',
+                    'link': '/entities/' & $vms_view & '/card?id=' & id,
+                    'vapp_link': '/entities/' & $vapps_view & '/card?id=' & $vapp_id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & $vdc_id,
+                    'entity': $vms_view,
+                    'entity_type': 'VMware On-Premise',
+                    'entity_title': "Виртуальная машина в кластере VMware",
+                    'dc': $vdc.dc,
+                    'dc_title': $dc.title
+                }
+            )]
+        )

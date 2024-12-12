@@ -1,0 +1,208 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.orgnets:
+    title: Сети организации
+    objects:
+      orgnet:
+        route: "/"
+        title: Сеть организации
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор сети
+              type: string
+            original_id:
+              title: Идентификатор сети (полный)
+              type: string
+            title:
+              title: Наименование сети
+              type: string
+            type:
+              title: Тип сети
+              type: string
+            description:
+              title: Описание
+              type: string
+            gateway:
+              title: Шлюз сети
+              type: string
+            netmask:
+              title: Маска сети
+              type: string
+            parentnetwork:
+              title: Родительская сеть
+              type: array
+              oneOf:
+                - type: string
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+            networkpool_id:
+              title: Идентификатор сетевого пула
+              type: string
+            networkpool:
+              title: Наименование сетевого пула
+              type: string
+            org_id:
+              title: Идентификатор организации
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
+            vdc_id:
+              title: Идентификатор vdc
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
+            vdc_title:
+              title: Наименование vdc
+              type: string
+            connected:
+              title: Статус подключения
+              type: boolean
+            dns:
+              title: DNS
+              type: array
+              items:
+                type: string
+            fencemode:
+              title: Тип изоляции
+              enum:
+                - 'bridged'
+                - 'isolated'
+                - 'natRouted'
+            ipscopes:
+              title: Границы сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  gateway:
+                    title: Адрес шлюза
+                    type: string
+                  netmask:
+                    title: Маска подсети
+                    type: string
+                  subnetprefixlength:
+                    title: Префикс подсети
+                    type: integer
+                  ipranges:
+                    title: Диапазоны адресов
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startaddress:
+                          title: Начальный адрес
+                          type: string
+                        endaddress:
+                          title: Конечный адрес
+                          type: string
+  seaf.ta.services.network:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwarecloud.orgnets:
+          type: object
+          properties:
+            original_id:
+              title: Идентификатор сети (полный)
+              type: string
+            type:
+              title: Тип сети
+              enum:
+                - "orgNetwork"
+            gateway:
+              title: Шлюз сети
+              type: string
+            netmask:
+              title: Маска сети
+              type: string
+            shared:
+              title: Shared
+              type: boolean
+            parentnetwork:
+              title: Родительская сеть
+              type: array
+              oneOf:
+                - type: string
+                - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgnets.orgnet"
+                - $ref: "#/$rels/seaf.ta.services.network.network"
+            networkpool:
+              title: Идентификатор сетевого пула
+              type: string
+            networkpool_title:
+              title: Наименование сетевого пула
+              type: string
+            org:
+              title: Идентификатор организации
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
+            vdc:
+              title: Идентификатор VDC
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
+            vdc_title:
+              title: Наименование VDC
+              type: string
+            vdcgroup:
+              title: Идентификатор VDC Group
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
+            vdcgroup_title:
+              title: Наименование VDC Group
+              type: string
+            connected:
+              title: Статус подключения
+              type: boolean
+            status:
+              title: Статус реализации
+              type: string
+            isdefaultnetwork:
+              title: Сеть по-умолчанию
+              type: string
+            backingnetworktype:
+              title: Тип подлежащей сети
+              type: string
+            dns:
+              title: DNS
+              type: array
+              items:
+                type: string
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareCloud"
+            fencemode:
+              title: Тип изоляции
+              enum:
+                - 'bridged'
+                - 'isolated'
+                - 'natRouted'
+            ipscopes:
+              title: Скоупы сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  gateway:
+                    title: Адрес шлюза
+                    type: string
+                  netmask:
+                    title: Маска подсети
+                    type: string
+                  subnetprefixlength:
+                    title: Префикс подсети
+                    type: integer
+                  ipranges:
+                    title: Диапазоны адресов
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startaddress:
+                          title: Начальный адрес
+                          type: string
+                        endaddress:
+                          title: Конечный адрес
+                          type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwarecloud.orgnets"

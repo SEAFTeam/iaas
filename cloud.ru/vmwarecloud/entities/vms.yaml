@@ -1,0 +1,60 @@
+entities:
+  seaf.ta.components.server:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwarecloud.vms:
+          type: object
+          properties:
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareCloud"
+            original_id:
+              title: Идентификатор (полный)
+              type: string
+            flavor:
+                title: Спецификация
+                type: string
+            addresses:
+              title: IP адреса
+              type: array
+              minItems: 0
+              items:
+                type: string
+            subnet_titles:
+              title: Имена сетей
+              type: array
+              items:
+                type: string
+            tags:
+              title: Тэги
+              type: array
+              items:
+                type: object
+                properties:
+                  key:
+                    title: Наименование ключа
+                    type: string
+                  value:
+                    title: Значение ключа
+                    type: string
+            vdc:
+              title: Virtual Datacenter ID
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
+            vdc_title:
+              title: Virtual Datacenter title
+              type: string
+            vapp:
+              title: vApp ID
+              $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
+            tenant:
+              title: Тенант (project id)
+              type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwarecloud.vms"

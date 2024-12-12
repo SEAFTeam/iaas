@@ -1,0 +1,44 @@
+functions:
+  reverse_vmwarecloud_orgs:
+    title: Список организаций
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+          
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+          
+            [[$orgs.$spread().{
+                'id': $keys(),
+                'org': *
+            }].(
+                $org := $;
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                { 
+                    'id': id,
+                    'short_id': org.id,
+                    'title': org.title,
+                    'description': org.description,
+                    'link': '/entities/' & $orgs_view & '/schema?id=' & id,
+                    'entity': $orgs_view,
+                    'entity_type': 'VMware Cloud',
+                    'entity_title': 'Организации в облаке VMware',
+                    'dc': $dc.$keys()[0],
+                    'dc_title': $dc.*.title
+                }
+            )]
+        )

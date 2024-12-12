@@ -1,0 +1,45 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.vdcgroups:
+    menu: >
+      (
+          $domain := '';
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+          $vdcgroups_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.view;
+      
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
+          $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$orgs.$spread().(
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/VDC Groups',
+                  'link': 'entities/' & $vdcgroups_view & '/list?domain=' & $domain
+              }
+          )];
+          /*$static := [
+              {
+                  'location': $config.arch_menu & '/Cloud.ru/Облако VMware/Реестры/VDC Groups',
+                  'link': 'entities/' & $vdcgroups_view & '/list?domain=' & $domain
+              }];*/
+          $dynamic := $vdcgroups.$spread().(
+                $id := $keys()[0];
+                $title := $.*.title;
+                $org_id := $.*.org;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                $orgtitle := $org.*.title;
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                {
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title,
+                    'link': 'entities/' & $vdcgroups_view & '/card?id=' & $id
+                }
+          );
+          $append($static, $dynamic)
+      )

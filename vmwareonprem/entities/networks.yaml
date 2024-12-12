@@ -1,0 +1,103 @@
+entities:
+  seaf.ta.services.network:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwareonprem.networks:
+          type: object
+          properties:
+            original_id:
+              title: Идентификатор сети (полный)
+              type: string
+            type:
+              title: Тип сети
+              enum:
+                - "vmwarenetwork"
+            gateway:
+              title: Шлюз сети
+              type: string
+            netmask:
+              title: Маска сети
+              type: string
+            shared:
+              title: Shared
+              type: boolean
+            parentnetwork:
+              title: Родительская сеть
+              type: array
+              oneOf:
+                - type: string
+                - $ref: "#/$rels/seaf.ta.services.network.network"
+            networkpool:
+              title: Идентификатор сетевого пула
+              type: string
+            networkpool_title:
+              title: Наименование сетевого пула
+              type: string
+            vdc:
+              title: Идентификатор VDC
+              $ref: "#/$rels/seaf.ta.reverse.vmwareonprem.vdcs.vdc"
+            vdc_title:
+              title: Наименование VDC
+              type: string
+            connected:
+              title: Статус подключения
+              type: boolean
+            status:
+              title: Статус реализации
+              type: string
+            isdefaultnetwork:
+              title: Сеть по-умолчанию
+              type: string
+            backingnetworktype:
+              title: Тип подлежащей сети
+              type: string
+            dns:
+              title: DNS
+              type: array
+              items:
+                type: string
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareOnprem"
+            fencemode:
+              title: Тип изоляции
+              enum:
+                - 'bridged'
+                - 'isolated'
+                - 'natRouted'
+            ipscopes:
+              title: Скоупы сетей
+              type: array
+              items:
+                type: object
+                properties:
+                  gateway:
+                    title: Адрес шлюза
+                    type: string
+                  netmask:
+                    title: Маска подсети
+                    type: string
+                  subnetprefixlength:
+                    title: Префикс подсети
+                    type: integer
+                  ipranges:
+                    title: Диапазоны адресов
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        startaddress:
+                          title: Начальный адрес
+                          type: string
+                        endaddress:
+                          title: Конечный адрес
+                          type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwareonprem.networks"

@@ -1,0 +1,29 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.orgs:
+    menu: >
+      (
+          $domain := "";
+          $domain_matcher := $eval("/^" & $domain & ".*/");
+      
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+      
+          $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $menu := $orgs.$spread().(
+              $id := $keys()[0];
+              $org := $;
+              $dc := $dcs.$spread()[$keys() = $org.*.dc];
+              $title := $.*.title;
+              [{
+                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware/Организации/" & $title ,
+                  "link": "entities/" & $org_entity & "/schema?id=" & $id
+              },
+              {
+                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware",
+                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud&org=" & $title
+              }]
+          )
+      )

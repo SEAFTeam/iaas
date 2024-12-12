@@ -1,0 +1,154 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.vapps:
+    presentations:
+      card:
+        type: markdown
+        template: templates/vapp_card.md
+        source: >
+          (   
+              $id := $params.id;
+              $vapp := $reverse_vmwarecloud_vapps($)[id = $id];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[vapp = $id];
+              $vapp ~> | $ |{'networks': $vappnets, 'networkexists': $exists($vappnets)} |
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $vapp := $reverse_vmwarecloud_vapps($)[id = $id];
+              $vms := $reverse_vmwarecloud_vms($)[vapp = $vapp.id];
+              $vdc := $reverse_vmwarecloud_vdcs($)[id = $vapp.vdc];
+              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[$vdc.id in vdcs];
+              $vappnets := $reverse_vmwarecloud_vappnets($)[$id = vapp];
+              $nodes := {$vapp.org.$split('.')[-1]:{'title': 'Организация: ' & $vapp.org_title}};
+              $baseprefix := $vapp.org.$split('.')[-1] & '.' & $vapp.vdc.$split('.')[-1];
+              $nodes := $append($nodes, {$baseprefix: {'title': 'VDC: ' & $vapp.vdc_title}});
+              $nodes := $append($nodes, {$baseprefix & '.' & $vapp.short_id: {'title': 'vApp: ' & $vapp.title}});
+              $nodes := $append($nodes, $vms.(
+                      $prefix := $baseprefix & '.' & $vapp.short_id;
+                      $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
+                      $prefix := $count($subnets) = 1 ?  $prefix & '.' & $subnets.short_id : $prefix;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vappnets.(
+                      $prefix := $baseprefix & '.' & $vapp.short_id;
+                      {
+                          $prefix & '.' & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'vappnet-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $symbols := $vms.(
+                  $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+                  $href := $.link;
+                  $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $href});
+                  {
+                      $.short_id: $icon
+                  }
+              );
+              $symbols := $append($symbols, 
+                  $vappnets.(
+                      $fn_svg_vappnet_header := $$.icons."reverse.general".svg_vappnet_header;
+                      $href := $.link;
+                      $icon := $eval($fn_svg_vappnet_header, {'title': $.title, 'href': $href});
+                      {
+                          'vappnet-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $links := [$vms.(
+                  $vm := $;
+                  $subnets := $.subnet_ids.($id := $; $vappnets[id = $id]);
+                  $count($subnets) > 1 ? (
+                      $vmregexp := $eval('/.*\\.' & $.short_id & '$/');
+                      $vmnode := $nodes[$vmregexp($.$keys())].$keys()[0];
+                      $subnets.(
+                          $subnetregexp := $eval('/.*\\.' & $.short_id & '$/');
+                          $subnetnode := $nodes[$subnetregexp($.$keys())].$keys()[0];
+                          {
+                              'from': $vmnode,
+                              'to': $subnetnode,
+                              'style': '-',
+                              'title': 'Directly connected'
+                          }
+                      )
+                  )
+              )];
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links
+              };
+          )
+
+      vm_list:
+        type: table
+        headers:
+          - value: title
+            text: Наименование
+            width: 200
+            sortable: true
+            link: link
+          - value: description
+            text: Описание
+            width: 400
+        source: >
+          (
+              $id := $params.id;
+              [$reverse_vmwarecloud_vms($)[vapp = $id]]
+          )
+
+      list:
+        type: table
+        headers:
+          - value: title
+            text: Наименование vApp
+            sortable: true
+            align: left
+            link: link
+            width: 300
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+          - value: vdc_title
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_title
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+        source: >
+          (
+              $domain := $params.domain;
+              $vdc := $params.vdc;
+              $vdcgroup_id := $params.vdcgroup_id;
+              $tmp := $exists($vdc) ? (
+                  [$reverse_vmwarecloud_vapps($, $domain)[vdc = $vdc]]
+              ) : (
+                  $exists($vdcgroup_id) ? (
+                      $vdcgroup := $reverse_vmwarecloud_vdcgroups($, $domain)[id = $vdcgroup_id];
+                      $vdcs := $reverse_vmwarecloud_vdcs($, $domain)[id in $vdcgroup.vdcs];
+                      [$reverse_vmwarecloud_vapps($, $domain)[vdc in $vdcs.id]]
+                  ) : (
+                      [$reverse_vmwarecloud_vapps($, $domain)]
+                  )
+              );
+          )

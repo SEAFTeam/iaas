@@ -15,7 +15,7 @@ entities:
               title: CCE ID
               type: string
             name:
-              title: Имя кластера
+              title: Наименование кластера
               type: string
             alias:
               title: Alias кластера

@@ -1,0 +1,67 @@
+functions:
+    reverse_vmwarecloud_egws_nat:
+        title: Список Edge NAT
+        params:
+            - alias: dataset
+              type: object
+              title: Озеро данных
+              required: true  # Признак обязательности параметра функции
+            - alias: domain
+              type: string
+              title: Домен организации
+              required: false  # Признак обязательности параметра функции
+        code: >
+            (
+                $domain := domain;
+                $domain_matcher := $eval('/^' & $domain & '.*/');
+            
+                $egws_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+                $egws_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
+                $egws_nat_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws_nat.model;
+                $egws_nat_view := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.egws_nat.view;
+                $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+                $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+                
+                $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+                $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];
+                $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+                $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+                        
+                [[$egws_nat.$spread().{
+                    'id': $keys(),
+                    'nat': *
+                }].(
+                    $gw_id := nat.gw;
+                    $egw := $egws[$keys() = $gw_id];
+                    $org_id := $egw.*.org;
+                    $org := $orgs.$spread()[$keys() = $org_id];
+                    $orgtitle := $org.*.title;
+                    $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                    {
+                        'id': id,
+                        'short_id': nat.id,
+                        'gw': nat.gw,
+                        'title': nat.title,
+                        'description': nat.description,
+                        'type': nat.type,
+                        'enabled': nat.enabled,
+                        'external_address': nat.external_address,
+                        'internal_address': nat.internal_address,
+                        'system_rule': nat.system_rule,
+                        'snat_dst_address': nat.snat_dst_address,
+                        'dnat_ext_port': nat.dnat_ext_port,
+                        'fw_match': nat.fw_match,
+                        'egw_title': $egw.*.title,
+                        'egw': $egw.$keys()[0],
+                        'org': $org_id,
+                        'org_title': $orgtitle,
+                        'link': '/entities/' & $egws_nat_view & '/' & $lowercase(nat.type) & '_schema?id=' & id,
+                        'egw_link': '/entities/' & $egws_view & '/card?id=' & $egw.*.id,
+                        'entity': $egws_nat_view,
+                        'entity_type': 'VMware Cloud',
+                        'entity_title': 'Правила FW на Edge в облаке VMware',
+                        'dc': $dc.$keys()[0],
+                        'dc_title': $dc.*.title
+                    }
+                )]
+            )

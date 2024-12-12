@@ -2,7 +2,7 @@
 ***  
 **Наименование**: {{name}}
 
-| **Имя**  | **Flavor** | **HA (masters_qty)** | **Endpoints**                       | **Container Network** | **Service Network** | **Подсеть** | **VPC** | **DC/IaaS** |
+| **Наименование**  | **Flavor** | **HA (masters_qty)** | **Endpoints**                       | **Container Network** | **Service Network** | **Подсеть** | **VPC** | **DC/IaaS** |
 |----------|------------|----------------------|-------------------------------------|-----------------------|---------------------|------------|---------|-------------|
 | {{name}} | {{flavor}} | {{ha}}               | {{#endpoints}}{{url}}{{/endpoints}} | {{container_network}} | {{service_network}} | {{subnet}} | {{vpc}} |    {{DC}}   |
 

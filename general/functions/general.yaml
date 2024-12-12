@@ -82,7 +82,7 @@ functions:
               $not($x = null) and $exists($x) and $length($x) > 0 and $not($x = ' ') ? (
                   $words := $x.$split(' ');
                   $rowBuilder($words, $max, '');
-              ) : 'Здесь ничего нет, а лучше написать'
+              ) : ''
           )};
           $rowMaker(x, max)
       )
