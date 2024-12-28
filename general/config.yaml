@@ -73,3 +73,16 @@ seaf.ta.reverse.general:
         dvportgroups:
           model: seaf.ta.reverse.vmwareonprem.dvportgroups
           view: seaf.ta.reverse.vmwareonprem.dvportgroups
+      evo:
+        vms:
+          model: seaf.ta.components.server
+          view: seaf.ta.reverse.evo.vms
+        vpcs:
+          model: seaf.ta.reverse.evo.vpcs
+          view: seaf.ta.reverse.evo.vpcs
+        networks:
+          model: seaf.ta.services.network
+          view: seaf.ta.reverse.evo.networks
+        orgs:
+          model: seaf.ta.reverse.evo.orgs
+          view: seaf.ta.reverse.evo.orgs

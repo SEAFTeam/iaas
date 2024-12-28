@@ -1,0 +1,84 @@
+entities:
+  seaf.ta.reverse.vmwarecloud.orgs:
+    presentations:
+      card:
+        type: markdown
+        template: templates/org_card.md
+        source: >
+          (
+              $id := $params.id;
+              $org := $reverse_vmwarecloud_orgs($)[id = $id];
+          )
+
+      schema:
+        type: plantuml
+        template: templates/root.puml
+        source: >
+          (
+              $id := $params.id;
+              $org := $reverse_vmwarecloud_orgs($)[id = $id];
+              $txt := 'VDC и VDC группы в организации';
+              $vdcs := $reverse_vmwarecloud_vdcs($)[org = $id];
+              $vdcgroups := $reverse_vmwarecloud_vdcgroups($)[org = $id];
+              $items := {
+                          'title': $org.title
+              };
+              $items := $append($items, $vdcs.(
+                    $current_item := $.title;
+                    $current_link := $.link;
+                    {
+                        'title': $current_item,
+                        'link': $current_link
+                    }
+                  )
+              );
+              $items := $append($items, $vdcgroups.(
+                    $current_item := $.title;
+                    $current_link := $.link;
+                    {
+                        'title': $current_item,
+                        'link': $current_link
+                    }
+                  )
+              );
+              $links := [];
+              $links := $append($links, 
+                  $vdcgroups.(
+                      $from := $org.title;
+                      $to := $.title;
+                      {
+                          "from": $from,
+                          "to": $to
+                      }
+                  )
+              );
+              $links := $append($links, 
+                  $vdcgroups.(
+                      $from := $.title;
+                      $vdcgroups.vdc_titles.(
+                          $to := $;
+                          {
+                              "from": $from,
+                              "to": $to
+                          }
+                      )
+                  )
+              );
+              $links := $append($links, 
+                  $vdcs.(
+                      $not($.title in $links.to) ? (
+                          $from := $org.title;
+                          $to := $.title;
+                          {
+                              "from": $from,
+                              "to": $to
+                          }
+                      )
+                  )
+              );
+              {
+                  'txt': $txt,
+                  'item': $distinct($items),
+                  'links': $distinct($links)
+              }
+          )
