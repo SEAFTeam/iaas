@@ -4,7 +4,8 @@ datasets:
     source: >
       (
           $adv_entity_matcher := /.*\.advanced\..*$/; 
-          $ent_entity_matcher := /.*\.enterprise\..*$/;
+          $ent_entity_matcher := /.*\.vmwarecloud\..*$/;
+          $ent_entity_matcher := /.*\.vmwareonprem\..*$/;
           $dcs_entity_matcher := /.*\.services\.dc$/;
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
@@ -17,5 +18,10 @@ datasets:
           $enterprise := $append($enterprise, $reverse_vmwarecloud_vdcgroups($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_vdcs($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_vms($));
+          $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_networks($));
+          $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_hosts($));
+          $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vdcs($));
+          $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vms($));
           $allobjects := $append($advs, $enterprise);
+          $allobjects := $append($allobjects, $vmwareonprem)
       )

@@ -1,0 +1,49 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.hosts:
+    title: Хосты виртуализации ESXi
+    description: ESXi Хосты
+    objects:
+      host:
+        route: "/"
+        title: ESXi хост
+    schema: # JSON Schema контролирующая описание объекта сущности
+      type: object
+      patternProperties:
+        "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор  хоста
+              type: string
+            original_id:
+              title: Идентификатор хоста (полный)
+              type: string
+            title:
+              title: Наименование хоста
+              type: string
+              minLength: 3
+            description:
+              title: Описание хоста
+              type: string
+            product:
+              title: Версия софта
+              type: object
+              properties:
+                name:
+                  title: Наименование
+                  type: string
+                version:
+                  title: Версия
+                  type: string
+                build:
+                  title: Сборка
+                  type: string
+                fullname:
+                  title: Полное наименование
+                  type: string
+            network:
+              title: IP адреса
+              type: object
+            vdc:
+              title: Virtual Datacenter
+              $ref: "#/$rels/seaf.ta.reverse.vmwareonprem.vdcs.vdc"

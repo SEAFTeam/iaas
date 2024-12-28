@@ -16,10 +16,14 @@ entities:
         type: table
         headers:
           - value: app_component_name
-            text: Копонент приложения
+            text: Компонент приложения
             sortable: true
             align: left
             width: 150
+          - value: app_component_type
+            text: Тип компонента приложения
+            align: left
+            width: 50
           - value: name
             text: Техкомпонент
             sortable: true
@@ -37,7 +41,7 @@ entities:
             align: left
             width: 200
           - value: dc
-            text: Провайдер/Услуга
+            text: Провайдер/Услуга/ЦОД
             width: 200
         origin:
           allobjects: seaf.ta.reverse.general.allobjects
@@ -46,8 +50,8 @@ entities:
           (
               $links := manifest."seaf.ta.reverse.general.links";
               $entities := allobjects;
-              $regexp := $eval("/" & $params.id & "\\..*/");
-              $components := manifest.components.$spread()[*.type = 'component'][$regexp($keys()[0])];
+              $regexp := $eval("/" & $params.id & "(\\..*|$)/");
+              $components := manifest.components.$spread()[$regexp($keys()[0])];
               $tech_components := $components.$spread().(
                   $app_id := $keys()[0];
                   $component := $;
@@ -56,7 +60,8 @@ entities:
                       $links.(
                           {
                               'id': $,
-                              'component_name': $component.*.title
+                              'component_name': $component.*.title,
+                              'component_type': $component.*.type
                           }
                       )
                   )
@@ -67,11 +72,12 @@ entities:
                       $entity := $;
                           {
                               'app_component_name': $iter.component_name,
-                              'name': $entity.name,
+                              'app_component_type': $iter.component_type,
+                              'name': $entity.title,
                               'link':$entity.link,
                               'entity_type': $entity.entity_type,
-                              'entity_name': $entity.entity_name,
-                              'dc': $entity.DC
+                              'entity_name': $entity.entity_title,
+                              'dc': $entity.dc
                           }
                   )
               )]

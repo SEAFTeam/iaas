@@ -24,6 +24,16 @@ docs:
     location: IaaS/Cloud.ru/Облако VMware/Export script
     type: markdown
     source: ../../general/bin/vmwarecloud/README.md
+  dochub.welcome.iaas_vmwareonprem_readme:
+    title: IaaS
+    location: IaaS/VMware On-Premise
+    type: markdown
+    source: ../../vmwareonprem/README.md
+  dochub.welcome.iaas_vmwareonprem_bin_readme:
+    title: IaaS
+    location: IaaS/VMware On-Premise/Export script
+    type: markdown
+    source: ../../general/bin/vmwareonprem/README.md
   dochub.welcome.iaas_timeline2024:
     title: SEAF IaaS Roadmap 2024Q1
     location: IaaS/SEAF IaaS Roadmap 2024Q1

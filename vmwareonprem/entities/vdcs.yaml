@@ -1,0 +1,39 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vdcs:
+    title: VMWare DataCenter
+    objects:
+      vdc:
+        route: "/"
+        title: Датацентр VMware
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор DC
+              type: string
+            original_id:
+              title: Идентификатор DC (полный)
+              type: string
+            title:
+              title: Наименование DC
+              type: string
+            description:
+              title: Описание DC
+              type: string
+            datastores:
+              title: Datastores
+              type: array
+              items:
+                type: string
+            networks:
+              title: Сети
+              type: array
+              items:
+                $ref: "#/$rels/seaf.ta.services.network.network"
+            dc:
+              title: ЦОД
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
+          

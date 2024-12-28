@@ -1,0 +1,169 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.networks:
+    presentations:
+      card:
+        title: Карточка объекта
+        type: markdown
+        template: templates/network_card.md
+        source: >
+          (   
+              $id := $params.id;
+              $reverse_vmwareonprem_networks($)[id = $id];
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id;
+              $fn_svg_header := $$.icons."reverse.general".svg_header;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $networks := $reverse_vmwareonprem_networks($);
+              $network := $networks[id = $id];
+              $vdc := $reverse_vmwareonprem_vdcs($)[id = $network.vdc];
+              $vms := $reverse_vmwareonprem_vms($)[vdc = $vdc.id][$network.id in subnet_ids];
+              $othernets := $networks[id in $vms.subnet_ids and id != $network.id];
+              $nodes := {$vdc.dc.$split(".")[-1]:{'title': 'ЦОД: ' & $vdc.dc_title}};
+              $nodes := $append($nodes, {$vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1]: {'title': 'VDC: ' & $vdc.title}});
+              $nodes := $append($nodes, $network.(
+                      $prefix := $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1];
+                      {
+                          $prefix & "." & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'network-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $othernets.(
+                      $prefix := $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1];
+                      {
+                          $prefix & "." & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'network-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vms.(
+                      $network := $.subnet_ids;
+                      $prefix := $count($network) = 1 ? (
+                          $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1] & "." & $network[0].$split(".")[-1]
+                          ) : (
+                          $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1]
+                      );
+                      {
+                          $prefix & "." & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'vm-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $links := [$vms.(
+                  $nets := $.subnet_ids;
+                  $vmregegexp := $eval('/(.*\\.|^)' & $.id.$split('.')[-1] & '$/');
+                  $vmnode := $nodes[$vmregegexp($.$keys())];
+                  $count($nets) > 1 ? (
+                      $nets.(
+                          $regexp := $eval('/(.*\\.|^)' & $.$split('.')[-1] & '$/');
+                          $nodes[$regexp($.$keys())].(
+                              {
+                                  'from': $vmnode.$keys(),
+                                  'to': $.$keys(),
+                                  'style': '->',
+                                  'title': $.title
+                              }
+                          )
+                      )
+                  )
+              )]; 
+              $symbols := $append($symbols, $network.(
+                      $icon := $eval($fn_svg_header, {'title': $.title, 'href': $.link});
+                      {
+                          'network-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $othernets.(
+                      $icon := $eval($fn_svg_header, {'title': $.title, 'href': $.link});
+                      {
+                          'network-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vms.(
+                      $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $.link});
+                      {
+                          'vm-' & $.short_id: $icon
+                      }
+                  )
+              );
+              {
+                'nodes': $merge($nodes),
+                'symbols': $merge($symbols),
+                'links': $links,
+                'config': {                 
+                    'distance': 120,
+                    'trackWidth': 24
+                }
+              };
+          )
+
+      list:
+        title: Реестр сетей
+        type: table
+        headers:
+          - value: title
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: link
+            width: 300
+          - value: description
+            text: Описание
+            align: left
+            width: 300
+          - value: type
+            text: Тип сети
+            sortable: true
+            align: left
+          - value: gateway
+            text: Адрес шлюза
+            align: left
+          - value: netmask
+            text: Маска подсети
+            align: left
+          - value: fencemode
+            text: Fence Mode
+            align: left
+          - value: connected
+            text: Статус подключения
+            align: left
+          - value: addresses
+            text: Диапазоны адресов
+            align: left
+          - value: vdc_title
+            text: VDC
+            align: left
+            sortable: true
+            width: 200
+            link: vdc_link
+          - value: org_title
+            text: Организация
+            align: left
+            sortable: true
+            width: 200
+            link: org_link
+        source: >
+          (
+              $domain := $params.domain;
+              $vdc := $params.vdc;
+              $tmp := $exists($vdc) ? (
+                  [$reverse_vmwareonprem_networks($, $domain)[vdc = $vdc]]
+              ) : ($reverse_vmwareonprem_networks($, $domain))
+          )

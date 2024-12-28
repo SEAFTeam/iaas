@@ -1,0 +1,36 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vdcs:
+    menu: >
+      (
+          $domain := '';
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+          $vdcs_view := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+      
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$vdcs.$spread().(
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Реестры/VDC',
+                  'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
+              }
+          )];
+          $dynamic_vdc := $vdcs.$spread().(
+              $id := $keys()[0];
+              $title := $.*.title;
+              $vdc := $;
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Виртуальные Датацентры/' & $title,
+                  'link': 'entities/' & $vdcs_view & '/card?id=' & $id
+              }
+          );
+          $append($lists, $dynamic_vdc)
+      )
