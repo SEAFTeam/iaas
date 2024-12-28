@@ -1,0 +1,12 @@
+entities:
+    seaf.ta.reverse.k8s.node:
+        menu: >
+            (
+                $config := entities."seaf.ta.reverse.general".config;
+                [
+                    {
+                        'location': $config.arch_menu & '/Kubernetes/Ноды',
+                        'link': 'entities/seaf.ta.reverse.k8s.node/table_view'
+                    }
+                ]
+            )

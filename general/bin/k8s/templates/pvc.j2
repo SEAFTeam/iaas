@@ -1,0 +1,8 @@
+    {% for pvc in items %}
+    {{entity}}.{{pvc.metadata.uid}}:
+        id: {{pvc.metadata.uid}}
+        title: {{pvc.metadata.name}}
+        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        volume_name: {{pvc.spec.volume_name}}
+        volume_mode: {{pvc.spec.volume_mode}}
+        capacity: {{pvc.status.capacity.storage}}{% endfor %}

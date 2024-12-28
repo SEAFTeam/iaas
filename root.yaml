@@ -1,4 +1,5 @@
 imports:
   - cloud.ru/root.yaml
   - general/root.yaml
+  - k8s/root.yaml
   - vmwareonprem/root.yaml

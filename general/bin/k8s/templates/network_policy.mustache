@@ -1,0 +1,16 @@
+{{#items}}
+    {{entity}}.{{metadata.uid}}:
+        id: {{metadata.uid}}
+        safeID: {{safeID}}
+        name: {{metadata.name}}
+        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespace-name: {{parent.item.metadata.name}}
+        {{#metadata.labels}}
+        labels:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/metadata.labels}}
+        {{#spec}}
+        {{/spec}}
+{{/items}}

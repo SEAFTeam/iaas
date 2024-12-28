@@ -1,0 +1,291 @@
+entities:
+    seaf.ta.components.k8s_namespace:
+        presentations:
+            get:
+                type: markdown
+                template: templates/namespace.md
+                source: >
+                    (
+                        $namespace := $."seaf.ta.components.k8s_namespace".$spread()[$.*.id = $params.id];
+                        {                        
+                            "id"            : $params.id,
+                            "name"          : $namespace.*.name
+                        }
+                    )
+            uml:
+                type: plantuml
+                template: templates/namespace.puml
+                source: >
+                    (
+                        $nsid       := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $namespace  := $lookup($."seaf.ta.components.k8s_namespace", $nsid);
+                        $cluster    := $lookup($."seaf.ta.services.k8s", $namespace.k8s_cluster_id);
+                    
+                        $services       := $."seaf.ta.components.k8s_service".*[namespace_id = $nsid];
+                        $deployments    := $."seaf.ta.components.k8s_deployment".*[namespace_id = $nsid];
+                        /* $statefulsets   := $."seaf.ta.components.k8s_stateful_set".*[namespace_id = $nsid]; */
+                        /* $pvcs           := $."seaf.ta.components.k8s_pvc".*[namespace_id = $nsid]; */
+                        
+                        /* добавление в кластер точек взаимодействия извне */
+                        /* LoadBalancer - TBD */
+                         
+                        /* добавление в NS точек взаимодействия внутри кластера */
+                    
+                        $services := $services.(
+                            $service := $;
+                    
+                            $service := $service ~> | ports | { "ref" : $service.id & "_" & $.port & "_" & $.protocol }|;
+                            /*
+                            $service.ports.{
+                                "service"   : $service,     
+                                "ref"       : $service.id & "_" & $.port & "_" & $.protocol,
+                                "port"      : $.port,
+                                "protocol"  : $.protocol
+                            };
+                            */
+                        ); 
+                    
+                        /* $log($services, "services"); */
+                    
+                        /* обогатим сервисы точками с абсолютными ссылками */
+                    
+                    
+                        /* слияние деплойментов и stateful sets для определения связей - пока не используются SS */
+                        $deployments  := $deployments ~> | $ | { "type": "deployment"}|;
+                        /* $statefulsets := $statefulsets ~> | $ | { "type": "statefulset"}|; */
+                        $targets      := $append($deployments, $statefulsets);
+                    
+                        /* определение связей между сервисами и деплойментами */
+                        $service_links     := $services.(
+                                $service        := $;
+                                $selector       := $service.selector;
+                                $selectorLabels := $keys($service.selector);
+                    
+                                /* filter linked deployments and SSs */
+                                $items := $filter($targets, function($item) {
+                                    (
+                                        $labels := $item.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                $not ($depLabel = $selLabel);
+                                            )
+                                        });
+                    
+                                        $not($count($mismatches) > 0); 
+                                    )
+                                });
+                    
+                                {
+                                    "source"       : $service,
+                                    "targets"      : $items
+                                }       
+                        );
+
+                        $deployment_ports := $deployments.(
+                            $deployment := $; /* сохраняем контекст */
+                            $container_ports := $deployment.containers.ports;
+                            $probe_ports     := $deployment.containers.*.port.(
+                                {
+                                    "port" : $,
+                                    "protocol" : "TCP"
+                                }
+                            );
+                    
+                            $ports := $append($container_ports, $probe_ports);
+                            
+                            {
+                                $deployment.id : {
+                                    "ports" : $ports
+                                }
+                            }   
+                        );
+                        
+                        $log($deployment_ports, "deployment ports");
+                    
+                        $port_dictionary := $service_links.(
+                            $service := $; /* сохраняем контекст */
+                        );
+                        /* TBD для каждого target_port сервиса надо для соответствующего деплоймента записать порты */
+                        /* $log($service_links, "service links"); */
+                    
+                        /* в каждый port надо добавить соответствующее поле */
+                        $services := $services.(
+                            $service := $;
+                            $service := $service ~> | ports | { "target_port_number" : $some } |;
+                            $service;
+                        );
+                    
+                        $log($services, "services");
+                    
+                        $deployments := $deployments.(
+                            $deployment := $;
+                            /*$services := $service_links[targets[id = $deployment.id]].source; */
+                            $deployment := $deployment ~> | $ | { "ports" : $service_links[targets[id = $deployment.id]].source.ports } |;
+                            /* $deployment := $deployment ~> | containers.ports | { "ref" : $deployment.id & "_" & $.port & "_" & $.protocol }|; */
+
+                            /* $deployment.ports := $service_links[targets[id = $deployment.id]].source.ports; */
+                            /* сопоставление портов сервиса и портов деплоймента, которые могут быть и не описаны */
+                    
+                            /* $log($services.ports, "for deployment " & $deployment.title); */
+                            /* $deployment := $deployment ~> |  | */
+                            $deployment;
+                        );
+                        
+                        
+                        
+                   
+                        /*
+                        $log($deployments, "deployments");
+                        $log($service_links, "links");
+                        $log($port_links, "port_links");
+                        $log($service_links, "links");
+                        $log($deployments, "deployments");
+                        $log($links, "links");
+                        $log($targets, "targets");
+                        $log($namespace, "namespace");
+                        $log($pvs, "pvs");
+                        $log($pvc_links, "pvc_links");
+                        $log($namespace_links, "links");
+                        $log($nsid, "nsid");
+                        $log($namespace, "namespace");
+                        $log($pvcs, "pvcs");
+                        $log($namespace_services, "services");                    
+                        $log($namespace_links, "links");
+                            "service_links"     : $service_links,
+                            "port_links"        : $port_links
+                            "namespace_ports"   : $cluster_ips,
+                        */
+                        {
+                            "cluster"           : $cluster,
+                            "namespace"         : $namespace,
+                            "services"          : $services,
+                            "deployments"       : $deployments
+                        }
+                    )
+            namespace_schema:
+                type: smartants
+                source: >
+                    (
+                        /* загрузка функций-обработчиков */
+                        $iconify    := $eval($.functions."seaf.ta.reverse.k8s".iconify);
+                        $nsid       := "seaf.ta.reverse.k8s.namespace." & $params.id;
+                        $namespace  := $."seaf.ta.reverse.k8s.namespace".$spread()[$keys()[0] = $params.id];
+                        
+                        $namespace_services     := $."seaf.ta.components.k8s_service".*[namespace = $nsid];
+                        $namespace_deployments  := $."seaf.ta.components.k8s_deployment".*[namespace = $nsid];
+
+                        /* инициализация списка объектов диаграммы данными кластера */
+                        $nodes  := {
+                            $namespace.*.name : {
+                                "title" : "",
+                                "symbol"    : "namespace-" & $nsid & "-icon",
+                                "metasymbol" : {
+                                    "lines" : [
+                                        {
+                                            "text" : $namespace.*.name
+                                        }
+                                    ]
+                                }
+                            }
+                        };
+                    
+                        $items := $namespace_services.(
+                            {
+                                $namespace.*.name & "." & $.name : {
+                                    "symbol" : "svc-frame-" & $.id & "-icon",
+                                    "metasymbol" : {
+                                        "lines" : [
+                                            {
+                                                "text": "123"
+                                            }   
+                                        ]   
+                                    }
+                                }
+                            }       
+                        );
+                    
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        $items := $namespace_services.(
+                            {
+                                $namespace.*.name & "." & $.name  & ".content" : {
+                                    "title"  : $.name,
+                                    "symbol" : "svc-" & $.id & "-icon",
+                                    "icon"   : "k8sservice",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.id
+                                }
+                            }       
+                        );
+                    
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                        $items := $namespace_deployments.(
+                            {
+                                $namespace.*.name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "dpmt-" & $.id & "-icon",
+                                    "icon"   : "k8sdeployment",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.components.k8s_service/get_service?id=' & $.id
+                                }
+                            }       
+                        );
+                                        
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                    
+                    
+                        /* $log($namespace_services, "services for " & $nsid); */
+                        $symbols := $merge($iconify($nodes));
+                    
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : $symbols,
+                            "config" : {
+                                "hideBoundaryTitles": true
+                            }
+                            /* "symbols"   : entities."reverse.k8s.icons" */
+                        };
+                    
+                    )
+            deployments:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                source: >
+                    (
+                        $nsid := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace_id = $nsid];
+                        [$deployments.$spread().(
+                            {
+                                "name" : $.*.title,
+                                "link" : '/entities/seaf.ta.components.k8s_deployment/get?id=' & $.*.id
+                            }
+                        )]
+
+                    )
+            services:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                    - value: type
+                      text: тип
+                source: >
+                    (
+                        $nsid := "seaf.ta.components.k8s_namespace." & $params.id;
+                        $services := $."seaf.ta.components.k8s_service".$spread()[*.namespace_id = $nsid]; 
+                        [$services.$spread().(
+                            {
+                                "name"  : $.*.title,
+                                "type"  : $.*.type,
+                                "link" : '/entities/seaf.ta.components.k8s_service/get?id=' & $.*.id
+                            }
+                        )]
+
+                    )

@@ -1,0 +1,9 @@
+imports:
+    - icons.yaml
+    - cluster.yaml
+    - node.yaml
+    - namespace.yaml
+    - deployment.yaml
+    - service.yaml
+    - function-icons.yaml
+    - icons-metadata.yaml

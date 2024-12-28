@@ -1,0 +1,16 @@
+entities:
+    seaf.ta.components.k8s_deployment:
+        presentations:
+            get:
+                type: markdown
+                template: templates/deployment.md
+                source: >
+                    (
+                        $deployment := $."seaf.ta.components.k8s_deployment".$spread()[$.*.id = $params.id];
+                        {                        
+                            "name"              : $deployment.*.name,
+                            "update_strategy"    : $deployment.*.update_strategy,
+                            "replicas"          : $deployment.*.replicas,
+                            "containers"        : $deployment.*.containers
+                        }
+                    )

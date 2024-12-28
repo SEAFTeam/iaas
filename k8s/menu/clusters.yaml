@@ -1,0 +1,12 @@
+entities:
+    seaf.ta.services.k8s:
+        menu: >
+            (
+                $config := entities."seaf.ta.reverse.general".config;
+                [
+                    {
+                        'location': $config.arch_menu & '/Kubernetes/Кластера',
+                        'link': 'entities/seaf.ta.services.k8s/k8s_list'
+                    }
+                ]
+            )

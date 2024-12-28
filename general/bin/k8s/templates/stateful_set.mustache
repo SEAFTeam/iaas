@@ -1,0 +1,49 @@
+{{#items}}
+    {{entity}}.{{metadata.uid}}:
+        id: {{metadata.uid}}
+        safeID: {{safeID}}
+        name: {{metadata.name}}
+        {{#metadata.labels}}
+        labels:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/metadata.labels}}
+        {{#spec.selector}}
+        selector:
+        {{#iterator}}
+            @kv{{{.}}}
+        {{/iterator}}
+        {{/spec.selector}}
+        namespaceID: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespace-name: {{parent.item.metadata.name}}
+        update_strategy: {{spec.strategy.type}}
+        replicas: {{spec.replicas}}
+        pod_management_policy: {{spec.pod_management_policy}}
+        service_name : {{spec.service_name}}
+        containers:
+        {{#spec.template.spec.containers}}
+            -  name: {{name}}
+               image: {{image}}
+               imagePullPolicy: {{image_pull_policy}}
+               ports:
+                {{#ports}}
+                     -  name: {{name}}
+                        protocol: {{protocol}}
+                        port: {{container_port}}
+                {{/ports}}
+               mounts:
+               {{#volume_mounts}}
+                 -  name: {{name}}
+                    path: {{mount_path}}
+               {{/volume_mounts}}
+        {{/spec.template.spec.containers}}
+        volumes:
+        {{#spec.template.spec.volumes}}
+           -  name: {{name}}
+            {{#persistent_volume_claim}}
+              claim:
+              name: {{claim_name}}
+            {{/persistent_volume_claim}}
+        {{/spec.template.spec.volumes}}
+{{/items}}

@@ -1,0 +1,199 @@
+entities:
+    seaf.ta.services.k8s:
+        presentations:
+            k8s_list:
+                type: table
+                headers:
+                - value: fqdn
+                  text: FQDN
+                  width: 200
+                  sortable: true
+                  link: link
+                - value: name
+                  text: Название
+                  width: 200
+                  sortable: true
+                source: >
+                    (
+                        $clusters := $."seaf.ta.services.k8s"; 
+                        $each($clusters, function($v, $k) {(
+                            {
+                                "name" : $v.id,
+                                "fqdn" : $v.fqdn,
+                                "link" : '/entities/seaf.ta.services.k8s/k8s_get?id=' & $v.id
+                            }
+                        )})
+                    )
+            k8s_get:
+                type: markdown
+                template: templates/cluster.md
+                source: > 
+                    (
+                        $cluster_id := "seaf.ta.services.k8s." & $params.id;
+                        $cluster    := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $cluster_id];
+                        /* $nodes      := $."seaf.ta.components.k8s_node".$spread()[$.*.k8s_cluster_id = $cluster_id]; */
+                        $nodes := $."seaf.ta.components.k8s_node".*[k8s_cluster_id = $cluster_id];
+                        $node_count := $count($nodes);
+                        $some := 0;
+                        {                        
+                            "id"            : $params.id,
+                            "cluster_id"    : $cluster_id,
+                            "fqdn"          : $cluster.*.fqdn,
+                            "node_count"    : $node_count
+                        }
+                    )
+            nodes:
+                type: table
+                headers:
+                    - value: name
+                      text: Название
+                      link: link
+                    - value: version
+                      text: Версия k8s
+                    - value: addresses
+                      text: адреса
+                source: > 
+                    (
+                        $nodes := $."seaf.ta.components.k8s_node".*[k8s_cluster_id = $params.id];
+                        $nodes[].(
+                            {
+                                "name" : $.title,
+                                "addresses" : $join($.addresses.address, ', '),
+                                "version" : $.version,
+                                "link" : '/entities/seaf.ta.components.k8s_node/get?id=' & $.id
+                            }
+                        )
+                    )
+            namespaces:
+                type: table
+                headers:
+                    -   value: name
+                        text: Название
+                        link: link
+                source: >
+                    (
+                        /* $namespaces := $."seaf.ta.components.k8s_namespace".$spread()[*.clusterID = $params.id]; */
+                        $namespaces := $."seaf.ta.components.k8s_namespace".*[k8s_cluster_id = $params.id];
+                    
+                        $namespaces[].(
+                            {
+                                "name" : $.title,
+                                "link" : '/entities/seaf.ta.components.k8s_namespace/get?id=' & $.id
+                            }
+                        )
+                    )
+            schema_nodes:
+                type: smartants
+                source: >
+                    (
+                        /* загрузка функций-обработчиков */
+                        $iconify := $eval($.functions."seaf.ta.reverse.k8s".iconify);
+                    
+                        $cluster := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $params.id];
+                        $cluster_name := $cluster.*.kubernetes_id; 
+                    
+                        $cluster_nodes := $."seaf.ta.reverse.k8s.node".*[cluster = $params.id];
+                        $c := $count($cluster_nodes);
+                    
+                        $nodes  := {
+                            $cluster_name : {
+                                "title" : "",
+                                "symbol" : "cluster-" & $cluster_name & "-icon",
+                                "metasymbol" : {
+                                    "lines" : [
+                                        {
+                                            "text" : $cluster_name
+                                        },
+                                        {
+                                            "text" : $cluster.*.cluster_fqdn
+                                        }
+                                    ]
+                                }
+                            }
+                        };
+                        
+                        $items := $cluster_nodes.(
+                            {
+                                $cluster_name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "node-" & $.id & "-icon",
+                                    "icon"   : "k8snode",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.reverse.k8s.node/get_node?id=' & $.id
+                                }
+                            }       
+                        );
+
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                        $symbols := $merge($iconify($nodes));
+                        /* $log($symbols, "$symbols"); */
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : $symbols,
+                            "config" : {
+                                "hideBoundaryTitles": true
+                            }
+                        };
+                    )
+            schema_namespaces:
+                type: smartants
+                source: >
+                    (
+                        /* загрузка функций-обработчиков */
+                        $iconify := $eval($.functions."seaf.ta.reverse.k8s".iconify);
+                    
+                        /* загрузка данных кластера */
+                        $cluster        := $."seaf.ta.services.k8s".$spread()[$keys()[0] = $params.id];
+                        $cluster_name   := $cluster.*.kubernetes_id; 
+                    
+                        /* загрузка данных по пространствам имён данного кластера */
+                        $cluster_namespaces := $."seaf.ta.reverse.k8s.namespace".*[cluster = $params.id];
+                    
+                        /* инициализация списка объектов диаграммы данными кластера */
+                        $nodes  := {
+                            $cluster_name : {
+                                "title" : "",
+                                "symbol"    : "cluster-" & $cluster_name & "-icon",
+                                "metasymbol" : {
+                                    "lines" : [
+                                        {
+                                            "text" : $cluster_name
+                                        },
+                                        {
+                                            "text" : $cluster.*.cluster_fqdn
+                                        }
+                                    ]
+                                }
+                            }
+                        };
+                    
+                        $items := $cluster_namespaces.(
+                            {
+                                $cluster_name & "." & $.name : {
+                                    "title"  : $.name,
+                                    "symbol" : "ns-" & $.id & "-icon",
+                                    "icon"   : "k8snamespace",
+                                    "hideTitle" : true,
+                                    "link" : '/entities/seaf.ta.reverse.k8s.namespace/get_namespace?id=' & $.id
+                                }
+                            }       
+                        );
+                        
+                        $nodes := $nodes ~> | $ | $merge($items) |;
+                        $symbols := $merge($iconify($nodes));
+                    
+                        /* отладочная информация
+                        $log("symbols:");
+                        $log($merge($res));
+                        */
+                        
+                        /* итоговый набор данных для диаграммы */
+                        {
+                            "nodes"     : $nodes,
+                            "symbols"   : $symbols,
+                            "config" : {
+                                "hideBoundaryTitles": true
+                            }
+                            /* "symbols"   : entities."reverse.k8s.icons" */
+                        };
+                    )
