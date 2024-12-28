@@ -3,6 +3,8 @@
 from kubernetes import client
 # базовый класс
 from extractor import Extractor
+# from pprint import pprint
+
 
 class NodeExtractor(Extractor):
     # конструктор
@@ -12,7 +14,7 @@ class NodeExtractor(Extractor):
 
     def load(self):
         # загрузка списка нод кластера
-        api = client.CoreV1Api(self.kube)
-        nodes = api.list_node()
+        api     = client.CoreV1Api(self.kube)
+        nodes   = api.list_node()
         return nodes.items
 

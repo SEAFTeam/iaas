@@ -27,6 +27,7 @@ class ClusterExtractor(Extractor):
         return contexts
 
     def children(self, serializer, items):
+
         for context in items:
             ctxName = context['name']
             kube = config.new_client_from_config(None, ctxName)
