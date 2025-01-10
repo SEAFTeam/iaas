@@ -8,6 +8,9 @@ entities:
       metamodel_vmwarecloud:
         type: mermaid
         template: templates/schema_vmwarecloud.mmd
+      metamodel_vmwareonprem:
+        type: mermaid
+        template: templates/schema_vmwareonprem.mmd
       list_of_content:
         type: markdown
         template: templates/list_of_contents.md

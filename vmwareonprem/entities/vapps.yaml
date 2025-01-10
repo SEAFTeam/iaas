@@ -1,0 +1,31 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vapps:
+    title: Виртуальное приложение vApp
+    objects:
+      vapp:
+        route: "/"
+        title: vApp
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор vApp
+              type: string
+            original_id:
+              title: Идентификатор vApp (полный)
+              type: string
+            title:
+              title: Наименование vApp
+              type: string
+            description:
+              title: Описание vApp
+              type: string
+            vdc:
+              title: Идентификаторв vdc
+              $ref: "#/$rels/seaf.ta.reverse.vmwareonprem.vdcs.vdc"
+            vdc_title:
+               title: Наименование vdc
+               type: string

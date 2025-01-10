@@ -1,0 +1,63 @@
+functions:
+  reverse_vmwareonprem_networks:
+    title: Список Orgnets
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := '';
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $networks_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
+            $networks_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.networks.view;
+            $vdcs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
+            $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            
+            $networks := $lookup(dataset, $networks_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareOnprem" and *.reverse.type = "vmwarenetwork"];
+            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+        
+            [[$networks.$spread().{
+                'id': $keys(),
+                'net': *
+            }].(
+                $orngetId := id;
+                $org_id := net.reverse.org;
+                $dc := net.dc_id.($id := $; $lookup($dcs, $id));
+                {
+                    'id': id,
+                    'short_id': net.id,
+                    'title': net.title,
+                    'description': net.description,
+                    'type': net.reverse.type,
+                    'ipnetwork': net.iptework,
+                    'gateway': net.reverse.gateway,
+                    'netmask': net.reverse.netmask,
+                    'fencemode': net.reverse.fencemode,
+                    'connected': net.reverse.connected,
+                    'ipscopes': net.reverse.ipscopes,
+                    'netpool_title': net.reverse.networkpool_title,
+                    'netpool_id': net.reverse.networkpool,
+                    'vdc_title': net.reverse.vdc_title,
+                    'vdc': net.reverse.vdc,
+                    'dns': net.reverse.dns,
+                    'org_title': $org.*.title,
+                    'org': net.reverse.org,
+                    'link': '/entities/' & $networks_view & '/card?id=' & id,
+                    'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & net.reverse.vdc,
+                    'entity': $networks_view,
+                    'entity_type': 'VMware On-Premise',
+                    'entity_title': 'Сети в локальном кластере VMware',
+                    'dc': $join(net.dc_id),
+                    'dc_title': $dc.title
+                }
+            )]
+        )

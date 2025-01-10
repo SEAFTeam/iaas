@@ -12,10 +12,10 @@ entities:
           type: object
           properties:
             id:
-              title: Идентификатор сети vApp
+              title: Идентификатор Организации
               type: string
             original_id:
-              title: Идентификатор сети vApp (полный)
+              title: Идентификатор Организации (полный)
               type: string
             title:
               title: Наименование организации
