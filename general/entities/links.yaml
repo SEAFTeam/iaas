@@ -29,3 +29,4 @@ entities:
                   - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vapps.vapp"
                   - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.vdcs.vdc"
                   - $ref: "#/$rels/seaf.ta.reverse.vmwarecloud.orgs.org"
+                  - $ref: "#/$rels/seaf.ta.reverse.vmwareonprem.vdcs.vdc"

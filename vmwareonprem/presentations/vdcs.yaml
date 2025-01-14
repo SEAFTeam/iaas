@@ -1,0 +1,175 @@
+entities:
+  seaf.ta.reverse.vmwareonprem.vdcs:
+    presentations:
+      list:
+        type: table
+        headers:
+          - value: title
+            text: Наименование
+            sortable: true
+            align: left
+            link: link
+            width: 300
+          - value: vapp_titles
+            text: vApps
+            align: left
+          - value: availablenetwork_titles
+            text: Сети
+            align: left
+          - value: dc_title
+            text: ЦОД/Офис
+            align: left
+        source: >
+          (
+              $domain := $params.domain;
+              $reverse_vmwareonprem_vdcs($, $domain) ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availablenetwork_titles': $join(availablenetwork_titles, '\n')} |
+          )
+
+      card:
+        type: markdown
+        template: templates/vdc_card.md
+        source: >
+          (
+              $id := $params.id;
+              $vdc := $reverse_vmwareonprem_vdcs($)[id = $id];
+              $vdc ~> | $ | {'vapp_titles': $join(vapp_titles, '\n'), 'availablenetwork_titles': $join(availablenetwork_titles, '\n'), 'vapps': $exists(vapp_titles), 'networks': $exists(availablenetwork_titles), 'vdcg': $exists(vdcgroups), 'hosts': true } |
+          )
+
+      schema:
+        type: smartants
+        source: >
+          (
+              $id := $params.id; /* 'flix.vdcs.datacenter-2'; */
+              $fn_svg_header := $$.icons."reverse.general".svg_header;
+              $fn_svg_vm := $$.icons."reverse.general".svg_vm;
+              $fn_svg_internet := $$.icons."reverse.general".svg_internet;
+              $vdc := $reverse_vmwareonprem_vdcs($)[id = $id];
+              $vms := $reverse_vmwareonprem_vms($)[vdc = $vdc.id];
+              $networks := $reverse_vmwareonprem_networks($)[vdc = $vdc.id];
+              $nodes := {$vdc.dc.$split(".")[-1]:{'title': 'ЦОД: ' & $vdc.dc_title}};
+              $nodes := $append($nodes, {$vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1]: {'title': 'VDC: ' & $vdc.title}});
+              $nodes := $append($nodes, $networks.(
+                      $prefix := $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1];
+                      {
+                          $prefix & "." & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'network-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $nodes := $append($nodes, $vms.(
+                      $network := $.subnet_ids;
+                      $prefix := $count($network) = 1 ? (
+                          $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1] & "." & $network[0].$split(".")[-1]
+                          ) : (
+                          $vdc.dc.$split(".")[-1] & "." & $vdc.id.$split(".")[-1]
+                      );
+                      {
+                          $prefix & "." & $.short_id: {
+                              'title': $.title,
+                              'symbol': 'vm-' & $.short_id,
+                              'hideTitle': true
+                          }
+                      }
+                  )
+              );
+              $links := [$vms.(
+                  $nets := $.subnet_ids;
+                  $vmregegexp := $eval('/(.*\\.|^)' & $.id.$split('.')[-1] & '$/');
+                  $vmnode := $nodes[$vmregegexp($.$keys())];
+                  $count($nets) > 1 ? (
+                      $nets.(
+                          $regexp := $eval('/(.*\\.|^)' & $.$split('.')[-1] & '$/');
+                          $nodes[$regexp($.$keys())].(
+                              {
+                                  'from': $vmnode.$keys(),
+                                  'to': $.$keys(),
+                                  'style': '->',
+                                  'title': $.title
+                              }
+                          )
+                      )
+                  )
+              )]; 
+              $symbols := $append($symbols, $networks.(
+                      $icon := $eval($fn_svg_header, {'title': $.title, 'href': $.link});
+                      {
+                          'network-' & $.short_id: $icon
+                      }
+                  )
+              );
+              $symbols := $append($symbols, $vms.(
+                      $icon := $eval($fn_svg_vm, {'title': $.title, 'href': $.link});
+                      {
+                          'vm-' & $.short_id: $icon
+                      }
+                  )
+              );
+              {
+                  'nodes': $merge($nodes),
+                  'symbols': $merge($symbols),
+                  'links': $links,
+                  'config': {                 
+                      'distance': 120,
+                      'trackWidth': 24
+                  }
+              };
+          )
+
+      vapps:
+        type: table
+        headers:
+          - value: title
+            text: Наименование vApp
+            sortable: true
+            align: left
+            link: link
+          - value: description
+            text: Описание
+            align: left
+        source: >
+          (
+              $id := $params.id;
+              [$reverse_vmwareonprem_vapps($)[vdc = $id]]
+          )
+
+      networks:
+        type: table
+        headers:
+          - value: title
+            text: Наименование сети
+            sortable: true
+            align: left
+            link: link
+          - value: description
+            text: Описание
+            align: left
+        source: >
+          (
+              $id := $params.id;
+              [$reverse_vmwareonprem_networks($)[vdc = $id]]
+          )
+
+      hosts:
+        type: table
+        headers:
+          - value: id
+            text: Идентификатор
+            align: left
+          - value: title
+            text: Наименование хоста
+            sortable: true
+            align: left
+          - value: description
+            text: Описание
+            align: left
+          - value: software
+            text: Софт
+            align: left
+        source: >
+          (
+              $id := $params.id;
+              [$reverse_vmwareonprem_hosts($)[vdc = $id]]
+          )

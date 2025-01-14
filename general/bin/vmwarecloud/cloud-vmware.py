@@ -341,7 +341,7 @@ def get_vdcgroups(site, access_token, api_init, prefix, dc):
             'title': vdcgroup.get('name',''),
             'networkprovidertype': vdcgroup.get('networkProviderType',''),
             'type': vdcgroup.get('type',''),
-            'networkpool': netpool_id,
+            'networkpoolid': netpool_id,
             'localegress': vdcgroup.get('localEgress',''),
             'dfwenabled': vdcgroup.get('dfwEnabled',''),
             'org': org_id,
@@ -555,7 +555,10 @@ def get_orgnetworks(site, access_token, api_init, prefix, dc):
         gateway = [x.get('gateway','') for x in ipscope if x.get('gateway') not in [None,'']]
         yaml_structure['reverse']['netmask'] = netmask[0] if netmask not in [None, '', []] else ''
         yaml_structure['reverse']['gateway'] = gateway[0] if gateway not in [None, '', []] else ''
-        ipnetwork = get_cidr(yaml_structure['reverse']['gateway'], yaml_structure['reverse']['netmask'])
+        if re.match(r':', yaml_structure['reverse']['gateway']):
+            ipnetwork = yaml_structure['reverse']['gateway']
+        else:
+            ipnetwork = get_cidr(yaml_structure['reverse']['gateway'], yaml_structure['reverse']['netmask'])
         yaml_structure['ipnetwork'] = ipnetwork
 
         orgnetworks_list['seaf.ta.services.network'][orgnet_seaf_id] = yaml_structure
@@ -895,7 +898,7 @@ def get_vms(site, access_token, api_init, prefix, dc):
             'subnets': [],
             'disks': [],
             'reverse': {
-                'reverse_type': 'VMwareCloud'
+                'reverse_type': 'VMwareCloud',
                 'original_id': vm_urn_id,
                 'addresses': [],
                 'subnet_titles': [],
@@ -903,7 +906,7 @@ def get_vms(site, access_token, api_init, prefix, dc):
                 'vdc': vdc_id,
                 'vdc_title': vm['vdcName'],
                 'vapp': vapp_id,
-                'tenant': ''
+                'tenant': dc
             }
         }
 

@@ -1,0 +1,81 @@
+entities:
+  seaf.ta.components.network:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.vmwareonprem.dvswitches:
+          type: object
+          properties:
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "VMwareOnprem"
+            original_id:
+              title: Идентификатор DWSwitch (полный)
+              type: string
+            type:
+              title: Тип устройства
+              enum:
+                - "dvswitch"
+            vdc:
+              title: Идентификатор VDC
+              $ref: "#/$rels/seaf.ta.reverse.vmwareonprem.vdcs.vdc"
+            vdc_title:
+              title: Наименование VDC
+              type: string
+            gatewayinterfaces:
+              title: Интерфейсы Edge Gateway
+              type: array
+              items:
+                type: object
+                properties:
+                  title:
+                    title: Наименование интерфейса
+                    type: string
+                  network:
+                    title: Идентификатор сети
+                    $ref: "#/$rels/seaf.ta.services.network.network"
+                  iftype:
+                    title: Тип интерфейса
+                    enum:
+                      - uplink
+                      - internal
+                  usefordefaultroute:
+                    title: Интерфейс как маршрут по-умолчанию
+                    type: boolean
+                  connected:
+                    title: Статус подключения
+                    type: boolean
+                  subnetparticipation:
+                    title: Принадлежность к подсетям
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        gateway:
+                          title: Адрес шлюза
+                          type: string
+                        netmask:
+                          title: Маска подсети
+                          type: string
+                        ipaddress:
+                          title: IP адрес
+                          type: string
+                        ipranges:
+                          title: Диапзоны адресов
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              startaddress:
+                                title: Начало диапазона
+                                type: string
+                              endaddress:
+                                title: Конец диапазона
+                                type: string
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.vmwareonprem.dvswitches"
