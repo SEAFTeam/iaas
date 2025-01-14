@@ -1,6 +1,7 @@
 # базовый класс извлекателя данных из инфраструктуры
 import os
 from pprint import pprint
+import logging
 
 class Extractor:
     # конструктор
@@ -8,6 +9,8 @@ class Extractor:
         # объект для доступа к данным
         self.kube = kube
         self.name = ''
+        # инициализация журнала
+        self.logger = logging.getLogger(__name__)
         #self.items = {}
 
     # непосредственно извлечение

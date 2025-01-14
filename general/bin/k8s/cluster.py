@@ -18,6 +18,7 @@ class ClusterExtractor(Extractor):
     def load(self):
         # загрузка контекстов конфигурации kubectl
         contexts, current = config.list_kube_config_contexts()
+        self.logger.info(f'cluster list loaded, cluster count: {len(contexts)}')
 
         for context in contexts:
             ctxName = context['name']
@@ -34,6 +35,7 @@ class ClusterExtractor(Extractor):
             #api = client.CoreV1Api(kube)
 
             # выгрузка нод
+            self.logger.info(f'exctracting nodes for context {ctxName}')
             nodes = NodeExtractor(kube)
             parent = {}
             parent['item'] = context
@@ -41,13 +43,15 @@ class ClusterExtractor(Extractor):
             nodes.extract(serializer, parent)
 
             # выгрузка namespaces
+            self.logger.info(f'exctracting namespaces for context {ctxName}')
             namespaces = NamespaceExtractor(kube)
             parent = {}
             parent['item'] = context
             parent['entity'] = self.entity()
             namespaces.extract(serializer, parent)
 
-            # выгрузка namespaces
+            # выгрузка PVs
+            self.logger.info(f'exctracting persistent volumes for context {ctxName}')
             pvs = PersistentVolumeExtractor(kube)
             parent = {}
             parent['item'] = context

@@ -2,6 +2,7 @@
 import os
 from jinja2 import FileSystemLoader, Environment
 from pprint import pprint
+import logging
 
 # синтаксис mustache не предполагает итерацию по атрибутам объектов
 # поэтому пришлось написать свою функцию, которая превращает атрибуты объектов в массив
@@ -21,10 +22,14 @@ def iterator(text, render):
 class Serializer:
     # конструктор
     def __init__(self):
+        # инициализация журнала
+        self.logger = logging.getLogger(__name__)
         # инициализация переменной путём к каталогу, в который будет производиться запись
         self.target = os.environ.get('targetFolder')
+        self.logger.info(f'init serializer to target folder {self.target}')
         # если каталог не задан, то тут нам больше делать нечего
         if self.target is None:
+            self.logger.error("targetFolder must be set")
             raise Exception("targetFolder environment variable not found")
 
         # маркер проведённой инициализации компонентов
@@ -35,6 +40,7 @@ class Serializer:
         # полный путь и имя файла для инициализации YAML структуры
         fileName = self.output(component)
         # инициализация YAML файла
+        self.logger.info(f'component {component.name} will be serialized to {fileName}')
         with open(fileName, mode="wt", encoding="utf-8") as file:
             print(f'{component.entity()}:', file=file, end='')
 

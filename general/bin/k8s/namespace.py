@@ -18,7 +18,9 @@ class NamespaceExtractor(Extractor):
     def load(self):
         # загрузка списка нод кластера
         api = client.CoreV1Api(self.kube)
+        self.logger.info(f'attempt to load namespaces from {self.kube.configuration.host}')
         namespaces = api.list_namespace()
+        self.logger.info(f'loaded {len(namespaces.items)}')
         return namespaces.items
 
     # загрузко объектов, дочерних по отношению к namespace

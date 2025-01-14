@@ -15,6 +15,8 @@ class NodeExtractor(Extractor):
     def load(self):
         # загрузка списка нод кластера
         api     = client.CoreV1Api(self.kube)
+        self.logger.info(f'attempt to load nodes from {self.kube.configuration.host}')
         nodes   = api.list_node()
+        self.logger.info(f'loaded {len(nodes.items)}')
         return nodes.items
 

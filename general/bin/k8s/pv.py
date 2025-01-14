@@ -13,6 +13,8 @@ class PersistentVolumeExtractor(Extractor):
     def load(self):
         # загрузка списка нод кластера
         api = client.CoreV1Api(self.kube)
+        self.logger.info(f'attempt to load PVs from {self.kube.configuration.host}')
         pvs = api.list_persistent_volume()
+        self.logger.info(f'loaded {len(pvs.items)}')
         return pvs.items
 
