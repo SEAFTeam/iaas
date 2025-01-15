@@ -1,0 +1,62 @@
+functions:
+  reverse_evo_networks:
+    title: Список сетей
+    params:
+        - alias: dataset
+          type: object
+          title: Озеро данных
+          required: true  # Признак обязательности параметра функции
+        - alias: domain
+          type: string
+          title: Домен организации
+          required: false  # Признак обязательности параметра функции
+    code: >
+        (
+            $domain := '';
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+        
+            $networks_entity := dataset."seaf.ta.reverse.general".config.entities.evo.networks.model;
+            $networks_view := dataset."seaf.ta.reverse.general".config.entities.evo.networks.view;
+            $vpcs_entity := dataset."seaf.ta.reverse.general".config.entities.evo.vpcs.model;
+            $vpcs_view := dataset."seaf.ta.reverse.general".config.entities.evo.vpcs.view;
+            $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
+            $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.evo.orgs.model;
+            $orgs_view := dataset."seaf.ta.reverse.general".config.entities.evo.orgs.view;
+            
+            $networks := $lookup(dataset, $networks_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "Evolution" and *.reverse.type = "Network"];
+            $vpcs := $lookup(dataset, $vpcs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+        
+            [[$networks.$spread().{
+                'id': $keys(),
+                'network': *
+            }].(
+                $networkId := id;
+                $org_id := network.reverse.org;
+                $org := $orgs.$spread()[$keys() = $org_id];
+                $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                {
+                    'id': id,
+                    'short_id': network.id,
+                    'title': network.title,
+                    'description': network.description,
+                    'type': network.reverse.type,
+                    'ipnetwork': network.ipnetwork,
+                    'gateway': network.reverse.gateway,
+                    'vpc_title': network.reverse.vpc_title,
+                    'vpc': network.reverse.vpc,
+                    'dns': network.reverse.dns,
+                    'org_title': $org.*.title,
+                    'org': network.reverse.org,
+                    'link': '/entities/' & $networks_view & '/card?id=' & id,
+                    'vpc_link': '/entities/' & $vpcs_view & '/card?id=' & network.reverse.vpc,
+                    'org_link': '/entities/' & $orgs_view & '/card?id=' & $org_id,
+                    'entity': $networks_view,
+                    'entity_type': 'Evolution',
+                    'entity_title': 'Сети в облаке Evolution',
+                    'dc': $dc.$keys()[0],
+                    'dc_title': $dc.*.title
+                }
+            )]
+        )
