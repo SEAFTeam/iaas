@@ -11,18 +11,20 @@ from pv import PersistentVolumeExtractor
 
 class ClusterExtractor(Extractor):
     # конструктор
-    def __init__(self):
+    def __init__(self, config_file = None):
         super().__init__(None)
         self.name = 'cluster'
+        self.configFile = config_file
 
     def load(self):
+        self.logger.info(f'starting cluster extractor')
         # загрузка контекстов конфигурации kubectl
-        contexts, current = config.list_kube_config_contexts()
+        contexts, current = config.list_kube_config_contexts(self.configFile)
         self.logger.info(f'cluster list loaded, cluster count: {len(contexts)}')
 
         for context in contexts:
             ctxName = context['name']
-            kube = config.new_client_from_config(None, ctxName)
+            kube = config.new_client_from_config(self.configFile, ctxName)
             context['cluster_fqdn'] = urlparse(kube.configuration.host).hostname
 
         return contexts
@@ -31,7 +33,7 @@ class ClusterExtractor(Extractor):
 
         for context in items:
             ctxName = context['name']
-            kube = config.new_client_from_config(None, ctxName)
+            kube = config.new_client_from_config(self.configFile, ctxName)
             #api = client.CoreV1Api(kube)
 
             # выгрузка нод
