@@ -12,7 +12,8 @@ class DeploymentExtractor(Extractor):
     def load(self):
         # загрузка списка нод кластера
         api = client.AppsV1Api(self.kube)
+        self.logger.info(f'attempt to load deployments from {self.kube.configuration.host} namespace {self.parent}')
         deployments = api.list_deployment_for_all_namespaces(field_selector=f'metadata.namespace={self.parent}')
-        #pprint(deployments.items)
+        self.logger.info(f'loaded {len(deployments.items)}')
         return deployments.items
 
