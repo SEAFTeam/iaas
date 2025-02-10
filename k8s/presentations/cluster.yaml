@@ -16,13 +16,13 @@ entities:
                 source: >
                     (
                         $clusters := $."seaf.ta.services.k8s"; 
-                        $each($clusters, function($v, $k) {(
+                        [$each($clusters, function($v, $k) {(
                             {
                                 "name" : $v.id,
                                 "fqdn" : $v.fqdn,
                                 "link" : '/entities/seaf.ta.services.k8s/k8s_get?id=' & $v.id
                             }
-                        )})
+                        )})]
                     )
             k8s_get:
                 type: markdown
@@ -75,12 +75,12 @@ entities:
                         /* $namespaces := $."seaf.ta.components.k8s_namespace".$spread()[*.clusterID = $params.id]; */
                         $namespaces := $."seaf.ta.components.k8s_namespace".*[k8s_cluster_id = $params.id];
                     
-                        $namespaces[].(
+                        [$namespaces[].(
                             {
                                 "name" : $.title,
                                 "link" : '/entities/seaf.ta.components.k8s_namespace/get?id=' & $.id
                             }
-                        )
+                        )]
                     )
             schema_nodes:
                 type: smartants

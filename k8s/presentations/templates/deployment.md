@@ -1,4 +1,4 @@
-# Deployment [{{title}}]
+# Deployment [{{name}}]
 *** 
 
 | атрибут              | значение            |
