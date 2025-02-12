@@ -3,10 +3,14 @@ entities:
         menu: >
             (
                 $config := entities."seaf.ta.reverse.general".config;
+                $kube_config := entities."seaf.ta.reverse.k8s".config;
+                $log($config, 'CONFIG');
+                $log('entities/' & $config.cluster.model & '/' & $config.cluster.view, 'VIEW');
+            
                 [
                     {
                         'location': $config.arch_menu & '/Kubernetes/Кластера',
-                        'link': 'entities/seaf.ta.services.k8s/k8s_list'
+                        'link': 'entities/' & $kube_config.cluster.model & '/' & $kube_config.cluster.view  
                     }
                 ]
             )

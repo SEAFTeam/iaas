@@ -1,0 +1,6 @@
+entities:
+    seaf.ta.reverse.k8s:
+        config:
+            cluster:
+                model: seaf.ta.services.k8s
+                view:  k8s_list
