@@ -6,11 +6,12 @@ entities:
                 template: templates/deployment.md
                 source: >
                     (
-                        $deployment := $."seaf.ta.components.k8s_deployment".$spread()[$.*.id = $params.id];
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $deployment     := $lookup($.*, $params.id);
                         {                        
-                            "name"              : $deployment.*.name,
-                            "update_strategy"    : $deployment.*.update_strategy,
-                            "replicas"          : $deployment.*.replicas,
-                            "containers"        : $deployment.*.containers
+                            "name"              : $deployment.name,
+                            "update_strategy"   : $deployment.update_strategy,
+                            "replicas"          : $deployment.replicas,
+                            "containers"        : $deployment.containers
                         }
                     )
