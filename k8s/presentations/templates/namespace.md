@@ -2,8 +2,10 @@
 ***  
 **Наименование**: {{name}}
 
-## Схема
-![puml](@entity/{{ kube_config.namespace.entity }}/uml?id={{id}})
+## Схемы
+
+[схема k8s namespace](/entities/{{ kube_config.namespace.entity }}/uml?id={{id}})
+
 
 ## Deployments
 ![Получаем deps ns](@entity/{{ kube_config.namespace.entity }}/deployments?id={{id}})
