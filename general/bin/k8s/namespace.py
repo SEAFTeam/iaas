@@ -5,8 +5,8 @@ from extractor  import Extractor
 from deployment import DeploymentExtractor
 from service import ServiceExtractor
 from pvc import PersistentVolumeClaimExtractor
-from network_policy import NetworkPolicyExtractor
-from statefulset import StatefulSetExtractor
+# from network_policy import NetworkPolicyExtractor
+# from statefulset import StatefulSetExtractor
 
 class NamespaceExtractor(Extractor):
     # конструктор
