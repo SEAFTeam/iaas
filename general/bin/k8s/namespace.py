@@ -5,6 +5,7 @@ from extractor  import Extractor
 from deployment import DeploymentExtractor
 from service import ServiceExtractor
 from pvc import PersistentVolumeClaimExtractor
+from virtualservice import VirtualServiceExtractor
 # from network_policy import NetworkPolicyExtractor
 # from statefulset import StatefulSetExtractor
 
@@ -54,6 +55,12 @@ class NamespaceExtractor(Extractor):
             parent['entity'] = self.entity()
             pvs.extract(serializer, parent)
 
+            # извлечение Istion Virtural Service
+            vservices = VirtualServiceExtractor(self.kube, namespace)
+            parent = {}
+            parent['item'] = namespace
+            parent['entity'] = self.entity()
+            vservices.extract(serializer, parent)
             # извлечение NPs
             # nps = NetworkPolicyExtractor(self.kube, namespace)
             # parent = {}

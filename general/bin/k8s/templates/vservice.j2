@@ -1,0 +1,17 @@
+    {% for service in items %}
+    {{entity}}.{{service.metadata.uid}}:
+            id: {{service.metadata.uid}}
+            title: {{service.metadata.name}}
+            namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+            hosts:
+            {%- for host in service.spec.hosts %}
+                - {{ host }}{%- endfor %}
+            http:
+            {%- for route in service.spec.http %}
+                - route:
+                    {%- for destination in route.route %}
+                    - destination:
+                        host: {{destination.destination.host}}
+                        subset: {{destination.destination.subset}}{%- endfor %}
+                {%- endfor %}
+    {%- endfor -%}

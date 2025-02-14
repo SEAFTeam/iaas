@@ -12,3 +12,5 @@ entities:
                 entity: seaf.ta.components.k8s_deployment
             service:
                 entity: seaf.ta.components.k8s_service
+            vservice:
+                entity: seaf.ta.components.istio.vurtualservice
