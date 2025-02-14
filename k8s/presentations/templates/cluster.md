@@ -8,8 +8,6 @@
 | FQDN | **{{fqdn}}**       |
 | нод        | **{{node_count}}** | 
 
-ABC: 
-
 ## Ноды кластера
 ![Получаем ноды кластера](@entity/{{ kube_config.cluster.entity }}/nodes?id={{cluster_id}})
 
