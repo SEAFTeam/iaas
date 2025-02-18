@@ -2,7 +2,7 @@ entities:
   seaf.ta.reverse.general:
     config:
       doc_menu: Документы/IaaS
-      arch_menu: Архитектура/IaaS
+      arch_menu: 'Архитектура/IaaS'
       functions:
         server:
           - 'reverse_vmwarecloud_vms'

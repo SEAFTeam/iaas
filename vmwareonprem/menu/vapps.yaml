@@ -18,7 +18,7 @@ entities:
           $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
           $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
       
-          $config := "seaf.ta.reverse.general".config;
+          $config := entities."seaf.ta.reverse.general".config;
           $menu := $vapps.$spread().(
               $id := $keys();
               $title := $.*.title;
