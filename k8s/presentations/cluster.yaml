@@ -13,14 +13,21 @@ entities:
                   text: Название
                   width: 200
                   sortable: true
+                - value: node_count
+                  text: Ноды
                 source: >
                     (
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
                         $clusters := $lookup($, $kube_config.cluster.entity); 
                         $each($clusters, function($v, $k) {(
+                            
+                            $nodes := $lookup($, $kube_config.node.entity).*[k8s_cluster_id = $kube_config.cluster.entity & '.' & $v.id];
+                            $node_count := $count($nodes);
+                    
                             {
                                 "name" : $v.id,
                                 "fqdn" : $v.fqdn,
+                                "node_count" : $node_count,
                                 "link" : '/entities/' & $kube_config.cluster.entity & '/k8s_get?id=' & $v.id
                             }
                         )})
