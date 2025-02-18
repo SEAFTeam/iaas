@@ -9,7 +9,7 @@ entities:
                         $kube_config    := entities."seaf.ta.reverse.k8s".config;
                         $deployment     := $lookup($.*, $params.id);
                         {                        
-                            "name"              : $deployment.name,
+                            "name"              : $deployment.title,
                             "update_strategy"   : $deployment.update_strategy,
                             "replicas"          : $deployment.replicas,
                             "containers"        : $deployment.containers
