@@ -21,10 +21,10 @@ functions:
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             $networks_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
         
-            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
-            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
-            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
-            $networks := $lookup(dataset, $networks_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vapps := $lookup(dataset, $vapps_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $networks := $lookup(dataset, $networks_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
         
             [[$vdcs.$spread().{
                 'id': $keys(),

@@ -11,7 +11,7 @@ entities:
               $domain_matcher := $eval('/^' & $domain & '.*/');
       
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $vdcs := $lookup($, $vdcs_entity)~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
         
               $lists := [$vdcs.$spread().(
                   $dcid := $.*.dc;

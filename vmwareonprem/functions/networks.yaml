@@ -12,7 +12,7 @@ functions:
           required: false  # Признак обязательности параметра функции
     code: >
         (
-            $domain := '';
+            $domain := domain;
             $domain_matcher := $eval('/^' & $domain & '.*/');
         
             $networks_entity := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
@@ -21,9 +21,9 @@ functions:
             $vdcs_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             
-            $networks := $lookup(dataset, $networks_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareOnprem" and *.reverse.type = "vmwarenetwork"];
-            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
-            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $networks := ($lookup(dataset, $networks_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});).$spread()[*.reverse.reverse_type = "VMwareOnprem" and *.reverse.type = "vmwarenetwork"];
+            $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
         
             [[$networks.$spread().{
                 'id': $keys(),

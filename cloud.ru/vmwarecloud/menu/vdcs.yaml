@@ -10,11 +10,11 @@ entities:
           
           $vdcs_menu_generator := function($prefix, $domain){(
               $domain_matcher := $eval('/^' & $domain & '.*/');
-              $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-              $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
-              $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
-              $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
-            
+      
+              $dcs := $lookup($, $dcs_entity)~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity)~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcgroups := $lookup($, $vdcgroups_entity)~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $orgs := $lookup($, $orgs_entity)~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               
               $lists := [$orgs.$spread().(
                   $dcid := $.*.dc;
@@ -71,7 +71,13 @@ entities:
                   $prefix := "ДЗО/" & $title & "/Реверс";
                   $vdcs_menu_generator($prefix, $domain);
               ) : (
-                  $domain := sber.domain;
+                  $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                      $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                          $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                      $domain := sber.domain;
+                      $prefix := $menu_root & "/Реверс";
+                      $vdcs_menu_generator($prefix, $domain);
+                  )
               ) 
           ) : (
               $config := "seaf.ta.reverse.general".config;
