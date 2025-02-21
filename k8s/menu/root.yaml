@@ -1,3 +1,2 @@
 imports:
     - clusters.yaml
-    - nodes.yaml

@@ -1,6 +1,6 @@
 # Кластер Kubernetes
 ***  
-**Наименование**: {{id}}
+**Наименование**: {{cluster_id}}
 
 | атрибут    | значение           |
 |------------|--------------------|
@@ -13,7 +13,3 @@
 
 ## Namespaces
 ![Получаем ns кластера](@entity/seaf.ta.services.k8s/namespaces?id={{cluster_id}})
-
-
-
-

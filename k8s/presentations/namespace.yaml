@@ -9,7 +9,7 @@ entities:
                         $namespace := $."seaf.ta.components.k8s_namespace".$spread()[$.*.id = $params.id];
                         {                        
                             "id"            : $params.id,
-                            "name"          : $namespace.*.name
+                            "name"          : $namespace.*.title
                         }
                     )
             uml:
@@ -262,7 +262,7 @@ entities:
                         $deployments := $."seaf.ta.components.k8s_deployment".$spread()[*.namespace_id = $nsid];
                         [$deployments.$spread().(
                             {
-                                "name" : $.*.title,
+                                "name" : $.*.name,
                                 "link" : '/entities/seaf.ta.components.k8s_deployment/get?id=' & $.*.id
                             }
                         )]
