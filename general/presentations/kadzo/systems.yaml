@@ -1,15 +1,15 @@
 entities:
-  seaf.ta.reverse.general.systems:
+  seaf.ta.reverse.general.systems_kadzo:
     presentations:
       systems_ta:
         type: markdown
-        template: templates/systems.md
+        template: ../templates/systems_kadzo.md
         source: >
           (
-              $systems := $.components.$spread()[*.type = 'service'];
-              $components := $.components.$spread()[*.type = 'component'];
-              $system := [$systems.$spread().$merge([$.*, {"id": $keys($), "domain": $split($keys($), ".")[0]}])];
-              $system[id=$params.id];
+              $params := {"id":"ecogroup.berezka.systems.berezka"};
+              $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k}|}});
+              $systems.*
+              
           )
 
       components:
@@ -48,22 +48,28 @@ entities:
           manifest: "($)"
         source: >
           (
-              $links := manifest."seaf.ta.reverse.general.links";
               $entities := allobjects;
-              $regexp := $eval("/" & $params.id & "(\\..*|$)/");
-              $components := manifest.components.$spread()[$regexp($keys()[0])];
-              $tech_components := $components.$spread().(
-                  $app_id := $keys()[0];
-                  $component := $;
-                  $links := $links.$spread()[*.app_id = $app_id].*.reverse_ta_id;
-                  $exists($links) ? (
-                      $links.(
-                          {
-                              'id': $,
-                              'component_name': $component.*.title,
-                              'component_type': $component.*.type
-                          }
-                      )
+              $manifest := manifest;
+              $domain := $params.domain;
+              $tech_params := manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $reverse_entities := $manifest."seaf.ta.reverse.general".config.entities.**.model;
+              $components := $reverse_entities.(
+                  $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.*.tags ? {$k: $v}})
+              ) ~> $distinct();
+              $tech_components := $tech_params.$spread().(
+                  $tech_param_id := $keys()[0];
+                  $tech_param := $;
+                  $tags := $manifest."seaf.ta.reverse.general".config.entities.**.tags.*;
+                  $filtered_components := $components.($tech_param_id in $.**.tags.*.$split(", ") ? $);
+                  $log($filtered_components, 'components');
+                  $filtered_components.(
+                      {
+                          'id': $keys()[0],
+                          'component_name': $tech_param.*.software,
+                          'component_type': $tech_param.*.type,
+                          'component_vendor': $tech_param.*.vendor
+                      }
                   )
               );
               [$tech_components.(
