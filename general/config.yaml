@@ -73,9 +73,11 @@ seaf.ta.reverse.general:
         dvportgroups:
           model: seaf.ta.reverse.vmwareonprem.dvportgroups
           view: seaf.ta.reverse.vmwareonprem.dvportgroups
-        tags:
-          tech_params: tech_params-01
-          systems: systems-01
+#        tags:
+#          tech_params:
+#            - tech_params-01
+#          systems:
+#            - systems-01
       evo:
         vms:
           model: seaf.ta.components.server
