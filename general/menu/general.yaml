@@ -3,7 +3,7 @@ entities:
   seaf.ta.reverse.general:
     menu: >
       (
-          $config := "seaf.ta.reverse.general".config;
+          $config := entities."seaf.ta.reverse.general".config;
           [
               {
                   "location": $config.arch_menu,

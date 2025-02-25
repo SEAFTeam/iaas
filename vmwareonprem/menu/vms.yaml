@@ -14,7 +14,7 @@ entities:
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
       
-          $config := "seaf.ta.reverse.general".config;
+          $config := entities."seaf.ta.reverse.general".config;
           $lists := [$vdcs.$spread().(
               $dcid := $.*.dc;
               $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
