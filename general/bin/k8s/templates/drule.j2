@@ -1,0 +1,12 @@
+  {%- for item in items -%}
+    {%- for some in item -%}
+        {%- if some.__class__.__name__ == 'list' -%}
+            {%- for service in some %}
+    {{ entity }}.{{ service.metadata.uid }}:
+        id: {{ service.metadata.uid }}
+        title: {{ service.metadata.name }}
+        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        {%- endfor -%}
+        {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}

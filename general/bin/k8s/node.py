@@ -17,6 +17,9 @@ class NodeExtractor(Extractor):
         api     = client.CoreV1Api(self.kube)
         self.logger.info(f'attempt to load nodes from {self.kube.configuration.host}')
         nodes   = api.list_node()
+        #print(nodes.__class__)
+        #print(dir(nodes.items))
+
         self.logger.info(f'loaded {len(nodes.items)}')
         return nodes.items
 

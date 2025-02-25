@@ -2,6 +2,7 @@
 import os
 from pprint import pprint
 import logging
+import json
 
 class Extractor:
     # конструктор

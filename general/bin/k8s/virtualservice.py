@@ -21,7 +21,9 @@ class VirtualServiceExtractor(Extractor):
         res = api.list_namespaced_custom_object(group, version, self.parent, plural, pretty = 'true')
         # тут я не разобрался до конца - возвращается не обычный объект, а dictionary, и всё разваливается
         # поэтому сначала в строку, потом в объект
-        tmp = json.dumps(res)
-        vservices = json.loads(tmp, object_hook=lambda d: SimpleNamespace(**d))
-        return vservices.items
+        #tmp = json.dumps(res)
+        #vservices = json.loads(tmp, object_hook=lambda d: SimpleNamespace(**d))
+        return res.items()
+        #vservice = self.defenestrate(res.items())
+        #return vservice
 
