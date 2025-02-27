@@ -6,7 +6,6 @@ entities:
         template: ../templates/systems_kadzo.md
         source: >
           (
-              $params := {"id":"ecogroup.berezka.systems.berezka"};
               $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k}|}});
               $systems.*
               
@@ -57,7 +56,7 @@ entities:
               $reverse_entities := $config.entities.**.model;
               $tags := $config.entities.**.tags.*;
               $components := $reverse_entities.(
-                  $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.*.tags[$keys() in $tags] ? {$k: $v}})
+                  $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? {$k: $v}})
               ) ~> $distinct();
               $tech_components := $tech_params.$spread().(
                   $tech_param_id := $keys()[0];
