@@ -1,0 +1,33 @@
+@startuml
+skinparam linetype polyline
+left to right direction
+
+
+!function   $safeID($value)
+!$parts = %splitstr($value, "-")
+!$text = "sid"
+!foreach $item in $parts
+!$text = $text + "_" + $item
+!endfor
+!return $text
+!endfunction
+
+{{#vservices}}
+    control "**{{title}}**\n" as $safeID("{{id}}") <<VirtualService>>
+{{/vservices}}
+
+{{#drules}}
+    action "**{{title}}**\n" as $safeID("drule-{{host}}") <<DestinationRule>>
+{{/drules}}
+
+{{#vservices}}
+    {{#http}}
+        {{#route}}
+            {{#destination}}
+                $safeID("{{id}}") )-(0)-# $safeID("drule-{{host}}")
+            {{/destination}}
+        {{/route}}
+    {{/http}}
+{{/vservices}}
+
+

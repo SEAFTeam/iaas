@@ -6,6 +6,8 @@
 
 [схема k8s namespace](/entities/{{ kube_config.namespace.entity }}/uml?id={{id}})
 
+[схема Istio](/entities/{{ kube_config.namespace.entity }}/istio?id={{id}})
+
 
 ## Deployments
 ![Получаем deps ns](@entity/{{ kube_config.namespace.entity }}/deployments?id={{id}})

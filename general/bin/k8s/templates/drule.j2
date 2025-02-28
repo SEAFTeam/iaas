@@ -6,6 +6,7 @@
         id: {{ service.metadata.uid }}
         title: {{ service.metadata.name }}
         namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        host: {{ service.spec.host }}
         {%- endfor -%}
         {%- endif -%}
     {%- endfor -%}

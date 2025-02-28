@@ -15,6 +15,22 @@ entities:
                             "kube_config"   : $kube_config
                         }
                     )
+            istio:
+                type: plantuml
+                template: templates/istio.puml
+                source: >
+                    (
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $namespace      := $lookup($.*, $params.id);
+                        $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
+                        $vservices      := $lookup($, $kube_config.vservice.entity).*[namespace_id = $params.id];
+                        $drules         := $lookup($, $kube_config.drule.entity).*[namespace_id = $params.id];
+
+                        {
+                            "vservices" : $vservices,
+                            "drules"    : $drules
+                        }   
+                    )
             uml:
                 type: plantuml
                 template: templates/namespace.puml
