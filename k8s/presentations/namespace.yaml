@@ -23,12 +23,63 @@ entities:
                         $kube_config    := entities."seaf.ta.reverse.k8s".config;
                         $namespace      := $lookup($.*, $params.id);
                         $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
+                        $deployments    := $lookup($, $kube_config.deployment.entity).*[namespace_id = $params.id];
                         $vservices      := $lookup($, $kube_config.vservice.entity).*[namespace_id = $params.id];
                         $drules         := $lookup($, $kube_config.drule.entity).*[namespace_id = $params.id];
 
+                        /* определение связей между сервисами и деплойментами */
+                        $service_links     := $services.(
+                                $service        := $;
+                                $selector       := $service.selector;
+                                $selectorLabels := $keys($service.selector);
+                
+                                /* filter linked deployments and SSs */
+                                $items := $filter($deployments, function($item) {
+                                    (
+                                        $labels := $item.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                $not ($depLabel = $selLabel);
+                                            )
+                                        });
+                
+                                        $not($count($mismatches) > 0); 
+                                    )
+                                });
+                
+                                {
+                                    "source"       : $service,
+                                    "targets"      : $items
+                                }       
+                        );
+                    
+                    
+                        $apps_labels := $services.labels.app;
+                    
+                        $apps := $apps_labels.(
+                            $name := $;
+                            
+                            $app_services       := $services[labels.app = $name];
+                            $app_deployments    := $deployments[labels.app = $name];
+                    
+                            {
+                                "name"          : $,
+                                "services"      : $app_services,
+                                "deployments"   : $app_deployments
+                            }
+                        );
+                    
+                        $log($service_links, "links");
+
                         {
+                            "name"      : $namespace.title,
+                            "apps"      : $apps,
+                            "services"  : $services,
                             "vservices" : $vservices,
-                            "drules"    : $drules
+                            "drules"    : $drules,
+                            "links"     : $service_links
                         }   
                     )
             uml:
