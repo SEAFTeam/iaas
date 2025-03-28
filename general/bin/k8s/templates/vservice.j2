@@ -8,7 +8,7 @@
         namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
         hosts:
         {%- for host in service.spec.hosts %}
-            - {{ host }}{%- endfor %}
+            - "{{ host }}"{%- endfor %}
         http:
         {%- for route in service.spec.http %}
             - route:

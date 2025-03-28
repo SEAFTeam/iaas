@@ -45,7 +45,7 @@ entities:
                                             )
                                         });
                 
-                                        $not($count($mismatches) > 0); 
+                                        $not($count($mismatches) > 0 or $count($selector) = 0); 
                                     )
                                 });
                 
