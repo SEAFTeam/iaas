@@ -1,9 +1,9 @@
     {% for service in items %}
-    {{entity}}.{{service.metadata.uid}}:
-            id: {{service.metadata.uid}}
+    {{domain}}.k8s.service.{{service.metadata.uid}}:
+            id:  {{domain}}.k8s.service.{{service.metadata.uid}}
             title: {{service.metadata.name}}
             type: {{service.spec.type}}
-            namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+            namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
             ports:
             {%- for port in service.spec.ports %}
                 - name: {{port.name}}

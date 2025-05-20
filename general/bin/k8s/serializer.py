@@ -26,6 +26,7 @@ class Serializer:
         self.logger = logging.getLogger(__name__)
         # инициализация переменной путём к каталогу, в который будет производиться запись
         self.target = os.environ.get('targetFolder')
+        self.domain = os.environ.get('domain')
         self.logger.info(f'init serializer to target folder {self.target}')
         # если каталог не задан, то тут нам больше делать нечего
         if self.target is None:
@@ -73,6 +74,7 @@ class Serializer:
         #template = f'templates/{component.name}.mustache'
 
         context["iterator"] = iterator
+        context["domain"] = self.domain
         environment = Environment(loader=FileSystemLoader("templates/"))
         template = environment.get_template(f'{component.name}.j2')
         data = template.render(context)

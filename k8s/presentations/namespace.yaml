@@ -7,7 +7,7 @@ entities:
                 source: >
                     (
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
-                        $namespace_id := $kube_config.namespace.entity & "." & $params.id;
+                        $namespace_id := $params.id;
                         $namespace  := $lookup($.*, $namespace_id);
                         {                        
                             "id"            : $namespace_id,
@@ -84,7 +84,7 @@ entities:
                     )
             uml:
                 type: plantuml
-                template: templates/namespace.puml
+                template: templates/namespace-v2.puml
                 source: >
                     (
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
@@ -241,7 +241,7 @@ entities:
                         $deployments[].(
                             {
                                 "name" : $.title,
-                                "link" : '/entities/'& $kube_config.deployment.entity & '/get?id=' & $kube_config.deployment.entity & "." & $.id
+                                "link" : '/entities/'& $kube_config.deployment.entity & '/get?id=' & $.id
                             }
                         )
 
@@ -263,7 +263,7 @@ entities:
                             {
                                 "name"  : $.title,
                                 "type"  : $.type,
-                                "link" : '/entities/' & $kube_config.service.entity & '/get?id=' & $kube_config.service.entity & "." & $.id
+                                "link" : '/entities/' & $kube_config.service.entity & '/get?id=' & $.id
                             }
                         )
                     )

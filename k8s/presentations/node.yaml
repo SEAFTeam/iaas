@@ -7,7 +7,7 @@ entities:
                 source: >
                     (
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
-                        $node_id := $kube_config.node.entity & "." & $params.id;
+                        $node_id := $params.id;
                         $node  := $lookup($.*, $node_id);
                         {                        
                             "id"            : $params.id,

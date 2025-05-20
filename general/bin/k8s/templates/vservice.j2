@@ -2,10 +2,10 @@
     {%- for some in item -%}
         {%- if some.__class__.__name__ == 'list' -%}
             {%- for service in some %}
-    {{ entity }}.{{ service.metadata.uid }}:
-        id: {{ service.metadata.uid }}
+    {{domain}}.k8s.vservice.{{ service.metadata.uid }}:
+        id: {{domain}}.k8s.vservice.{{ service.metadata.uid }}
         title: {{ service.metadata.name }}
-        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
         hosts:
         {%- for host in service.spec.hosts %}
             - "{{ host }}"{%- endfor %}
