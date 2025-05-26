@@ -2,34 +2,54 @@ entities:
     seaf.ta.services.k8s:
         menu: >
             (
-                $kubernetes_menu_generator := function($prefix, $domain){(
-                    [
-                        {
-                            'location': $prefix & '/Kubernetes/Кластера',
-                            'link': 'entities/seaf.ta.services.k8s/k8s_list?domain=' & $domain
-                        }
-                    ]
-                )};
+                $menu := function($prefix, $domain) {
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        /*
+                        $config := "seaf.ta.reverse.general".config;
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $prefix := $config.arch_menu;
+                        */
+                        [
+                            {
+                                'location': $prefix & '/Kubernetes/Кластера',
+                                'link': 'entities/' & $kube_config.cluster.entity & '/' & $kube_config.cluster.view & "?domain=" & $domain
+                            }
+                        ]
+                    )
+                };
+            
+                $k8s_menu_generator := function($prefix, $domain, $type) {
+                  (
+                    $domain_matcher := $eval('/^' & $domain & '.*/');      
+                    $type = "seaf" ? (                 /*  если это ванильный SEAF     */
+                        $menu($prefix, $domain)
+                    ) : (     /*       Else        */   
+                        $menu($prefix, $domain)
+                    );
+                  )
+                };
+            
                 sber.kadzo ? (
-                    sber.kadzo.enterprise_mode ?
-                    sber.domains.$spread().( 
-                        $domain := $keys(); 
-                        $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
-                        $prefix := "ДЗО/" & $title & "/Реверс";
-                        $kubernetes_menu_generator($prefix, $domain);
-                    ) : (
-                          $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
-                              $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
-                                              $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
-                          $domain := sber.domain;
-                          $prefix := $menu_root & "/Реверс";
-                          $kubernetes_menu_generator($prefix, $domain);
-                        )
-                    ) 
+                    sber.kadzo.enterprise_mode ? /* если работа в режиме Enterprise */
+                        sber.domains.$spread().( /* для каждого домена */
+                            $domain := $keys(); 
+                            $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                            $prefix := "ДЗО/" & $title & "/Реверс";
+                            $k8s_menu_generator($prefix, $domain, "kadzo");
+                        ) : (
+                            $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                                $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                                $domain := sber.domain;
+                                $prefix := $menu_root & "/Реверс";
+                                $k8s_menu_generator($prefix, $domain, "kadzo");
+                            )
+                        ) 
                 ) : (
                     $config := "seaf.ta.reverse.general".config;
                     $prefix := $config.arch_menu;
-                    $domain := "";
-                    $kubernetes_menu_generator($prefix, $domain);
-                );
+                    $domain := "midworld.npc";
+                    $k8s_menu_generator($prefix, $domain, "seaf")
+                );            
             )

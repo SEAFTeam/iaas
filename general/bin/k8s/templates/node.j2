@@ -1,9 +1,9 @@
     {% for node in items %}
-    {{entity}}.{{node.metadata.uid}}:
-        id: {{node.metadata.uid}}
+    {{domain}}.k8s.node.{{node.metadata.uid}}:
+        id: {{domain}}.k8s.node.{{node.metadata.uid}}
         title: {{node.metadata.name}}
         version: {{node.status.node_info.kubelet_version}}
-        k8s_cluster_id: {{parent.entity}}.{{parent.item.name}}
+        k8s_cluster_id: {{domain}}.k8s.cluster.{{parent.item.name}}
         architecture: {{node.status.node_info.architecture}}
         cpu: {{node.status.allocatable.cpu}}
         az_id: {{ node.metadata.labels.get("topology.kubernetes.io/zone") }}

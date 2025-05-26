@@ -6,10 +6,12 @@ entities:
                 template: templates/service.md
                 source: >
                     (
-                        $service := $."seaf.ta.components.k8s_service".$spread()[$.*.id = $params.id];
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $service        := $lookup($.*, $params.id);
+                    
                         {                        
-                            "name"              : $service.*.title,
-                            "type"              : $service.*.type,
-                            "ports"             : $service.*.ports
+                            "name"              : $service.title,
+                            "type"              : $service.type,
+                            "ports"             : $service.ports
                         }
                     )

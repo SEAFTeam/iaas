@@ -1,6 +1,6 @@
     {% for pv in items %}
-    {{entity}}.{{pv.metadata.uid}}:
-        id: {{pv.metadata.uid}}
+    {{domain}}.k8s.pv.{{pv.metadata.uid}}:
+        id: {{domain}}.k8s.pv.{{pv.metadata.uid}}
         title: {{pv.metadata.name}}
         capacity: {{pv.spec.capacity.storage}}
         volume_mode: {{pv.spec.volume_mode}}

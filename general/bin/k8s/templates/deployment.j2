@@ -1,8 +1,8 @@
     {% for deployment in items %}
-    {{entity}}.{{deployment.metadata.uid}}:
-        id: {{deployment.metadata.uid}}
+    {{domain}}.k8s.deployment.{{deployment.metadata.uid}}:
+        id: {{domain}}.k8s.deployment.{{deployment.metadata.uid}}
         title: {{deployment.metadata.name}}
-        namespace_id: {{parent.entity}}.{{parent.item.metadata.uid}}
+        namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
         update_strategy: {{deployment.spec.strategy.type}}
         replicas: {{deployment.spec.replicas}}
         termination_grace_period_seconds: {{deployment.spec.template.spec.termination_grace_period_seconds}}
