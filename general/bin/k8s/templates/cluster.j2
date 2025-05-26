@@ -1,4 +1,4 @@
     {% for cluster in items %}
-    {{entity}}.{{cluster.name}}:
-        id: {{cluster.name}}
+    {{domain}}.k8s.cluster.{{cluster.name}}:
+        id: {{domain}}.k8s.cluster.{{cluster.name}}
         fqdn: {{cluster.cluster_fqdn}}{% endfor %}

@@ -1,7 +1,7 @@
     {% for namespace in items %}
-    {{entity}}.{{namespace.metadata.uid}}:
-        id: {{namespace.metadata.uid}}
+    {{domain}}.k8s.namespace.{{namespace.metadata.uid}}:
+        id: {{domain}}.k8s.namespace.{{namespace.metadata.uid}}
         title: {{namespace.metadata.name}}
-        k8s_cluster_id: {{parent.entity}}.{{parent.item.name}}
+        k8s_cluster_id: {{domain}}.k8s.cluster.{{parent.item.name}}
         labels: {% for key, value in namespace.metadata.labels.items() %}
             - {{key}} : {{value}} {% endfor %}{% endfor %}

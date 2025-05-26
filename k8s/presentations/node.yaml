@@ -1,41 +1,14 @@
 entities:
     seaf.ta.components.k8s_node:
         presentations:
-            list:
-                type: table
-                headers:
-                - value: name
-                  text: Название
-                  width: 200
-                  sortable: true
-                  link: link
-                - value: cluster
-                  text: Кластер
-                  width: 200
-                  sortable: true
-                  link: link
-                source: > 
-                    (
-                        $nodes := $."seaf.ta.reverse.k8s.node"; 
-                        [$nodes.$spread().(
-                            {
-                                "name" : $.*.name,
-                                "cluster": $.*.cluster
-                            }
-                        )]
-                    )
-                    
             get:
                 type: markdown
                 template: templates/node.md
                 source: >
                     (
-                        $node_id := "seaf.ta.components.k8s_node." & $params.id;
-                        $node  := $lookup($."seaf.ta.components.k8s_node", $node_id);
-                        $log($node, "node");
-                        $log($params.id, "params.id");
-                        $log($node_id, "node_id");
-                        /* $node    := $."seaf.ta.components.k8s.node".$spread()[$keys()[0] = $node_id]; */
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $node_id := $params.id;
+                        $node  := $lookup($.*, $node_id);
                         {                        
                             "id"            : $params.id,
                             "node_id"       : $node_id,

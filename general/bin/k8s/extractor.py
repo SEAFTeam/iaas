@@ -2,6 +2,7 @@
 import os
 from pprint import pprint
 import logging
+import json
 
 class Extractor:
     # конструктор
@@ -20,9 +21,11 @@ class Extractor:
         if len(items) == 0:
             return
 
-        if os.environ.get('debug.dump') is not None and self.name in os.environ.get('debug.dump'):
-            print(f'ENTITIES: {self.name}')
-            pprint(items)
+        if (os.environ.get('debug.dump') is not None) :
+            debugClasses = os.environ.get('debug.dump').split(',')
+            if(any(self.name == item for item in debugClasses)) :
+                print(f'ENTITIES: {self.name}')
+                pprint(items)
 
         # формирование идентификаторов, нейтральных с т.з. движков отображения
         # for item in items:

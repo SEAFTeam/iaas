@@ -9,6 +9,7 @@ from cluster import ClusterExtractor
 # журналирование
 import logging
 import os
+import traceback
 
 # загрузка переменых окружения из файла .env
 load_dotenv()
@@ -32,4 +33,5 @@ try:
     clusters = ClusterExtractor(os.environ.get('configFile', None))
     clusters.extract(serializer)
 except Exception as error:
+    print(traceback.format_exc())
     logger.error(error)

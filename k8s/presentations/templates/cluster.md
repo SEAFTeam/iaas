@@ -6,10 +6,13 @@
 |------------|--------------------|
 | Cluster ID | **{{cluster_id}}** |
 | FQDN | **{{fqdn}}**       |
-| нод        | **{{node_count}}** | 
+| нод        | **{{node_count}}** |
+## Схемы
 
-## Ноды кластера
-![Получаем ноды кластера](@entity/seaf.ta.services.k8s/nodes?id={{cluster_id}})
+[внешние сервисы кластера](/entities/{{ kube_config.cluster.entity }}/ports?id={{id}})
 
 ## Namespaces
-![Получаем ns кластера](@entity/seaf.ta.services.k8s/namespaces?id={{cluster_id}})
+![Получаем ns кластера](@entity/{{ kube_config.cluster.entity }}/namespaces?id={{cluster_id}})
+
+## Ноды кластера
+![Получаем ноды кластера](@entity/{{ kube_config.cluster.entity }}/nodes?id={{cluster_id}})

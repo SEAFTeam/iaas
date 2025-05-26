@@ -1,0 +1,13 @@
+  {%- for item in items -%}
+    {%- for some in item -%}
+        {%- if some.__class__.__name__ == 'list' -%}
+            {%- for service in some %}
+    {{domain}}.k8s.drule.{{ service.metadata.uid }}:
+        id: {{domain}}.k8s.drule.{{ service.metadata.uid }}
+        title: {{ service.metadata.name }}
+        namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
+        host: {{ service.spec.host }}
+        {%- endfor -%}
+        {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}

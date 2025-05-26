@@ -5,12 +5,12 @@ entities:
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
       
-          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
-          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
-          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
-          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
-          $orgnets_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgnets.model;
-          $orgnets_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgnets.view;
+          $vdcs_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+          $dcs_entity := entities."seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+          $orgnets_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.orgnets.model;
+          $orgnets_view := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.orgnets.view;
            
           $orgnets := $lookup($, $orgnets_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "orgNetwork"];
           $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
@@ -18,7 +18,7 @@ entities:
           $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
           $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
       
-          $config := "seaf.ta.reverse.general".config;
+          $config := entities."seaf.ta.reverse.general".config;
           $lists := [$orgs.$spread().(
               $dcid := $.*.dc;
               $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;

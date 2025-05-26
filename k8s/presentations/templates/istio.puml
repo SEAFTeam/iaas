@@ -1,0 +1,62 @@
+@startuml
+skinparam linetype polyline
+skinparam rectangle {
+    roundCorner<<namespace>> 25
+}
+
+left to right direction
+
+!function   $safeID($value)
+!$parts = %splitstr($value, "-")
+!$text = "sid"
+!foreach $item in $parts
+!$text = $text + "_" + $item
+!endfor
+!return $text
+!endfunction
+
+rectangle "{{name}}" <<namespace>> {
+    {{#vservices}}
+        circle "**{{title}}**\n" as $safeID("{{id}}") <<virtual service>>
+    {{/vservices}}
+
+    {{#drules}}
+        circle "<$service>**{{title}}**\n" as $safeID("drule-{{host}}") <<destination\nrule>> #transparent
+    {{/drules}}
+
+    {{#apps}}
+        rectangle "{{ name }}" <<app>> {
+            {{#services}}
+                circle "**{{title}}**\n" as $safeID("service-{{title}}") <<service>>
+            {{/services}}
+            {{#deployments}}
+                card "**{{title}}**\n" as $safeID("deployment-{{title}}")
+            {{/deployments}}
+        }
+    {{/apps}}
+
+    'сервисы в данном namespace
+
+    {{#vservices}}
+        {{#http}}
+            {{#route}}
+                {{#destination}}
+                    $safeID("{{id}}") -- $safeID("drule-{{host}}")
+                {{/destination}}
+            {{/route}}
+        {{/http}}
+    {{/vservices}}
+
+    {{#drules}}
+        $safeID("drule-{{host}}") -- $safeID("service-{{host}}")
+    {{/drules}}
+
+    ' связи между сервисами и деплойментами
+    {{#links}}
+        {{#targets}}
+            $safeID("service-{{source.title}}") -- $safeID("deployment-{{title}}")
+        {{/targets}}
+    {{/links}}
+}
+
+
