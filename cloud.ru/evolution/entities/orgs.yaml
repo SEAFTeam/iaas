@@ -1,0 +1,26 @@
+entities:
+  seaf.ta.reverse.evo.orgs:
+    title: Организации
+    objects:
+      org:
+        route: "/"
+        title: Организация
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            id:
+              title: Идентификатор Организации
+              type: string
+            title:
+              title: Наименование организации
+              type: string
+            description:
+              title: Описание организации
+              type: string
+            dc:
+              title: Услуга IaaS
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
+          

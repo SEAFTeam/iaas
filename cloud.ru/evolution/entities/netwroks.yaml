@@ -1,0 +1,37 @@
+entities:
+  seaf.ta.services.network:
+    schema: # JSON Schema контролирующая описание объекта сущности
+      $defs:
+        seaf.ta.reverse.evo.networks:
+          type: object
+          properties:
+            original_id:
+              title: Идентификатор сети (полный)
+              type: string
+            type:
+              title: Тип сети
+              enum:
+                - "Network"
+            gateway:
+              title: Шлюз сети
+              type: string
+            vpc:
+              title: Идентификатор VPC
+              $ref: "#/$rels/seaf.ta.reverse.evo.vpcs.vpc"
+            dns:
+              title: DNS
+              type: array
+              items:
+                type: string
+            reverse_type:
+              title: Тип реверса
+              enum:
+                - "Evolution"
+      type: object
+      patternProperties:
+        "^[a-zA-Z0-9_-]*(\\.[a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            reverse:
+              oneOf:
+                - $ref: "#/$defs/seaf.ta.reverse.evo.networks"

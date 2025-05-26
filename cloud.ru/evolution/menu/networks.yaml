@@ -1,0 +1,28 @@
+entities:
+  seaf.ta.reverse.evo.networks:
+    menu: >
+      (
+          $domain := '';
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+          $vpcs_entity := "seaf.ta.reverse.general".config.entities.evo.vpcs.model;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.evo.orgs.model;
+          $networks_entity := "seaf.ta.reverse.general".config.entities.evo.networks.model;
+          $networks_view := "seaf.ta.reverse.general".config.entities.evo.networks.view;
+           
+          $networks := $lookup($, $networks_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "Evolution" and *.reverse.type = "Network"];
+          $vpcs := $lookup($, $vpcs_entity)[$domain_matcher($keys())];
+          $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
+          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
+      
+          $config := "seaf.ta.reverse.general".config;
+          $lists := [$orgs.$spread().(
+              $dcid := $.*.dc;
+              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+              {
+                  'location': $config.arch_menu & '/' & $dctitle & '/Evolution/Реестры/Сети',
+                  'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&dc=' & $dcid
+              }
+          )];
+      )

@@ -98,7 +98,6 @@ entities:
                         $context := $;
                         $data := $clusters.(
                             $cluster := $lookup($context.*, $);
-
                             {
                                 "name" : $cluster.id,
                                 "fqdn" : $cluster.fqdn,
@@ -166,10 +165,10 @@ entities:
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
                         $namespaces := $lookup($, $kube_config.namespace.entity).*[k8s_cluster_id = $params.id];
                     
-                        $namespaces[].(
+                        [$namespaces[].(
                             {
                                 "name" : $.title,
                                 "link" : '/entities/' & $kube_config.namespace.entity & '/get?id=' & $.id
                             }
-                        )
+                        )]
                     )
