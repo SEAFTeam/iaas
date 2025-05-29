@@ -2,18 +2,42 @@ entities:
   seaf.ta.reverse.general.edrs:
     menu: >
       (
-          $domain := '';
-          $edr_entity_matcher := /.*\.edrs$/;
-          $entity := $$.entities.$spread()[$edr_entity_matcher($keys())].$keys()[0];
-          $config := entities."seaf.ta.reverse.general".config;
-          [
-              {
-                  'location': $config.arch_menu & '/Кибербезопасность/EDR',
-                  'link': 'entities/' & $entity & '/list?domain=' & $domain
-              },
-              {
-                  'location': $config.arch_menu & '/Кибербезопасность/Проблемы/Нет EDR',
-                  'link': 'entities/' & $entity & '/no_edr?domain=' & $domain
-              }
-          ]
+          $edrs_entity := "seaf.ta.reverse.general".config.entities.edrs.model;
+      
+          $reverse_edrs_menu_generator := function($prefix, $domain){(
+      
+              $config := "seaf.ta.reverse.general".config;
+              ([
+                  {
+                      'location': $prefix & '/Кибербезопасность/EDR',
+                      'link': 'entities/' & $edrs_entity & '/list?domain=' & $domain
+                  },
+                  {
+                      'location': $prefix & '/Кибербезопасность/Проблемы/Нет EDR',
+                      'link': 'entities/' & $edrs_entity & '/no_av?domain=' & $domain
+                  }
+              ])
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $reverse_edrs_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $reverse_edrs_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $reverse_edrs_menu_generator($prefix, $domain);
+          );
       )

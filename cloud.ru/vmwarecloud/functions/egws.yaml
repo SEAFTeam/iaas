@@ -30,14 +30,14 @@ functions:
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             
-            $egws := $lookup(dataset, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
-            $egws_nat := $lookup(dataset, $egws_nat_entity)[$domain_matcher($keys())];
-            $egws_fw := $lookup(dataset, $egws_fw_entity)[$domain_matcher($keys())];
-            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
-            $vdcgroups := $lookup(dataset, $vdcgroups_entity)[$domain_matcher($keys())];
-            $orgnets := $lookup(dataset, $orgnets_entity)[$domain_matcher($keys())];
-            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
-            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $egws := ($lookup(dataset, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+            $egws_nat := $lookup(dataset, $egws_nat_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $egws_fw := $lookup(dataset, $egws_fw_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vdcgroups := $lookup(dataset, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $orgnets := $lookup(dataset, $orgnets_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $orgs := $lookup(dataset, $orgs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
         
             [[$egws.$spread().{
                 'id': $keys(),

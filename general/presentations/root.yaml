@@ -3,3 +3,4 @@ imports:
   - avs.yaml
   - edrs.yaml
   - systems.yaml
+  - kadzo/root.yaml

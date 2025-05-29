@@ -1,0 +1,90 @@
+entities:
+  seaf.ta.reverse.general.systems_kadzo:
+    presentations:
+      systems_ta:
+        type: markdown
+        template: ../templates/systems_kadzo.md
+        source: >
+          (
+              $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k}|}});
+              $systems.*
+              
+          )
+
+      components:
+        type: table
+        headers:
+          - value: app_component_name
+            text: Компонент приложения
+            sortable: true
+            align: left
+            width: 150
+          - value: app_component_type
+            text: Тип компонента приложения
+            align: left
+            width: 50
+          - value: name
+            text: Техкомпонент
+            sortable: true
+            align: left
+            link: link
+            width: 150
+          - value: entity_type
+            text: Тип техкомпонента
+            sortable: true
+            align: left
+            width: 200
+          - value: entity_name
+            text: Наименование техкомпонента
+            sortable: true
+            align: left
+            width: 200
+          - value: dc
+            text: Провайдер/Услуга/ЦОД
+            width: 200
+        origin:
+          allobjects: seaf.ta.reverse.general.allobjects
+          manifest: "($)"
+        source: >
+          (
+              $entities := allobjects;
+              $manifest := manifest;
+              $domain := $params.domain;
+              $tech_params := manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $config := $manifest."seaf.ta.reverse.general".config;
+              $reverse_entities := $config.entities.**.model;
+              $tags := $config.entities.**.tags.*;
+              $components := $reverse_entities.(
+                  $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? {$k: $v}})
+              ) ~> $distinct();
+              $tech_components := $tech_params.$spread().(
+                  $tech_param_id := $keys()[0];
+                  $tech_param := $;
+                  $filtered_components := $components.($tech_param_id in $.**.tags[$keys() in $tags].*.$split(", ") ? $);
+                  $log($filtered_components, 'components');
+                  $filtered_components.(
+                      {
+                          'id': $keys()[0],
+                          'component_name': $tech_param.*.software,
+                          'component_type': $tech_param.*.type,
+                          'component_vendor': $tech_param.*.vendor
+                      }
+                  )
+              );
+              [$tech_components.(
+                  $iter := $;
+                  $entities[id = $iter.id].(
+                      $entity := $;
+                          {
+                              'app_component_name': $iter.component_name,
+                              'app_component_type': $iter.component_type,
+                              'name': $entity.title,
+                              'link':$entity.link,
+                              'entity_type': $entity.entity_type,
+                              'entity_name': $entity.entity_title,
+                              'dc': $entity.dc
+                          }
+                  )
+              )]
+          )

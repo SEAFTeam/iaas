@@ -21,9 +21,9 @@ functions:
           $hosts_view := dataset."seaf.ta.reverse.general".config.entities.vmwareonprem.hosts.view;
       
       
-          $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
-          $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
-          $hosts := $lookup(dataset, $hosts_entity)[$domain_matcher($keys())];
+          $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          $hosts := $lookup(dataset, $hosts_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
       
           [[$hosts.$spread().{
               'id': $keys(),

@@ -2,28 +2,54 @@ entities:
   seaf.ta.reverse.vmwarecloud.orgs:
     menu: >
       (
-          $domain := "";
-          $domain_matcher := $eval("/^" & $domain & ".*/");
+
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
       
-          $dcs_entity := entities."seaf.ta.reverse.general".config.entities.dc.model;
-          $org_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $orgs_menu_generator := function($prefix, $domain){(
       
-          $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-      
-          $config := entities."seaf.ta.reverse.general".config;
-          $menu := $orgs.$spread().(
-              $id := $keys()[0];
-              $org := $;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              $title := $.*.title;
-              [{
-                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware/Организации/" & $title ,
-                  "link": "entities/" & $org_entity & "/schema?id=" & $id
-              },
-              {
-                  "location": $config.arch_menu & "/" & $dc.*.title & "/Облако VMware",
-                  "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud&org=" & $title
-              }]
-          )
+              $domain_matcher := $eval("/^" & $domain & ".*/");
+          
+              $orgs := $lookup($, $org_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          
+              $menu := $orgs.$spread().(
+                  $id := $keys()[0];
+                  $org := $;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $title := $.*.title;
+                  [{
+                      "domain": $domain,
+                      "location": $prefix & "/" & $dc.*.title & "/Облако VMware/Организации/" & $title ,
+                      "link": "entities/" & $org_entity & "/schema?id=" & $id
+                  },
+                  {
+                      "domain": $domain,
+                      "location": $prefix & "/" & $dc.*.title & "/Облако VMware",
+                      "link": "entities/seaf.ta.reverse.general/root?id=reverse.vmwarecloud&txt=VMware Cloud&org=" & $title
+                  }]
+              )
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $orgs_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $orgs_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $orgs_menu_generator($prefix, $domain);
+          );
       )

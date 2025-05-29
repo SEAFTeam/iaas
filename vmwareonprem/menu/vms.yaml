@@ -3,38 +3,63 @@ entities:
     menu: >
       (
           $dataset := $;
-          $domain := '';
-          $domain_matcher := $eval('/^' & $domain & '.*/');
-          
           $vms_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vms.model;
           $vm_view := "seaf.ta.reverse.general".config.entities.vmwareonprem.vms.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
       
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+          $vms_menu_generator := function($prefix, $domain){(
       
-          $config := entities."seaf.ta.reverse.general".config;
-          $lists := [$vdcs.$spread().(
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Реестры/Серверы',
-                  'link': 'entities/' & $vm_view & '/list?domain=' & $domain
-              }
-          )];
-          $dynamic_vdc := $vdcs.$spread().(
-              $id := $keys()[0];
-              $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id];
-              $title := $.*.title;
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              $exists($vms) ? (
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          
+              $lists := [$vdcs.$spread().(
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   {
-                      'location': $config.arch_menu & '/' & $dctitle & '/Виртуальные Датацентры/' & $title & '/VMs',
-                      'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                      'domain': $domain,
+                      'location': $prefix  & '/' & $dctitle & '/Реестры/Серверы',
+                      'link': 'entities/' & $vm_view & '/list?domain=' & $domain
                   }
-              )
+              )];
+              $dynamic_vdc := $vdcs.$spread().(
+                  $id := $keys()[0];
+                  $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id];
+                  $title := $.*.title;
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  $exists($vms) ? (
+                      {
+                          'domain': $domain,
+                          'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $title & '/VMs',
+                          'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                      }
+                  )
+              );
+              $append($lists, $dynamic_vdc)
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $vms_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $vms_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $vms_menu_generator($prefix, $domain);
           );
-          $append($lists, $dynamic_vdc)
       )

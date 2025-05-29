@@ -2,91 +2,122 @@ entities:
   seaf.ta.reverse.vmwarecloud.egws:
     menu: >
       (
-          $domain := '';
-          $domain_matcher := $eval('/^' & $domain & '.*/');
       
-          $egws_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
-          $egws_view := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
-          $vdcs_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
-          $dcs_entity := entities."seaf.ta.reverse.general".config.entities.dc.model;
-          $orgs_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
-          $vdcgroups_entity := entities."seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+          $egws_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
+          $egws_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+          $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
+          $orgs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
       
-          $egws := $lookup($, $egws_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
-          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
-          $orgs := $lookup($, $orgs_entity)[$domain_matcher($keys())];
-      
-          $config := entities."seaf.ta.reverse.general".config;
-          $lists := [$orgs.$spread().(
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/Шлюзы',
-                  'link': 'entities/' & $egws_view & '/list?domain=' & $domain
-              }
-          )];
-          /*$static := [
-              {
-                  'location': $config.arch_menu & '/Cloud.ru/Облако VMware/Реестры/Шлюзы (Edge Gateway)',
-                  'link': 'entities/' & $egws_view & '/list?domain=' & $domain
-              }
-          ];*/
-          $dynamic_vdc := $egws.$spread()[*.reverse.vdcgroup = null].(
-              $id := $keys()[0];
-              $title := $.*.title;
-              $vdctitle := $.*.reverse.vdc_title;
-              $vdc_id := $.*.reverse.vdc;
-              $org_id := $.*.reverse.org;
-              $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
-              $vdcgrouptitle := $vdcgroup.*.title;
-              $org := $orgs.$spread()[$keys() = $org_id];
-              $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              $exists($vdcgroup) ? 
+          $egws_menu_generator := function($prefix, $domain){(
+
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+              $egws := ($lookup($, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud"];
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $orgs := $lookup($, $orgs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          
+              $lists := [$orgs.$spread().(
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  {
+                      'domain': $domain,
+                      'location': $prefix & '/' & $dctitle & '/Облако VMware/Реестры/Шлюзы',
+                      'link': 'entities/' & $egws_view & '/list?domain=' & $domain
+                  }
+              )];
+              /*$static := [
+                  {
+                      'location': $config.arch_menu & '/Cloud.ru/Облако VMware/Реестры/Шлюзы (Edge Gateway)',
+                      'link': 'entities/' & $egws_view & '/list?domain=' & $domain
+                  }
+              ];*/
+              $dynamic_vdc := $egws.$spread()[*.reverse.vdcgroup = null].(
+                  $id := $keys()[0];
+                  $title := $.*.title;
+                  $vdctitle := $.*.reverse.vdc_title;
+                  $vdc_id := $.*.reverse.vdc;
+                  $org_id := $.*.reverse.org;
+                  $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
+                  $vdcgrouptitle := $vdcgroup.*.title;
+                  $org := $orgs.$spread()[$keys() = $org_id];
+                  $orgtitle := $org.*.title;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $exists($vdcgroup) ? 
+                      [
+                          {
+                              'domain': $domain,
+                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $title,
+                              'link': 'entities/' & $egws_view & '/schema_vdcgroup?id=' & $id
+                          },
+                          {
+                              'domain': $domain,
+                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways',
+                              'link': 'entities/' & $egws_view & '/list?vdcgroup_id=' & $vdcgroup.*.id
+                          }     
+                      ]
+                          :
+                          [
+                              {
+                                  'domain': $domain,
+                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways/' & $title,
+                                  'link': 'entities/' & $egws_view & '/schema?id=' & $id
+                              },
+                              {
+                                  'domain': $domain,
+                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways',
+                                  'link': 'entities/' & $egws_view & '/list?vdc_id=' & $vdc_id
+                              }     
+                          ]
+              );
+              $dynamic_vdcgroup := $egws.$spread()[*.reverse.vdc = null].(
+                  $id := $keys()[0];
+                  $title := $.*.title;
+                  $vdcgrouptitle := $.*.reverse.vdcgroup_title;
+                  $vdcgroup_id := $.*.reverse.vdcgroup;
+                  $org_id := $.*.reverse.org;
+                  $org := $orgs.$spread()[$keys() = $org_id];
+                  $orgtitle := $org.*.title;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
                   [
                       {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $title,
+                          'domain': $domain,
+                          'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $title,
                           'link': 'entities/' & $egws_view & '/schema_vdcgroup?id=' & $id
                       },
                       {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways',
-                          'link': 'entities/' & $egws_view & '/list?vdcgroup_id=' & $vdcgroup.*.id
+                          'domain': $domain,
+                          'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways',
+                          'link': 'entities/' & $egws_view & '/list?vdcgroup_id=' & $vdcgroup_id
                       }     
                   ]
-                  :
-                    [
-                        {
-                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways/' & $title,
-                            'link': 'entities/' & $egws_view & '/schema?id=' & $id
-                        },
-                        {
-                            'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/Edge Gateways',
-                            'link': 'entities/' & $egws_view & '/list?vdc_id=' & $vdc_id
-                        }     
-                    ]
+              );
+              $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
+              $append($lists, $distinct($dynamic))
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $egws_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $egws_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $egws_menu_generator($prefix, $domain);
           );
-          $dynamic_vdcgroup := $egws.$spread()[*.reverse.vdc = null].(
-              $id := $keys()[0];
-              $title := $.*.title;
-              $vdcgrouptitle := $.*.reverse.vdcgroup_title;
-              $vdcgroup_id := $.*.reverse.vdcgroup;
-              $org_id := $.*.reverse.org;
-              $org := $orgs.$spread()[$keys() = $org_id];
-              $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              [
-                  {
-                      'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways/' & $title,
-                      'link': 'entities/' & $egws_view & '/schema_vdcgroup?id=' & $id
-                  },
-                  {
-                      'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdcgrouptitle & '/Edge Gateways',
-                      'link': 'entities/' & $egws_view & '/list?vdcgroup_id=' & $vdcgroup_id
-                  }     
-              ]
-          );
-          $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
-          $append($lists, $distinct($dynamic))
       )
