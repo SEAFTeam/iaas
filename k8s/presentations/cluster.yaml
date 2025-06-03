@@ -1,0 +1,174 @@
+entities:
+    seaf.ta.services.k8s:
+        presentations:
+            ports:
+                type: plantuml
+                template: templates/cluster-ports.puml
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $cluster_id  := $params.id;
+                        $cluster    := $lookup($.*, $cluster_id);
+                        $context    := $;
+                        /* выбираем все NS текущего кластера */
+                        $namespaces     := $lookup($, $kube_config.namespace.entity).*[k8s_cluster_id = $cluster_id];
+                        /* формируем плоский массив IDшек NS для быстрой фильтрации */
+                        $namespace_ids  := $namespaces.(id);
+                        /* формируем список сервисов кластера с типом LoadBalancer */
+                        $services := $lookup($, $kube_config.service.entity).*[(namespace_id in $namespace_ids) and (type = "LoadBalancer")];
+                        /* формируем плоский массив IDщек NSов, в которых есть сервисы типа LoadBalancer */
+                        $service_namespace_ids := $services.namespace_id;
+                        /* формируем список объектов NS, в которых есть сервисы типа LoadBalancer */
+                        $service_namespaces := $namespaces[id in $service_namespace_ids];
+                        /*
+                        $deployment$lookup($, $kube_config.service.entity).*[(namespace_id in $namespace_ids) and (type = "LoadBalancer")];
+                            в каждом NS надо найти все сервисы LoadBalancer и все деплойменты, которые подпадают под селектор
+                            берём сервис, для него подгружаем NS
+                            в этом NS ищем совпадения по selector
+                        */
+                    
+                        $targets := $services.(
+                            /* загружаем NS сервиса */ 
+                            $ns := $lookup($context.*, $.namespace_id);
+                            $namespace_id := $.namespace_id;
+                            $deployments := $lookup($context, $kube_config.deployment.entity).*[namespace_id = $namespace_id];
+                            $selector := $.selector;
+                            $deps := $filter($deployments, function($item) { $keys($selector)[$lookup($selector, $) != ($exists($lookup($item.labels, $)) ? $lookup($item.labels, $) : "") ] ~> $count() ~> $not() });
+                            /*
+                            { 
+                                (
+                                    $keys($selector)[$lookup($selector, $) != ($exists($lookup($item.labels, $)) ? $lookup($item.labels, $) : "") ] ~> $count() ~> $not();
+                                )
+                            } */  
+                            /*$deps.({ "id" : $.id, "name" : $.title })*/
+                            {
+                                "service_id" : $.id,
+                                "link"  : {
+                                    "name" : $ns.title,
+                                    "id"   : $ns.id,
+                                    "deployments" : $deps.({ "id" : $.id, "name" : $.title })
+                                }
+                            }
+                    
+                        );
+                        
+                        $log($targets, "targets");
+                        /*
+                        $deployments    := $lookup($, $kube_config.deployment.entity);
+
+                        $targets := $services.(
+                            $abc := $deployments.*[namespace_id = $.namespace_id];
+                            $log($abc, "abc");
+                        );
+                    
+                        $log($targets, "targets");
+                        */
+                        /*
+                        $log($deployments, "deployments");
+                        $deployments := $service_namespace_ids.(
+                            
+                        );
+                        */
+                        $log($targets, "targets");
+                        {
+                            "id"            : $params.id,
+                            "cluster_id"    : $cluster_id,
+                            "services"      : $services,
+                            "namespaces"    : $service_namespaces,
+                            "ns_prefix"     : $kube_config.namespace.entity,
+                            "targets"       : $targets
+                        }
+                    )
+            k8s_list:
+                type: table
+                headers:
+                - value: fqdn
+                  text: FQDN
+                  width: 200
+                  sortable: true
+                  link: link
+                - value: name
+                  text: Название
+                  width: 200
+                  sortable: true
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;                    
+                        $clusters := $keys($lookup($, $kube_config.cluster.entity))[$contains($params.domain & ".k8s.cluster")];
+                        $context := $;
+                        $data := $clusters.(
+                            $cluster := $lookup($context.*, $);
+                            {
+                                "name" : $cluster.id,
+                                "fqdn" : $cluster.fqdn,
+                                "link" : '/entities/' & $kube_config.cluster.entity & '/k8s_get?id=' & $cluster.id
+                            }
+                        );
+                        
+                        [
+                            $data
+                        ]
+                    )
+            k8s_get:
+                type: markdown
+                template: templates/cluster.md
+                source: > 
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $cluster_id  := $params.id;
+                        $cluster    := $lookup($.*, $cluster_id);
+                        $nodes := $lookup($, $kube_config.node.entity).*[k8s_cluster_id = $cluster_id];
+                        $node_count := $count($nodes);
+                        {                        
+                            "id"            : $params.id,
+                            "cluster_id"    : $cluster_id,
+                            "fqdn"          : $cluster.fqdn,
+                            "node_count"    : $node_count,
+                            "kube_config"   : $kube_config
+                        }
+                    )
+            nodes:
+                type: table
+                headers:
+                    - value: name
+                      text: Название
+                      link: link
+                    - value: version
+                      text: Версия k8s
+                    - value: addresses
+                      text: адреса
+                source: > 
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        /* $nodes := $lookup($, $kube_config.node.entity).*[k8s_cluster_id = $params.id]; */
+                        /* $log($nodes, "NODES"); */
+                        $nodes := $."seaf.ta.components.k8s_node".*[k8s_cluster_id = $params.id];
+
+                    
+                        $nodes[].(
+                            {
+                                "name" : $.title,
+                                "addresses" : $join($.addresses.address, ', '),
+                                "version" : $.version,
+                                "link" : '/entities/' & $kube_config.node.entity & '/get?id=' & $.id
+                            }
+                        )
+                    )
+            namespaces:
+                type: table
+                headers:
+                    -   value: name
+                        text: Название
+                        link: link
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $namespaces := $lookup($, $kube_config.namespace.entity).*[k8s_cluster_id = $params.id];
+                    
+                        [$namespaces[].(
+                            {
+                                "name" : $.title,
+                                "link" : '/entities/' & $kube_config.namespace.entity & '/get?id=' & $.id
+                            }
+                        )]
+                    )

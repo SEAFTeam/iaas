@@ -1,0 +1,23 @@
+  {%- for item in items -%}
+    {%- for some in item -%}
+        {%- if some.__class__.__name__ == 'list' -%}
+            {%- for service in some %}
+    {{domain}}.k8s.vservice.{{ service.metadata.uid }}:
+        id: {{domain}}.k8s.vservice.{{ service.metadata.uid }}
+        title: {{ service.metadata.name }}
+        namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
+        hosts:
+        {%- for host in service.spec.hosts %}
+            - "{{ host }}"{%- endfor %}
+        http:
+        {%- for route in service.spec.http %}
+            - route:
+                {%- for destination in route.route %}
+                - destination:
+                    host: {{destination.destination.host}}
+                    subset: {{destination.destination.subset}}{%- endfor %}
+            {%- endfor %}
+        {%- endfor -%}
+        {%- endif -%}
+    {%- endfor -%}
+  {%- endfor -%}

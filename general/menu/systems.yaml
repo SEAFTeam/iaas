@@ -1,22 +1,69 @@
 entities:
   seaf.ta.reverse.general.systems:
     menu: >
-      (
-          $config := "seaf.ta.reverse.general".config;
-          $systems := $$.components.$spread()[*.type = 'service'];
-          $components := $$.components.$spread()[*.type = 'component'];
-          $links := $$."seaf.ta.reverse.general.links";
-          $available_systems := $distinct($links.$spread().(
-              $app_id := $.*.app_id;
-              $components[$keys() = $app_id] ? (
-                $system_id := $.**.is_component_of;
-                $systems[$keys() = $system_id]
+      (   
+          $menu := function($domain, $prefix, $available_systems, $entity)
+              {[$available_systems.({
+                  "domain": $domain,
+                  "location": $prefix & "/Системы/" & $.*.title,
+                  "link": "entities/" & $entity & "/systems_ta?id=" & $keys()[0] & "&domain=" & $domain
+              })]};
+          $reverse_systems_menu_generator := function($prefix, $domain, $type){(
+      
+              $domain_matcher := $eval('/^' & $domain & '.*/');      
+              $type = "seaf" ? (                 /*       If      */
+                  $entity := "seaf.ta.reverse.general.systems";
+      
+                  $systems := $$.components.$spread()[*.type = 'service'];
+                  $components := $$.components.$spread()[*.type = 'component'];
+                  $links := $$."seaf.ta.reverse.general.links";
+                  $available_systems := $distinct($links.$spread().(
+                      $app_id := $.*.app_id;
+                      $components[$keys() = $app_id] ? (
+                          $system_id := $.**.is_component_of;
+                          $systems[$keys() = $system_id];
+                      ) : (
+                          $systems[$keys() = $app_id];
+                          )
+                      )
+                  );
+                  $menu($domain, $prefix, $available_systems, $entity)
+              ) : (     /*       Else        */   
+                  $entity := "seaf.ta.reverse.general.systems_kadzo";
+                  $systems := $."kadzo.v2023.systems"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $tech_params := $."kadzo.v2023.tech_params" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $config := "seaf.ta.reverse.general".config;
+                  $reverse_entities := $config.entities.**.model;
+                  $tags := $config.entities.**.tags.*;
+                  $tp := $reverse_entities.(
+                      $lookup($$, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? $v.**.tags[$keys() in $tags].*.$split(", ")}) 
+                  ).($append($tp, $.$split(", "))) ~> $distinct();
+                  $available_systems := $tp.(
+                      $lookup($tech_params, $)@$s.({$s.system: $lookup($systems, $s.system)})
+                  ) ~> $distinct();
+                  $menu($domain, $prefix, $available_systems, $entity)
+              );
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $reverse_systems_menu_generator($prefix, $domain, "kadzo");
               ) : (
-                $systems[$keys() = $app_id]
-              )
-          ));
-          $menu := $append($menu, [$available_systems.({
-              "link": "entities/seaf.ta.reverse.general.systems/systems_ta?id=" & $keys()[0],
-              "location": $config.arch_menu & "/Системы/" & $.*.title
-          })])
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $reverse_systems_menu_generator($prefix, $domain, "kadzo");
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $reverse_systems_menu_generator($prefix, $domain, "seaf");
+          );
       )

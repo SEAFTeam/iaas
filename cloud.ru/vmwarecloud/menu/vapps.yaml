@@ -2,9 +2,7 @@ entities:
   seaf.ta.reverse.vmwarecloud.vapps:
     menu: >
       (
-          $domain := '';
-          $domain_matcher := $eval('/^' & $domain & '.*/');
-      
+               
           $vapps_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.model;
           $vapps_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
@@ -12,48 +10,78 @@ entities:
           $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
       
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          $vapps := $lookup($, $vapps_entity)[$domain_matcher($keys())];
-          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
-          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
-          $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
+          $vapps_menu_generator := function($prefix, $domain){(
       
-          $config := "seaf.ta.reverse.general".config;
-          $menu := $vapps.$spread().(
-              $id := $keys();
-              $title := $.*.title;
-              $vdc_id := $.*.vdc;
-              $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
-              $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org;
-              $org := $orgs.$spread()[$keys() = $org_id];
-              $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              $vdc_id in $vdcgroups.*.vdcs.id ? (
-                  $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
-                  $vdcgroup.$spread().(
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vapps := $lookup($, $vapps_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $orgs := $lookup($, $org_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          
+              $menu := $vapps.$spread().(
+                  $id := $keys();
+                  $title := $.*.title;
+                  $vdc_id := $.*.vdc;
+                  $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
+                  $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org;
+                  $org := $orgs.$spread()[$keys() = $org_id];
+                  $orgtitle := $org.*.title;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $vdc_id in $vdcgroups.*.vdcs.id ? (
+                      $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
+                      $vdcgroup.$spread().(
+                          [
+                              {
+                                  'domain': $domain,
+                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps/' & $title,
+                                  'link': 'entities/' & $vapps_view & '/card?id=' & $id
+                              },
+                              {
+                                  'domain': $domain,
+                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps',
+                                  'link': 'entities/' & $vapps_view & '/list?vdc_id=' & $vdc_id
+                              }
+                          ]
+                      )
+                  ) : (
                       [
                           {
-                              'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps/' & $title,
+                              'domain': $domain,
+                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps/' & $title,
                               'link': 'entities/' & $vapps_view & '/card?id=' & $id
                           },
                           {
-                              'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps',
+                              'domain': $domain,
+                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps',
                               'link': 'entities/' & $vapps_view & '/list?vdc_id=' & $vdc_id
                           }
                       ]
                   )
+              );
+              $distinct($menu)
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $vapps_menu_generator($prefix, $domain);
               ) : (
-                  [
-                      {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps/' & $title,
-                          'link': 'entities/' & $vapps_view & '/card?id=' & $id
-                      },
-                      {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps',
-                          'link': 'entities/' & $vapps_view & '/list?vdc_id=' & $vdc_id
-                      }
-                  ]
-              )
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $vapps_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $vapps_menu_generator($prefix, $domain);
           );
-          $distinct($menu) 
       )

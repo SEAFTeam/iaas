@@ -6,3 +6,4 @@
 
 ## Подключенные провайдеры
 - [Cloud.ru](cloud.ru/README.md) — провайдер облачных технологий и AI-решений. [Readme](cloud.ru/README.md)
+- [Kubernetes](k8s/README.md) - инфраструктура кластеров Kubernetes

@@ -1,0 +1,17 @@
+entities:
+    seaf.ta.components.k8s_service:
+        presentations:
+            get:
+                type: markdown
+                template: templates/service.md
+                source: >
+                    (
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $service        := $lookup($.*, $params.id);
+                    
+                        {                        
+                            "name"              : $service.title,
+                            "type"              : $service.type,
+                            "ports"             : $service.ports
+                        }
+                    )

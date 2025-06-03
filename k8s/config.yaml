@@ -1,0 +1,18 @@
+entities:
+    seaf.ta.reverse.k8s:
+        config:
+            cluster:
+                entity: seaf.ta.services.k8s
+                view:  k8s_list
+            node:
+                entity: seaf.ta.components.k8s_node
+            namespace:
+                entity: seaf.ta.components.k8s_namespace
+            deployment:
+                entity: seaf.ta.components.k8s_deployment
+            service:
+                entity: seaf.ta.components.k8s_service
+            vservice:
+                entity: seaf.ta.components.istio.virtualservice
+            drule:
+                entity: seaf.ta.components.istio.destinationrule

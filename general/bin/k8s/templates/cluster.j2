@@ -1,0 +1,4 @@
+    {% for cluster in items %}
+    {{domain}}.k8s.cluster.{{cluster.name}}:
+        id: {{domain}}.k8s.cluster.{{cluster.name}}
+        fqdn: {{cluster.cluster_fqdn}}{% endfor %}

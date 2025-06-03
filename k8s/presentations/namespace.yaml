@@ -1,0 +1,269 @@
+entities:
+    seaf.ta.components.k8s_namespace:
+        presentations:
+            get:
+                type: markdown
+                template: templates/namespace.md
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $namespace_id := $params.id;
+                        $namespace  := $lookup($.*, $namespace_id);
+                        {                        
+                            "id"            : $namespace_id,
+                            "name"          : $namespace.title,
+                            "kube_config"   : $kube_config
+                        }
+                    )
+            istio:
+                type: plantuml
+                template: templates/istio.puml
+                source: >
+                    (
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $namespace      := $lookup($.*, $params.id);
+                        $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
+                        $deployments    := $lookup($, $kube_config.deployment.entity).*[namespace_id = $params.id];
+                        $vservices      := $lookup($, $kube_config.vservice.entity).*[namespace_id = $params.id];
+                        $drules         := $lookup($, $kube_config.drule.entity).*[namespace_id = $params.id];
+
+                        /* определение связей между сервисами и деплойментами */
+                        $service_links     := $services.(
+                                $service        := $;
+                                $selector       := $service.selector;
+                                $selectorLabels := $keys($service.selector);
+                
+                                /* filter linked deployments and SSs */
+                                $items := $filter($deployments, function($item) {
+                                    (
+                                        $labels := $item.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                $not ($depLabel = $selLabel);
+                                            )
+                                        });
+                
+                                        $not($count($mismatches) > 0 or $count($selector) = 0); 
+                                    )
+                                });
+                
+                                {
+                                    "source"       : $service,
+                                    "targets"      : $items
+                                }       
+                        );
+                    
+                    
+                        $apps_labels := $services.labels.app;
+                    
+                        $apps := $apps_labels.(
+                            $name := $;
+                            
+                            $app_services       := $services[labels.app = $name];
+                            $app_deployments    := $deployments[labels.app = $name];
+                    
+                            {
+                                "name"          : $,
+                                "services"      : $app_services,
+                                "deployments"   : $app_deployments
+                            }
+                        );
+                    
+                        $log($service_links, "links");
+
+                        {
+                            "name"      : $namespace.title,
+                            "apps"      : $apps,
+                            "services"  : $services,
+                            "vservices" : $vservices,
+                            "drules"    : $drules,
+                            "links"     : $service_links
+                        }   
+                    )
+            uml:
+                type: plantuml
+                template: templates/namespace-v2.puml
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $namespace  := $lookup($.*, $params.id);
+                        $cluster    := $lookup($.*, $namespace.k8s_cluster_id);
+                    
+                        $log($namespace, "NAMESPACE");
+                        $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
+                        $deployments    := $lookup($, $kube_config.deployment.entity).*[namespace_id = $params.id];
+
+                    
+                        $services := $services.(
+                            $service := $;
+                    
+                            $service := $service ~> | ports | { "ref" : $service.id & "_" & $.port & "_" & $.protocol }|;
+                            /*
+                            $service.ports.{
+                                "service"   : $service,     
+                                "ref"       : $service.id & "_" & $.port & "_" & $.protocol,
+                                "port"      : $.port,
+                                "protocol"  : $.protocol
+                            };
+                            */
+                        ); 
+                    
+                    
+                        /* обогатим сервисы точками с абсолютными ссылками */
+                    
+                    
+                        /* слияние деплойментов и stateful sets для определения связей - пока не используются SS */
+                        $deployments  := $deployments ~> | $ | { "type": "deployment"}|;
+                        /* $statefulsets := $statefulsets ~> | $ | { "type": "statefulset"}|; */
+                        $targets      := $append($deployments, $statefulsets);
+                    
+                        /* определение связей между сервисами и деплойментами */
+                        $service_links     := $services.(
+                                $service        := $;
+                                $selector       := $service.selector;
+                                $selectorLabels := $keys($service.selector);
+                    
+                                /* filter linked deployments and SSs */
+                                $items := $filter($targets, function($item) {
+                                    (
+                                        $labels := $item.labels;
+                                        $mismatches := $filter($selectorLabels, function($key) {
+                                            (
+                                                $depLabel := $lookup($labels, $key);
+                                                $selLabel := $lookup($selector, $key); 
+                                                $not ($depLabel = $selLabel);
+                                            )
+                                        });
+                    
+                                        $not($count($mismatches) > 0); 
+                                    )
+                                });
+                    
+                                {
+                                    "source"       : $service,
+                                    "targets"      : $items
+                                }       
+                        );
+
+                        $deployment_ports := $deployments.(
+                            $deployment := $; /* сохраняем контекст */
+                            $container_ports := $deployment.containers.ports;
+                            $probe_ports     := $deployment.containers.*.port.(
+                                {
+                                    "port" : $,
+                                    "protocol" : "TCP"
+                                }
+                            );
+                    
+                            $ports := $append($container_ports, $probe_ports);
+                            
+                            {
+                                $deployment.id : {
+                                    "ports" : $ports
+                                }
+                            }   
+                        );
+                        
+                        $log($deployment_ports, "deployment ports");
+                    
+                        $port_dictionary := $service_links.(
+                            $service := $; /* сохраняем контекст */
+                        );
+                        /* TBD для каждого target_port сервиса надо для соответствующего деплоймента записать порты */
+                        /* $log($service_links, "service links"); */
+                    
+                        /* в каждый port надо добавить соответствующее поле */
+                        $services := $services.(
+                            $service := $;
+                            $service := $service ~> | ports | { "target_port_number" : $some } |;
+                            $service;
+                        );
+                    
+                        $log($services, "services");
+                    
+                        $deployments := $deployments.(
+                            $deployment := $;
+                            /*$services := $service_links[targets[id = $deployment.id]].source; */
+                            $deployment := $deployment ~> | $ | { "ports" : $service_links[targets[id = $deployment.id]].source.ports } |;
+                            /* $deployment := $deployment ~> | containers.ports | { "ref" : $deployment.id & "_" & $.port & "_" & $.protocol }|; */
+
+                            /* $deployment.ports := $service_links[targets[id = $deployment.id]].source.ports; */
+                            /* сопоставление портов сервиса и портов деплоймента, которые могут быть и не описаны */
+                    
+                            /* $log($services.ports, "for deployment " & $deployment.title); */
+                            /* $deployment := $deployment ~> |  | */
+                            $deployment;
+                        );
+                        
+                        
+                        
+                   
+                        /*
+                        $log($deployments, "deployments");
+                        $log($service_links, "links");
+                        $log($port_links, "port_links");
+                        $log($service_links, "links");
+                        $log($deployments, "deployments");
+                        $log($links, "links");
+                        $log($targets, "targets");
+                        $log($namespace, "namespace");
+                        $log($pvs, "pvs");
+                        $log($pvc_links, "pvc_links");
+                        $log($namespace_links, "links");
+                        $log($nsid, "nsid");
+                        $log($namespace, "namespace");
+                        $log($pvcs, "pvcs");
+                        $log($namespace_services, "services");                    
+                        $log($namespace_links, "links");
+                            "service_links"     : $service_links,
+                            "port_links"        : $port_links
+                            "namespace_ports"   : $cluster_ips,
+                        */
+                        {
+                            "cluster"           : $cluster,
+                            "namespace"         : $namespace,
+                            "services"          : $services,
+                            "deployments"       : $deployments
+                        }
+                    )
+            deployments:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $deployments := $lookup($, $kube_config.deployment.entity).*[namespace_id = $params.id];
+                        $deployments[].(
+                            {
+                                "name" : $.title,
+                                "link" : '/entities/'& $kube_config.deployment.entity & '/get?id=' & $.id
+                            }
+                        )
+
+                    )
+            services:
+                type: table
+                headers:
+                    - value: name
+                      text: название
+                      link: link
+                    - value: type
+                      text: тип
+                source: >
+                    (
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
+                    
+                        $services[].(
+                            {
+                                "name"  : $.title,
+                                "type"  : $.type,
+                                "link" : '/entities/' & $kube_config.service.entity & '/get?id=' & $.id
+                            }
+                        )
+                    )

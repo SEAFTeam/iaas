@@ -1,0 +1,20 @@
+entities:
+    seaf.ta.components.k8s_node:
+        presentations:
+            get:
+                type: markdown
+                template: templates/node.md
+                source: >
+                    (
+                        $kube_config := entities."seaf.ta.reverse.k8s".config;
+                        $node_id := $params.id;
+                        $node  := $lookup($.*, $node_id);
+                        {                        
+                            "id"            : $params.id,
+                            "node_id"       : $node_id,
+                            "title"         : $node.title,
+                            "arch"          : $node.architecture,
+                            "cpu"           : $node.cpu,
+                            "addresses"     : $node.addresses
+                        }
+                    )

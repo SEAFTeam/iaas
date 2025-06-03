@@ -25,3 +25,9 @@ datasets:
           $allobjects := $append($advs, $enterprise);
           $allobjects := $append($allobjects, $vmwareonprem)
       )
+  all:
+    title: All
+    source: >
+      (
+        $
+      )

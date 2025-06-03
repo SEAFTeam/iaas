@@ -2,35 +2,60 @@ entities:
   seaf.ta.reverse.vmwareonprem.vdcs:
     menu: >
       (
-          $domain := '';
-          $domain_matcher := $eval('/^' & $domain & '.*/');
-      
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
           $vdcs_view := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.view;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
       
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
+          $vdcs_menu_generator := function($prefix, $domain){(
       
-          $config := "seaf.ta.reverse.general".config;
-          $lists := [$vdcs.$spread().(
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Реестры/VDC',
-                  'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
-              }
-          )];
-          $dynamic_vdc := $vdcs.$spread().(
-              $id := $keys()[0];
-              $title := $.*.title;
-              $vdc := $;
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Виртуальные Датацентры/' & $title,
-                  'link': 'entities/' & $vdcs_view & '/card?id=' & $id
-              }
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+      
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+        
+              $lists := [$vdcs.$spread().(
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  {
+                      'domain': $domain,
+                      'location': $prefix & '/' & $dctitle & '/Реестры/VDC',
+                      'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
+                  }
+              )];
+              $dynamic_vdc := $vdcs.$spread().(
+                  $id := $keys()[0];
+                  $title := $.*.title;
+                  $vdc := $;
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  {
+                      'domain': $domain,
+                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $title,
+                      'link': 'entities/' & $vdcs_view & '/card?id=' & $id
+                  }
+              );
+              $append($lists, $dynamic_vdc)
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $vdcs_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $vdcs_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $vdcs_menu_generator($prefix, $domain);
           );
-          $append($lists, $dynamic_vdc)
       )

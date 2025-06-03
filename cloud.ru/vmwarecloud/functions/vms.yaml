@@ -26,13 +26,13 @@ functions:
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             $orgs_entity := dataset."seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
         
-            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
-            $vms := $lookup(dataset, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];
-            $vapps := $lookup(dataset, $vapps_entity)[$domain_matcher($keys())];
-            $vdcs := $lookup(dataset, $vdcs_entity)[$domain_matcher($keys())];
-            $edrs := $lookup(dataset, $edrs_entity)[$domain_matcher($keys())];
-            $avs := $lookup(dataset, $avs_entity)[$domain_matcher($keys())];
-            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
+            $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vms := ($lookup(dataset, $vms_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud"];
+            $vapps := $lookup(dataset, $vapps_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $edrs := $lookup(dataset, $edrs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $avs := $lookup(dataset, $avs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $orgs := $lookup(dataset, $orgs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
         
             [[$vms.$spread().{
                 'id': $keys(),

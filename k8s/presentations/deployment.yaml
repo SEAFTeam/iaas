@@ -1,0 +1,17 @@
+entities:
+    seaf.ta.components.k8s_deployment:
+        presentations:
+            get:
+                type: markdown
+                template: templates/deployment.md
+                source: >
+                    (
+                        $kube_config    := entities."seaf.ta.reverse.k8s".config;
+                        $deployment     := $lookup($.*, $params.id);
+                        {                        
+                            "name"              : $deployment.title,
+                            "update_strategy"   : $deployment.update_strategy,
+                            "replicas"          : $deployment.replicas,
+                            "containers"        : $deployment.containers
+                        }
+                    )

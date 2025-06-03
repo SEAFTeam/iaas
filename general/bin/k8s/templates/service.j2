@@ -1,0 +1,24 @@
+    {% for service in items %}
+    {{domain}}.k8s.service.{{service.metadata.uid}}:
+            id:  {{domain}}.k8s.service.{{service.metadata.uid}}
+            title: {{service.metadata.name}}
+            type: {{service.spec.type}}
+            namespace_id: {{domain}}.k8s.namespace.{{parent.item.metadata.uid}}
+            ports:
+            {%- for port in service.spec.ports %}
+                - name: {{port.name}}
+                  port: {{port.port}}
+                  target_port: {{port.target_port}}
+                  node_port: {{port.node_port}}
+                  protocol: {{port.protocol}}
+            {%- endfor %}
+            {%- if service.spec.selector %}
+            selector:
+                {%- for key, value in service.spec.selector.items() %}
+                - {{key}} : {{value}} {%- endfor %}
+            {%- endif %}
+            {%- if service.metadata.labels %}
+            labels:
+                {%- for key, value in service.metadata.labels.items() %}
+                - {{key}} : {{value}} {%- endfor %}
+            {%- endif %}{% endfor %}

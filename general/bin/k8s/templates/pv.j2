@@ -1,0 +1,13 @@
+    {% for pv in items %}
+    {{domain}}.k8s.pv.{{pv.metadata.uid}}:
+        id: {{domain}}.k8s.pv.{{pv.metadata.uid}}
+        title: {{pv.metadata.name}}
+        capacity: {{pv.spec.capacity.storage}}
+        volume_mode: {{pv.spec.volume_mode}}
+        host_path: {{pv.spec.host_path.path}}
+        {%- if pv.spec.claim_ref is not none %}
+        claim_ref:
+            name: {{pv.spec.claim_ref.name}}
+            namespace: {{pv.spec.claim_ref.namespace}}
+            uid: {{pv.spec.claim_ref.uid}}
+        {%- endif %}{% endfor %}

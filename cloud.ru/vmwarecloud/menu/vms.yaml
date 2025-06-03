@@ -3,8 +3,6 @@ entities:
     menu: >
       (
           $dataset := $;
-          $domain := '';
-          $domain_matcher := $eval('/^' & $domain & '.*/');
           
           $vms_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.model;
           $vm_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.view;
@@ -13,54 +11,83 @@ entities:
           $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
           $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
       
-          $dcs := $lookup($, $dcs_entity)[$domain_matcher($keys())];
-          /*$vms := $lookup($, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];*/
-          $vdcs := $lookup($, $vdcs_entity)[$domain_matcher($keys())];
-          $vdcgroups := $lookup($, $vdcgroups_entity)[$domain_matcher($keys())];
-          $orgs := $lookup($, $org_entity)[$domain_matcher($keys())];
-      
-          $config := "seaf.ta.reverse.general".config;
-          $lists := [$orgs.$spread().(
-              $dcid := $.*.dc;
-              $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-              {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/Серверы',
-                  'link': 'entities/' & $vm_view & '/list?domain=' & $domain
-              }
-          )];
-          $dynamic_vdc := $vdcs.$spread()[$not($keys() in $vdcgroups.*.vdcs.id)].(
-              $id := $keys()[0];
-              $vms := $reverse_vmwarecloud_vms($dataset, $domain)[vdc = $id];
-              $title := $.*.title;
-              $org_id := $.*.org;
-              $org := $orgs.$spread()[$keys() = $org_id];
-              $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              $exists($vms) ? (
+          $vms_menu_generator := function($prefix, $domain){(
+          
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+          
+              $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              /*$vms := $lookup($, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];*/
+              $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $orgs := $lookup($, $org_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          
+              $lists := [$orgs.$spread().(
+                  $dcid := $.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   {
-                      'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title & '/VMs',
-                      'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                      'domain': $domain,
+                      'location': $prefix & '/' & $dctitle & '/Облако VMware/Реестры/Серверы',
+                      'link': 'entities/' & $vm_view & '/list?domain=' & $domain
                   }
-              )
-          );
-          $dynamic_vdcgroup := $vdcs.$spread()[$keys() in $vdcgroups.*.vdcs.id].(
-              $id := $keys()[0];
-              $vms := $reverse_vmwarecloud_vms($dataset, $domain)[vdc = $id];
-              $title := $.*.title;
-              $org_id := $.*.org;
-              $org := $orgs.$spread()[$keys() = $org_id];
-              $orgtitle := $org.*.title;
-              $dc := $dcs.$spread()[$keys() = $org.*.dc];
-              $vdcgroup := $vdcgroups.$spread()[$id in *.vdcs.id];
-              $exists($vms) ? (
-                  $vdcgroup.$spread().(
+              )];
+              $dynamic_vdc := $vdcs.$spread()[$not($keys() in $vdcgroups.*.vdcs.id)].(
+                  $id := $keys()[0];
+                  /* $vms := $reverse_vmwarecloud_vms($dataset, $domain)[vdc = $id]; */
+                  $title := $.*.title;
+                  $org_id := $.*.org;
+                  $org := $orgs.$spread()[$keys() = $org_id];
+                  $orgtitle := $org.*.title;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $exists($vms) ? (
                       {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title & '/VMs',
+                          'domain': $domain,
+                          'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title & '/VMs',
                           'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
                       }
                   )
-              )
+              );
+              $dynamic_vdcgroup := $vdcs.$spread()[$keys() in $vdcgroups.*.vdcs.id].(
+                  $id := $keys()[0];
+                  /* $vms := $reverse_vmwarecloud_vms($dataset, $domain)[vdc = $id]; */
+                  $title := $.*.title;
+                  $org_id := $.*.org;
+                  $org := $orgs.$spread()[$keys() = $org_id];
+                  $orgtitle := $org.*.title;
+                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $vdcgroup := $vdcgroups.$spread()[$id in *.vdcs.id];
+                  $exists($vms) ? (
+                      $vdcgroup.$spread().(
+                          {
+                              'domain': $domain,
+                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title & '/VMs',
+                              'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                          }
+                      )
+                  )
+              );
+              $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
+              $append($lists, $dynamic)
+          )};
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $vms_menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $vms_menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $vms_menu_generator($prefix, $domain);
           );
-          $dynamic := $append($dynamic_vdc, $dynamic_vdcgroup);
-          $append($lists, $dynamic)
       )

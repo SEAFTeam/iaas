@@ -1,0 +1,43 @@
+@startuml
+skinparam linetype polyline
+left to right direction
+set separator none
+
+!function   $safeID($value)
+!$parts = %splitstr($value, "-")
+!$text = "sid"
+!foreach $item in $parts
+!$text = $text + "_" + $item
+!endfor
+!return $text
+!endfunction
+
+{{#services}}
+    rectangle {
+        circle "**{{title}}**\n" as $safeID("svc-{{id}}") <<service>>
+        card card [
+            <b>порты</b>
+            {{#ports}}
+            ----
+            {{port}}:{{protocol}}:{{target_port}}
+            {{/ports}}
+        ]
+    }
+{{/services}}
+
+rectangle "=={{{ id }}}" <<cluster>> {
+    {{#targets}}
+        rectangle "**{{link.name}}**\n" as $safeID("ns-{{link.id}}") <<namespace>> {
+            {{#link.deployments}}
+                rectangle "{{name}}" as $safeID("dp-{{id}}") <<deployment>>
+                $safeID("svc-{{service_id}}") -- $safeID("dp-{{id}}")
+            {{/link.deployments}}
+        }
+    {{/targets}}
+}
+
+
+
+
+
+' links

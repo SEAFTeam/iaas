@@ -19,8 +19,8 @@ functions:
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
           
-            $orgs := $lookup(dataset, $orgs_entity)[$domain_matcher($keys())];
-            $dcs := $lookup(dataset, $dcs_entity)[$domain_matcher($keys())];
+            $orgs := $lookup(dataset, $orgs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $dcs := $lookup(dataset, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
           
             [[$orgs.$spread().{
                 'id': $keys(),
