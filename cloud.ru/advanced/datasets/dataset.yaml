@@ -24,6 +24,7 @@ datasets:
               $srv_dc := server.DC;
               $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.dc_name;
               {
+              "id": id,
               "name": server.name,
               "status": server.status,
               "os_type": server.os.type,
@@ -70,6 +71,7 @@ datasets:
                               $rdb_dc := rdb.DC;
                               $dc := $cdcs.$spread()[$keys()[0] = $rdb_dc].*.dc_name;
                             {
+                              "id": id,
                               "name": rdb.name,
                               "status": rdb.status,
                               "vpc_id": rdb.vpc_id,
