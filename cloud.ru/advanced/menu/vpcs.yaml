@@ -2,17 +2,43 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.vpcs:
     menu: >
       (
-          $config := entities."seaf.ta.reverse.general".config;
-          $count($$."seaf.ta.reverse.cloud_ru.advanced.vpcs") > 0 ? [{
+          $menu_generator := function($prefix, $domain){(
+              [
+                  {
                       /* Размещение в пользовательском меню */
-                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Virtual Private Clouds",
+                      "location": $prefix & "/Cloud.ru/Advanced/Схемы/Virtual Private Clouds",
                       /* URI представления context см. ниже.*/
-                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram"
-          },
-          {
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram?domain=" & $domain
+                  },
+                  {
                       /* Размещение в пользовательском меню */
-                      "location": $config.arch_menu & "/Cloud.ru/Advanced/Схемы/Network Schema",
+                      "location": $prefix & "/Cloud.ru/Advanced/Схемы/Network Schema",
                       /* URI представления context см. ниже.*/
-                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full"
-          }];
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=" & $domain
+                  }
+              ];
+          )};
+          $count($$."seaf.ta.reverse.cloud_ru.advanced.vpcs") > 0 ? 
+          sber.kadzo ? (
+              sber.kadzo.enterprise_mode ?
+              sber.domains.$spread().( 
+                  $domain := $keys(); 
+                  $title := $lookup($$.companies, $domain) ? $lookup($$.companies, $domain).title : $.*.title;
+                  $prefix := "ДЗО/" & $title & "/Реверс";
+                  $menu_generator($prefix, $domain);
+              ) : (
+                    $not($exists(sber.kadzo.enterprise_mode)) and (sber.kadzo.menu.architecture.enabled = true or $not($exists(sber.kadzo.menu.architecture.enabled))) ? (
+                        $menu_root := ($exists(sber.kadzo.menu.architecture.roots) and $count(sber.kadzo.menu.architecture.roots) > 0 and $not(sber.kadzo.menu.architecture.roots = null))  ? sber.kadzo.menu.architecture.roots :
+                                        $exists(sber.kadzo.menu_root) ? sber.kadzo.menu_root : "Документы/Сбер/КА ДЗО/2023";
+                    $domain := sber.domain;
+                    $prefix := $menu_root & "/Реверс";
+                    $menu_generator($prefix, $domain);
+                  )
+              ) 
+          ) : (
+              $config := "seaf.ta.reverse.general".config;
+              $prefix := $config.arch_menu;
+              $domain := "";
+              $menu_generator($prefix, $domain);
+          );
       )
