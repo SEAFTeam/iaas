@@ -5,8 +5,10 @@ entities:
         type: smartants
         source: >
           (
-            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+            $domain := $params.domain;
+            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $arr1 := $merge($cvpcs.$spread().(
                       $id := $.*.id;
                       $name := *.name;
@@ -186,4 +188,10 @@ entities:
             text: Тенант
           - value: dc
             text: Датацентр
-        source: seaf.ta.reverse.servers_list
+        origin: seaf.ta.reverse.servers_list
+        source: >
+          (
+              $domain := $params.domain;
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $ ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+          )
