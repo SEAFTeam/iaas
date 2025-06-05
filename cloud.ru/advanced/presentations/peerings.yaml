@@ -29,8 +29,10 @@ entities:
             width: 200
             sortable: true
         source: >
-          (      
-              $peerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings";
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $peerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$distinct($peerings.$spread().(
                 $peerings_table := (
                   [$peerings.$spread().{

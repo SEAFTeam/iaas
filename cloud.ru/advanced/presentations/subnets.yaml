@@ -21,8 +21,10 @@ entities:
             width: 200
             sortable: true
         source: >
-          (      
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $csubnets.$spread().(
                   $subnetid := $.*.id;
                   $subnetname := $.*.name;

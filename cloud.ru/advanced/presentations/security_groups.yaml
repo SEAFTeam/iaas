@@ -20,8 +20,9 @@ entities:
         source: >
           (
               $ctx := $params;
-              $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
-              $security_group := $."seaf.ta.reverse.cloud_ru.advanced.security_groups".$spread()[*.id = $ctx.id];
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $security_group := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[*.id = $ctx.id];
               $security_group.*.rules.(
                   $rgid := $.remote_group_id;
                   $remote := (
@@ -59,7 +60,9 @@ entities:
             sortable: true
         source: >
           (
-              $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$distinct($security_groups.$spread().(
                 $security_groups_table := (
                   [$security_groups.$spread().{

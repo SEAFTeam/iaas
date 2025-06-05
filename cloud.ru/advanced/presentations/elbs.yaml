@@ -27,10 +27,12 @@ entities:
             width: 150
         source: >
           (
-              $celbs := $."seaf.ta.reverse.cloud_ru.advanced.elbs";
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cdcs := $."seaf.ta.services.dc";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $celbs := $."seaf.ta.reverse.cloud_ru.advanced.elbs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [[$celbs.$spread().{
                   'id': $keys()[0],
                   'elb': $.* 
@@ -50,7 +52,7 @@ entities:
                       'listeners': $listeners,
                       'pools': $pools,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '?domain=' & $ctx.domain
                   }   
               )]
           )
@@ -61,11 +63,12 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $elb := $."seaf.ta.reverse.cloud_ru.advanced.elbs".$spread()[$keys()[0] = $ctx.id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-              $cdcs := $."seaf.ta.services.dc";
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $elb.$spread().(
                   $id := $keys()[0];
                   $tmp := $.*.subnet_id;
@@ -93,7 +96,7 @@ entities:
                       'vpc': $vpc.*.name,
                       'listeners': $listeners,
                       'dc': $dc,
-                      'linkelb': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id
+                      'linkelb': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '?domain=' & $ctx.domain
                   }   
               )
           )
@@ -102,8 +105,9 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $elb := $."seaf.ta.reverse.cloud_ru.advanced.elbs".$spread()[$keys()[0] = $ctx.id];
-              $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
+              $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $elb.$spread().(
                   $id := $keys()[0];
                   $ip := $.*.address;

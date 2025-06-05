@@ -5,8 +5,8 @@ entities:
         type: smartants
         source: >
           (
-            $domain := $params.domain;
-            $domain_matcher := $eval('/^' & $domain & '.*/');
+            $ctx := $params;
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
             $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $arr1 := $merge($cvpcs.$spread().(

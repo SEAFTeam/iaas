@@ -29,9 +29,10 @@ entities:
         source: >
           (
             $ctx := $params;
-            $servers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-            $vaults := $."seaf.ta.reverse.cloud_ru.advanced.vaults";
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $servers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vaults := $."seaf.ta.reverse.cloud_ru.advanced.vaults" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $bkp_server := $servers.$spread()[$keys()[0] = $ctx.id];
             $disks := $bkp_server.*.disks.$keys();
             $bkp_server.(
@@ -107,7 +108,9 @@ entities:
             sortable: true
         source: >
           (
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
+            $ctx := $params;
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$distinct($backup_policies.$spread().(
                 $backup_policies_table := (
                   [$backup_policies.$spread().{
@@ -121,12 +124,14 @@ entities:
         template: templates/backup_policy.md
         source: >
           (
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
-              [$distinct($backup_policies.$spread().(
-                $backup_policies_table := (
-                  [$backup_policies.$spread().{
-                              "id": $keys()[0],
-                              "backup_policies": $.*
-                          }]
-              )).backup_policies)]
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                [$distinct($backup_policies.$spread().(
+                  $backup_policies_table := (
+                    [$backup_policies.$spread().{
+                                "id": $keys()[0],
+                                "backup_policies": $.*
+                            }]
+                )).backup_policies)]
           )

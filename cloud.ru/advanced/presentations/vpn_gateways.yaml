@@ -22,11 +22,13 @@ entities:
             width: 150
         source: >
           (
-              $cvpngws := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways";
-              $cvpnconn := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections";
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cdcs := $."seaf.ta.services.dc";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cvpngws := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpnconn := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $cvpngws.$spread().[(
                   $self := $;
                   $subnet := $csubnets.$spread()[$.*.id = $self.*.subnet_id].*.name;
@@ -40,7 +42,7 @@ entities:
                       'subnet': $subnet,
                       'vpc': $vpc,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=' & $self.$keys()[0]
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=' & $self.$keys()[0] & '?domain=' & $ctx.domain
                   }
               )]
           )
@@ -51,9 +53,10 @@ entities:
         source: >
           (
              $ctx := $params;
-             $cvpngw := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways".$spread()[$keys() = $ctx.id];
-             $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-             $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+             $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+             $cvpngw := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$keys() = $ctx.id];
+             $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+             $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
              $subnet := $csubnets.$spread()[$.*.id = $cvpngw.*.subnet_id].*.name;
              $vpc := $cvpcs.$spread()[$.*.id = $cvpngw.*.vpc_id].*.name;
              $cdcs := $."seaf.ta.services.dc";
@@ -83,9 +86,11 @@ entities:
         source: >
           (
               $ctx := $params;
-              $realty := $.$spread()[$keys()[0] = "seaf.ta.services.dc" or $keys()[0] = "seaf.ta.services.office"];
-              $cvpngw := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways".$spread()[$keys() = $ctx.id];
-              $connections := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections".$spread()[*.gw_id = $cvpngw.*.id];
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $realty := $merge($."seaf.ta.services.dc", $."seaf.ta.services.office")  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              /* $realty := $.$spread()[$keys()[0] = "seaf.ta.services.dc" or $keys()[0] = "seaf.ta.services.office"]; */
+              $cvpngw := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$keys() = $ctx.id];
+              $connections := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[*.gw_id = $cvpngw.*.id];
               $connections.$spread().(
                   $self := $;
                   $matcher := /\.*name$/;

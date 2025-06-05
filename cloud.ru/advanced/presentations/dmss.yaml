@@ -35,10 +35,12 @@ entities:
             width: 150
         source: >
           (
-              $cdmss := $."seaf.ta.reverse.cloud_ru.advanced.dmss";
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cdcs := $."seaf.ta.services.dc";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cdmss := $."seaf.ta.reverse.cloud_ru.advanced.dmss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$cdmss.$spread().(
                   $subnet_id := $.*.subnet_id;
                   $vpc_id := $.*.vpc_id;
@@ -57,7 +59,7 @@ entities:
                       'management': $.*.management,
                       'az': $join($.*.available_az, ', '),
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=' & $id
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=' & $id & '?domain=' & $ctx.domain
                   }
               )]
           )
@@ -67,9 +69,10 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $dms := $."seaf.ta.reverse.cloud_ru.advanced.dmss".$spread()[$keys()[0] = $ctx.id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $subnet_id := $dms.*.subnet_id;
               $vpc_id := $dms.*.vpc_id;
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id].*.name;

@@ -29,8 +29,10 @@ entities:
             width: 200
             sortable: true
         source: >
-          (      
-              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
+          (    
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$distinct($eips.$spread().(
                 $eips_table := (
                   [$eips.$spread().{
@@ -44,7 +46,9 @@ entities:
         template: templates/eip.md
         source: >
           (
-              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$distinct($eips.$spread().(
                 $eips_table := (
                   [$eips.$spread().{

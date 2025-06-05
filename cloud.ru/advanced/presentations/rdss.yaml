@@ -38,17 +38,25 @@ entities:
             text: Тенант
           - value: dc
             text: Датацентр
-        source: seaf.ta.reverse.rdb_list
+        origin: seaf.ta.reverse.rdb_list
+        source: >
+          (
+              $domain := $params.domain;
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $ ~> $filter(function($v){$domain_matcher($v.id)});
+          )
 
       rds_md:
         type: markdown
         template: templates/rdss_md.md
         source: >
           (
-            $crdb := $."seaf.ta.reverse.cloud_ru.advanced.rdss".$spread()[$keys()[0] = $params.id];
-            $vpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs".$spread()[$.*.id = $crdb.*.vpc_id].*.name;
-            $subnet := $."seaf.ta.reverse.cloud_ru.advanced.subnets".$spread()[$.*.id = $crdb.*.subnet_id].*.name;
-            $cdcs := $."seaf.ta.services.dc";
-            $dc := $cdcs.$spread()[$keys()[0] = $crdb.*.DC].*.dc_name;
-            $crdb.($.*) ~> | $ | {'DC': $dc, 'subnet': $subnet, 'vpc': $vpc} |;
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $crdb := $."seaf.ta.reverse.cloud_ru.advanced.rdss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$keys()[0] = $params.id];
+              $vpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$.*.id = $crdb.*.vpc_id].*.name;
+              $subnet := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$.*.id = $crdb.*.subnet_id].*.name;
+              $cdcs := $."seaf.ta.services.dc"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dc := $cdcs.$spread()[$keys()[0] = $crdb.*.DC].*.dc_name;
+              $crdb.($.*) ~> | $ | {'DC': $dc, 'subnet': $subnet, 'vpc': $vpc} |;
           )

@@ -28,10 +28,12 @@ entities:
             width: 150
         source: >
           (
-              $cnatgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways";
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cdcs := $."seaf.ta.services.dc";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cnatgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $cnatgw.$spread().[(
                   $subnet_id := $.*.subnet_id;
                   $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
@@ -47,7 +49,7 @@ entities:
                       'snat_rules_qty': $count($.*.snat_rules),
                       'dnat_rules_qty': $count($.*.dnat_rules),
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=' & $id
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=' & $id & '?domain=' & $ctx.domain
                   }
               )]
           )
@@ -58,9 +60,10 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $natgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways".$spread()[$keys()[0] = $ctx.id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $subnet_id := $natgw.*.subnet_id;
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
@@ -85,9 +88,10 @@ entities:
         source: >
           (
               $ctx := $params;
-              $natgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways".$spread()[$.*.id = $ctx.id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $natgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$.*.id = $ctx.id];
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $subnet_id := $natgw.*.subnet_id;
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
@@ -100,7 +104,7 @@ entities:
                       'id': $item.id,
                       'subnet': $subnet,
                       'eip_address': $eip_address,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full'
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=' & $ctx.domain
                   }                  
               );
           )
