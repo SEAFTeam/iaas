@@ -3,6 +3,8 @@ entities:
     menu: >
       (
           $menu_generator := function($prefix, $domain){(
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $count($$."seaf.ta.reverse.cloud_ru.advanced.cces" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})) > 0 ? 
               [{
                   /* Размещение в пользовательском меню */
                   "location": $prefix & "/Cloud.ru/Advanced/Реестры/Cloud Container Engines",

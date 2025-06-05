@@ -2,7 +2,9 @@ entities:
   seaf.ta.reverse.cloud_ru.advanced.subnets:
     menu: >
       (
-          $menu_generator := function($prefix, $domain){( 
+          $menu_generator := function($prefix, $domain){(
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $count($$."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})) > 0 ? 
               [{
                   /* Размещение в пользовательском меню */
                   "location": $prefix & "/Cloud.ru/Advanced/Реестры/VPC Subnets", 
