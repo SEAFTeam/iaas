@@ -4,6 +4,8 @@ entities:
             (
                 $menu := function($prefix, $domain) {
                     (
+                        $domain_matcher := $eval('/^' & $domain & '.*/');
+                        $count($$."seaf.ta.reverse.k8s" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})) > 0 ? 
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
                         /*
                         $config := "seaf.ta.reverse.general".config;
@@ -49,7 +51,7 @@ entities:
                 ) : (
                     $config := "seaf.ta.reverse.general".config;
                     $prefix := $config.arch_menu;
-                    $domain := "midworld.npc";
+                    $domain := "";
                     $k8s_menu_generator($prefix, $domain, "seaf")
                 );            
             )
