@@ -100,11 +100,12 @@ entities:
           (
               $ctx := $params;
               $id := $ctx.id;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $cserver := $."seaf.ta.reverse.cloud_ru.advanced.ecss".$spread()[$keys()[0] = $ctx.id];
-              $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups";
-              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs".$spread()[$.*.id = $cserver.*.vpc_id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets".$spread()[$.*.id in $cserver.*.subnets].*.name;
-              $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $cserver.*.DC].*.dc_name;
+              $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id = $cserver.*.vpc_id];
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id in $cserver.*.subnets].*.name;
+              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$keys()[0] = $cserver.*.DC].*.dc_name;
               $sg := $cserver.*.security_groups.($id := $; $name := $csecurity_groups.$spread()[$keys()[0] = $id].*.name; {'name': $name, 'sg_id': $id});
               {
                 'id': $id,
@@ -121,7 +122,8 @@ entities:
                 'sg': $sg,
                 'vpc': $cvpc.*.name,
                 'subnet': $csubnets,
-                'DC': $dc
+                'DC': $dc,
+                'domain': $ctx.domain
               }
           )
 
@@ -193,5 +195,6 @@ entities:
           (
               $domain := $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
-              $ ~> $filter(function($v){$domain_matcher($v.id)});
+              $data := $ ~> $filter(function($v){$domain_matcher($v.id)});
+              $data ~> | $ | {'domain': $domain} |;
           )
