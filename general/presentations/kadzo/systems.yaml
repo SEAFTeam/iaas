@@ -53,7 +53,7 @@ entities:
               $tech_params := manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
               $config := $manifest."seaf.ta.reverse.general".config;
               $reverse_entities := $config.entities.**.model;
-              $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.*;
+              $tags := $config.entities.$spread()[$keys() = $domain].**.tags.*;
               $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.tech_params;
               $tags_systems := $config.entities.$spread()[$keys() = $domain].**.tags.systems;
               $components := $reverse_entities.(
@@ -63,7 +63,6 @@ entities:
                   $tech_param_id := $keys()[0];
                   $tech_param := $;
                   $filtered_components := $components.($tech_param_id in $.**.tags[$keys() in $tags_tp].*.$split(", ") ? $);
-                  $log($filtered_components, 'components');
                   $filtered_components.(
                       {
                           'id': $keys()[0],
@@ -75,7 +74,6 @@ entities:
               );
               $direct_links := (
                   $filtered_components := $components.($params.id in $.**.tags[$keys() in $tags_systems].*.$split(", ") ? $);
-                  $log($filtered_components, 'components');
                   $filtered_components.(
                       {
                           'id': $keys()[0],
