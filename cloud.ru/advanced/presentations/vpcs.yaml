@@ -197,7 +197,7 @@ entities:
                     "iaas_provider": rdb.iaas_provider,
                     "tenant": rdb.tenant,
                     "dc": rdb.DC,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.rdss/rds_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.rdss/rds_md?id=" & id & '&domain=' & $ctx.domain
                   }
                 )]
             );
@@ -212,7 +212,7 @@ entities:
                     "vpc_id": gw.vpc_id,
                     "subnet_id": gw.subnet_id,
                     "ip_address": gw.ip_address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=" & id & '&domain=' & $ctx.domain
                   }
                 )]
             );
@@ -230,7 +230,7 @@ entities:
                     "vpc_id": $vpc.*.id,
                     "subnet_id": gw.subnet_id,
                     "ip_address": gw.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -248,7 +248,7 @@ entities:
                     "vpc_id": $vpc.*.id,
                     "subnet_id": elb.subnet_id,
                     "ip_address": elb.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -266,7 +266,7 @@ entities:
                     "vpc_id": $vpc_id,
                     "subnet_id": $subnet_id,
                     "ip_addresses": cce.addresses,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -281,7 +281,7 @@ entities:
                     "vpc_id": dms.vpc_id,
                     "subnet_id": dms.subnet_id,
                     "ip_addresses": dms.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=" & id & '?domain=' & $ctx.domain
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );   

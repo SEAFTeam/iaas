@@ -59,7 +59,7 @@ entities:
                       'management': $.*.management,
                       'az': $join($.*.available_az, ', '),
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=' & $id & '?domain=' & $ctx.domain
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=' & $id & '&domain=' & $ctx.domain
                   }
               )]
           )

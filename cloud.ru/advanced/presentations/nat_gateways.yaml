@@ -49,7 +49,7 @@ entities:
                       'snat_rules_qty': $count($.*.snat_rules),
                       'dnat_rules_qty': $count($.*.dnat_rules),
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=' & $id & '?domain=' & $ctx.domain
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=' & $id & '&domain=' & $ctx.domain
                   }
               )]
           )

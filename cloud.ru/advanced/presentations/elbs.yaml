@@ -52,7 +52,7 @@ entities:
                       'listeners': $listeners,
                       'pools': $pools,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '?domain=' & $ctx.domain
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '&domain=' & $ctx.domain
                   }   
               )]
           )
@@ -96,7 +96,7 @@ entities:
                       'vpc': $vpc.*.name,
                       'listeners': $listeners,
                       'dc': $dc,
-                      'linkelb': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '?domain=' & $ctx.domain
+                      'linkelb': '/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=' & id & '&domain=' & $ctx.domain
                   }   
               )
           )

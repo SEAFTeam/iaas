@@ -42,7 +42,7 @@ entities:
                       'subnet': $subnet,
                       'vpc': $vpc,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=' & $self.$keys()[0] & '?domain=' & $ctx.domain
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=' & $self.$keys()[0] & '&domain=' & $ctx.domain
                   }
               )]
           )
