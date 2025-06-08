@@ -97,7 +97,7 @@ entities:
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
               $array := $natgw.$spread().($.*);
-              $snat := $natgw.$spread().*.snat_rules.(
+              $snat := [$natgw.$spread().*.snat_rules.(
                   $item := $; 
                   $subnet := $csubnets.$spread()[$.*.id = $item.subnet_id].*.name;
                   $eip_address := $item.eip_address;
@@ -107,7 +107,7 @@ entities:
                       'eip_address': $eip_address,
                       'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=' & $ctx.domain
                   }                  
-              );
+              )];
           )
       natgw_dnat:
         type: table
@@ -133,7 +133,7 @@ entities:
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
               $array := $natgw.$spread().($.*);
-              $snat := $natgw.$spread().*.dnat_rules.(
+              $dnat := [$natgw.$spread().*.dnat_rules.(
                   $item := $; 
                   $subnet := $csubnets.$spread()[$.*.id = $item.subnet_id].*.name;
                   $eip_address := $item.eip_address;
@@ -143,5 +143,5 @@ entities:
                       'eip_address': $eip_address,
                       'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=' & $ctx.domain
                   }                  
-              );
+              )];
           )

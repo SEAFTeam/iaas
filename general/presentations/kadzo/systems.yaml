@@ -7,7 +7,8 @@ entities:
         source: >
           (
               $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k, "domain": $params.domain}|}});
-              $systems.*
+              $kb_systems := $."kadzo.v2023.kb_systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k, "domain": $params.domain}|}});
+              $systems ? $systems.* : $kb_systems.*
           )
 
       components:
@@ -50,7 +51,7 @@ entities:
               $manifest := manifest;
               $domain := $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
-              $tech_params := manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
+              $tech_params := $manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
               $config := $manifest."seaf.ta.reverse.general".config;
               $reverse_entities := $config.entities.**.model;
               $tags := $config.entities.$spread()[$keys() = $domain].**.tags.*;
