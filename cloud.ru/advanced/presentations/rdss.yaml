@@ -53,9 +53,12 @@ entities:
           (
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $crdb := $."seaf.ta.reverse.cloud_ru.advanced.rdss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$keys()[0] = $params.id];
-              $vpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id = $crdb.*.vpc_id].*.name;
-              $subnet := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id = $crdb.*.subnet_id].*.name;
+              $crdb := $."seaf.ta.reverse.cloud_ru.advanced.rdss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $crdb := $crdb[$keys()[0] = $params.id];
+              $vpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $vpc := $vpc[$.*.id = $crdb.*.vpc_id].*.name;
+              $subnet := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $subnet := $subnet[$.*.id = $crdb.*.subnet_id].*.name;
               $cdcs := $."seaf.ta.services.dc"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dc := $cdcs.$spread()[$keys()[0] = $crdb.*.DC].*.dc_name;
               $crdb.($.*) ~> | $ | {'DC': $dc, 'subnet': $subnet, 'vpc': $vpc} |;

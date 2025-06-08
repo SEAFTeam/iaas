@@ -103,9 +103,12 @@ entities:
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $cserver := $."seaf.ta.reverse.cloud_ru.advanced.ecss".$spread()[$keys()[0] = $ctx.id];
               $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id = $cserver.*.vpc_id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$.*.id in $cserver.*.subnets].*.name;
-              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[$keys()[0] = $cserver.*.DC].*.dc_name;
+              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpc := $cvpc[$.*.id = $cserver.*.vpc_id];
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $csubnets[$.*.id in $cserver.*.subnets].*.name;
+              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dc := $dc[$keys()[0] = $cserver.*.DC].*.dc_name;
               $sg := $cserver.*.security_groups.($id := $; $name := $csecurity_groups.$spread()[$keys()[0] = $id].*.name; {'name': $name, 'sg_id': $id});
               {
                 'id': $id,

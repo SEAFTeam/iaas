@@ -22,7 +22,8 @@ entities:
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $security_group := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})[*.id = $ctx.id];
+              $security_group := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $security_group := $security_group[*.id = $ctx.id];
               $security_group.*.rules.(
                   $rgid := $.remote_group_id;
                   $remote := (
