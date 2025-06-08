@@ -31,6 +31,7 @@ entities:
               ) : (     /*       Else        */   
                   $entity := "seaf.ta.reverse.general.systems_kadzo";
                   $systems := $."kadzo.v2023.systems"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $kb_systems := $."kadzo.v2023.kb_systems"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
                   $tech_params := $."kadzo.v2023.tech_params" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
                   $config := "seaf.ta.reverse.general".config;
                   $reverse_entities := $config.entities.**.model;
@@ -42,7 +43,8 @@ entities:
                   ).($append($tp, $.$split(", "))) ~> $distinct();
                   $direct_systems := $tp.(
                       $id := $;
-                      $systems[$keys() = $id]
+                      $any_sys := $append($systems, $kb_systems);
+                      $any_sys[$keys() = $id]
                   ) ~> $distinct();
                   $tech_params := $tp.(
                       $lookup($tech_params, $)@$s.({$s.system: $lookup($systems, $s.system)})
