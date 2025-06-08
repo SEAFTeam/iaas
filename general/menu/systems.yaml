@@ -35,12 +35,19 @@ entities:
                   $config := "seaf.ta.reverse.general".config;
                   $reverse_entities := $config.entities.**.model;
                   $tags := $config.entities.**.tags.*;
+                  $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.tech_params;
+                  $tags_systems := $config.entities.$spread()[$keys() = $domain].**.tags.systems;
                   $tp := $reverse_entities.(
                       $lookup($$, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? $v.**.tags[$keys() in $tags].*.$split(", ")}) 
                   ).($append($tp, $.$split(", "))) ~> $distinct();
-                  $available_systems := $tp.(
+                  $direct_systems := $tp.(
+                      $id := $;
+                      $systems[$keys() = $id]
+                  ) ~> $distinct();
+                  $tech_params := $tp.(
                       $lookup($tech_params, $)@$s.({$s.system: $lookup($systems, $s.system)})
                   ) ~> $distinct();
+                  $available_systems := $append($tech_params, $direct_systems);
                   $menu($domain, $prefix, $available_systems, $entity)
               );
           )};

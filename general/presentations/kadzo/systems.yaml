@@ -77,13 +77,14 @@ entities:
                   $filtered_components.(
                       {
                           'id': $keys()[0],
-                          'component_name': $tech_param.*.software,
-                          'component_type': $tech_param.*.type,
-                          'component_vendor': $tech_param.*.vendor
+                          'component_name': 'Нет привязки к техпараметру',
+                          'component_type': 'Нет привязки к техпараметру',
+                          'component_vendor': 'Нет привязки к техпараметру'
                       }
                   )
               );
-              [$tech_components.(
+              $sum := $append($tech_components, $direct_links);
+              [$sum.(
                   $iter := $;
                   $entities[id = $iter.id].(
                       $entity := $;
