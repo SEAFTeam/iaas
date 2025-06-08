@@ -69,7 +69,7 @@ entities:
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
               $array := $natgw.$spread().($.*);
               $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $natgw.*.DC].*.dc_name;
-              $array := $array ~> | $ | {'DC': $dc, 'vpc': $vpc, 'subnet': $subnet.*.name}|;
+              $array := $array ~> | $ | {'DC': $dc, 'vpc': $vpc, 'subnet': $subnet.*.name, 'domain': $ctx.domain}|;
           
           )
 
@@ -97,6 +97,41 @@ entities:
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
               $array := $natgw.$spread().($.*);
               $snat := $natgw.$spread().*.snat_rules.(
+                  $item := $; 
+                  $subnet := $csubnets.$spread()[$.*.id = $item.subnet_id].*.name;
+                  $eip_address := $item.eip_address;
+                  {
+                      'id': $item.id,
+                      'subnet': $subnet,
+                      'eip_address': $eip_address,
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=' & $ctx.domain
+                  }                  
+              );
+          )
+      natgw_dnat:
+        type: table
+        headers:
+          - value: id
+            text: ID правила
+          - value: subnet
+            text: Source Subnet
+            width: 200
+            sortable: true
+            link: link
+          - value: eip_address
+            text: Elastic IP адрес
+        source: >
+          (
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $natgw := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}).$spread()[$.*.id = $ctx.id];
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $subnet_id := $natgw.*.subnet_id;
+              $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
+              $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
+              $array := $natgw.$spread().($.*);
+              $snat := $natgw.$spread().*.dnat_rules.(
                   $item := $; 
                   $subnet := $csubnets.$spread()[$.*.id = $item.subnet_id].*.name;
                   $eip_address := $item.eip_address;
