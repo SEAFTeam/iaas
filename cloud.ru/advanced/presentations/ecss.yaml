@@ -196,5 +196,5 @@ entities:
               $domain := $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
               $data := $ ~> $filter(function($v){$domain_matcher($v.id)});
-              $data ~> | $ | {'domain': $domain} |;
+              $data ~> | $ | {'domain': $domain, 'link': link & '&domain=' & $domain } |;
           )
