@@ -19,14 +19,14 @@ entities:
             text: Разрядность
             sortable: true
             align: left
-          - value: av
-            text: Наличие антивируса
-            sortable: true
-            align: left
-          - value: edr
-            text: Наличие EDR агента
-            sortable: true
-            align: left
+#          - value: av
+#            text: Наличие антивируса
+#            sortable: true
+#            align: left
+#          - value: edr
+#            text: Наличие EDR агента
+#            sortable: true
+#            align: left
           - value: cpu_qty
             text: Процессор (ядра)
             align: left

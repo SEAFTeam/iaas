@@ -1,13 +1,13 @@
 entities:
-  seaf.ta.reverse.vmwarecloud.vms:
+  seaf.ta.reverse.evo.vms:
     menu: >
       (
           $dataset := $;
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
           
-          $vms_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.model;
-          $vm_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.view;
+          $vms_entity := "seaf.ta.reverse.general".config.entities.evo.vms.model;
+          $vm_view := "seaf.ta.reverse.general".config.entities.evo.vms.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;

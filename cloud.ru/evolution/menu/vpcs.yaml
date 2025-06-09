@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.vmwarecloud.vdcs:
+  seaf.ta.reverse.evo.vpcs:
     menu: >
       (
           $domain := '';

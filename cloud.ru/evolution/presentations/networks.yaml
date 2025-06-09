@@ -9,7 +9,6 @@ entities:
             text: Наименование сети
             sortable: true
             align: left
-            link: link
             width: 300
           - value: description
             text: Описание
@@ -41,31 +40,5 @@ entities:
           (
               $domain := $params.domain;
               $dc := $params.dc;
-             [$reverse_evo_networks($, $domain)[dc = $dc]];
-              $GET_TITLE := function($LOCATION) {(
-                $STRUCT := $split($LOCATION, "/");
-                $STRUCT[$count($STRUCT) - 1];
-              )};
-
-              $MANIFEST := $;
-              (entities.*.(
-                              $eval(menu, $MANIFEST).{
-                                  "route": link,
-                                  "location": location,
-                                  "icon": icon,
-                                  "title": $GET_TITLE(location),
-                                  "order": order ? order : $defOrder
-                              }
-                      ) 
-                  ).{
-                      "title": "" & title,
-                      "route": route ? (
-                          $isURL(route) ? route
-                          : ($isRoot(route) ? route : '/' & route)
-                      ) : undefined,
-                      "icon": icon,
-                      "location": "" & (location ? location : route),
-                      "order": order
-                  }^(order, location)
-              
+              [$reverse_evo_networks($, $domain)[dc = $dc]];
           )
