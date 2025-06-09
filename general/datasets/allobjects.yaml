@@ -9,7 +9,7 @@ datasets:
           $dcs_entity_matcher := /.*\.services\.dc$/;
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          $advs := $$.$spread()[$adv_entity_matcher($keys())];
+          /*    $advs := $$.$spread()[$adv_entity_matcher($keys())];  */
           $enterprise := $append($enterprise, $reverse_vmwarecloud_egws($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgnets($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgs($));
@@ -22,12 +22,13 @@ datasets:
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_hosts($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vdcs($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vms($));
-          $allobjects := $append($advs, $enterprise);
+          $advanced := $append($advanced, $reverse_advanced_vms($));
+          $allobjects := $append($advanced, $enterprise);
           $allobjects := $append($allobjects, $vmwareonprem)
       )
-#  all:
-#    title: All
-#    source: >
-#      (
-#        $
-#      )
+  all:
+    title: All
+    source: >
+      (
+        $
+      )

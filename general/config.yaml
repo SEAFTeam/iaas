@@ -49,8 +49,8 @@ seaf.ta.reverse.general:
           view: seaf.ta.reverse.vmwarecloud.org
       advanced:   # Сущности облака advanced
         ecss:
-          model: seaf.ta.components.server
-          view: seaf.ta.reverse.advanced.ecss
+          model: seaf.ta.reverse.cloud_ru.advanced.ecss
+          view: seaf.ta.reverse.cloud_ru.advanced.ecss
       vmwareonprem:
         vms:
           model: seaf.ta.components.server

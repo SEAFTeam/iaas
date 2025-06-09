@@ -1,14 +1,14 @@
-# Система - {{title}}
+# {{obj_type}} - {{title}}
 ***
 **Наименование**: {{title}}
 
 **Описание**: {{description}}
 
-**Критичность**:
-{{criticality}}
+{{#criticality}}
+**Критичность**: {{criticality}}
+{{/criticality}}
 
-**Идентификатор**:
-{{id}}
+**Идентификатор**: {{id}}
 
 ## Компоненты в системе:
 ![Получаем сервера в системе](@entity/seaf.ta.reverse.general.systems_kadzo/components?id={{id}}&domain={{domain}})
