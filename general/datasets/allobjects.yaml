@@ -22,7 +22,7 @@ datasets:
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_hosts($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vdcs($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vms($));
-          $advanced := $append($advanced, $reverse_advanced_vms($));
+          $advanced := $append($advanced, $reverse_advanced_ecss($));
           $allobjects := $append($advanced, $enterprise);
           $allobjects := $append($allobjects, $vmwareonprem)
       )
