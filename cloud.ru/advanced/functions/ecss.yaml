@@ -44,7 +44,7 @@ functions:
               {
                   'id': id,
                   'short_id': vm.id,
-                  'name': vm.name,
+                  'title': vm.name,
                   'description': vm.description,
                   'os_type': vm.os.type,
                   'os_bit': vm.os.bit,
@@ -62,13 +62,13 @@ functions:
                   'tenant': vm.tenant,
                   'vpc_id': vm.vpc_id,
                   'vpc_name': $vpc.*.name,
-                  'link': '/entities/' & $ecs_entity & '/card?id=' & id,
-                  'vpc_link': '/entities/' & $vpc_entity & '/card?id=' & $vdc_id,
+                  'link': '/entities/' & $ecs_entity & '/server_md?id=' & id & '&domain=' & $domain,
                   'entity': $ecs_entity,
                   'entity_type': $ecs_entity_full.*.description,
                   'entity_name': $ecs_entity_full.*.title,
                   'DC': $dc.$keys()[0],
-                  'dc_name': $dc.*.title
+                  'dc_name': $dc.*.title,
+                  'domain': $domain
               }
           )]
       )
