@@ -46,7 +46,7 @@ functions:
                 $av := vm.title in $avs.**.hosts ? true : false;
                 $edr := vm.title in $edrs.**.hosts ? true : false;
                 $dc := $lookup($dcs, $vdc.dc);
-                $tags := $join(vm.reverse.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
+                $tags := $join(vm.reverse.tags.($ != null and $.$keys() != null and $.* != null ? ($.$keys() & ': ' & $.*)), "\n");
                 {
                     'id': id,
                     'short_id': vm.id,

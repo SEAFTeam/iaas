@@ -168,6 +168,9 @@ entities:
           - value: software
             text: Софт
             align: left
+          - value: tags
+            text: Тэги
+            align: left
         source: >
           (
               $id := $params.id;

@@ -47,11 +47,13 @@ entities:
         origin:
           allobjects: seaf.ta.reverse.general.allobjects
           manifest: "($)"
+          kadzo_objects: kadzo.v2023.objects_by_domains
         source: >
           (
               $entities := allobjects;
               $manifest := manifest;
-              $domain := $params.domain;
+              $kadzo_objects := kadzo_objects;
+              $domain := $exists($kadzo_objects) and $count($kadzo_objects) > 0 ? $lookup($merge($kadzo_objects.*), $params.id).domain  : $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
               $tech_params := $manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
               $config := $manifest."seaf.ta.reverse.general".config;

@@ -30,6 +30,8 @@ functions:
               'host': *
           }].(
               $dc := $lookup($dcs, host.dc);
+              $tags := $join(host.tags.($ != null and $.$keys() != null and $.* != null ? ($.$keys() & ': ' & $.*)), "\n");
+
               {
                   'id': id,
                   'short_id': host.id,
@@ -42,6 +44,7 @@ functions:
                   'entity_title': "ESXi хосn виртуализации в локальном кластере VMware",
                   'vdc': host.vdc,
                   'vdc_title': host.vdc_title,
+                  'tags': $tags,
                   'dc': host.dc,
                   'dc_title': $dc.title
               }
