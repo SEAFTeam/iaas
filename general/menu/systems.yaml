@@ -30,26 +30,36 @@ entities:
                   $menu($domain, $prefix, $available_systems, $entity)
               ) : (     /*       Else        */   
                   $entity := "seaf.ta.reverse.general.systems_kadzo";
-                  $systems := $."kadzo.v2023.systems"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-                  $kb_systems := $."kadzo.v2023.kb_systems"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $kb_systems := $."kadzo.v2023.kb_systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
                   $tech_params := $."kadzo.v2023.tech_params" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+                  $tech_services := $."kadzo.v2023.tech_services" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
                   $config := "seaf.ta.reverse.general".config;
                   $reverse_entities := $config.entities.**.model;
-                  $tags := $config.entities.**.tags.*;
+                  $tags := $config.entities.$spread()[$keys() = $domain].**.tags.*;
                   $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.tech_params;
+                  $tags_tech_services := $config.entities.$spread()[$keys() = $domain].**.tags.tech_services;
                   $tags_systems := $config.entities.$spread()[$keys() = $domain].**.tags.systems;
                   $tp := $reverse_entities.(
                       $lookup($$, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? $v.**.tags[$keys() in $tags].*.$split(", ")}) 
                   ).($append($tp, $.$split(", "))) ~> $distinct();
+                  $log($domain, 'domain');
+                  $log($tags, 'tags');
+                  $log($tp, 'tp');
                   $direct_systems := $tp.(
                       $id := $;
                       $any_sys := $append($systems, $kb_systems);
+                      $log($any_sys, 'anysys');
                       $any_sys[$keys() = $id]
                   ) ~> $distinct();
                   $tech_params := $tp.(
                       $lookup($tech_params, $)@$s.({$s.system: $lookup($systems, $s.system)})
                   ) ~> $distinct();
-                  $available_systems := $append($tech_params, $direct_systems);
+                  $tech_services := $tp.(
+                      $id := $;
+                      $lookup($tech_services, $).({$id: $})
+                  ) ~> $distinct();
+                  $available_systems := $append($append($tech_params, $direct_systems), $tech_services);
                   $menu($domain, $prefix, $available_systems, $entity)
               );
           )};
