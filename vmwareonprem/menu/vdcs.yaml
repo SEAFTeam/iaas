@@ -12,13 +12,13 @@ entities:
       
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-        
+      
               $lists := [$vdcs.$spread().(
                   $dcid := $.*.dc;
                   $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix & '/' & $dctitle & '/Реестры/VDC',
+                      'location': $prefix & '/Реестры/VDC VMware On-Prem',
                       'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
                   }
               )];

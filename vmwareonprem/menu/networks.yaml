@@ -2,7 +2,7 @@ entities:
   seaf.ta.reverse.vmwarecloud.orgnets:
     menu: >
       (
-    
+      
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $networks_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
@@ -15,17 +15,17 @@ entities:
               $networks := ($lookup($, $networks_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});).$spread()[*.reverse.reverse_type = "VMwareOnprem" and *.reverse.type = "vmwarenetwork"];
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-          
+      
               $lists := [$vdcs.$spread().(
                   $dcid := $.*.dc;
                   $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix & '/' & $dctitle & '/Реестры/Сети',
+                      'location': $prefix & '/Реестры/Сети VMware Om-Prem',
                       'link': 'entities/' & $networks_view & '/list?domain=' & $domain
                   }
               )];
-          
+      
               $dynamic_vdc := $networks.$spread().(
                   $id := $keys()[0];
                   $title := $replace($.*.title, '/', ' ');

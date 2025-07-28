@@ -21,7 +21,7 @@ entities:
               $dcid := $.*.dc;
               $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
               {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/VDC',
+                  'location': $config.arch_menu & '/' & $dctitle & '/Evolution/Реестры/VDC',
                   'link': 'entities/' & $vdcs_view & '/list?domain=' & $domain
               }
           )];
@@ -39,7 +39,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $orgtitle := $.*.org_title;
               {
-                  'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title,
+                  'location': $config.arch_menu & '/' & $dc.*.title & '/Evolution/Организации/' & $orgtitle & '/' & $title,
                   'link': 'entities/' & $vdcs_view & '/card?id=' & $id
               }
           );
@@ -53,7 +53,7 @@ entities:
               $orgtitle := $.*.org_title;
               $vdcgroup.$spread().(
                 {
-                    'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title,
+                    'location': $config.arch_menu & '/' & $dc.*.title & '/Evolution/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title,
                     'link': 'entities/' & $vdcs_view & '/card?id=' & $id
                 }
               )

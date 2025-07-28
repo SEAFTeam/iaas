@@ -1,46 +1,42 @@
 entities:
   seaf.ta.reverse.vmwareonprem.vapps:
     menu: >
-      (   
-      
-          $vapps_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.model;
-          $vapps_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vapps.view;
-          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
+      (
+          $vapps_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vapps.model;
+          $vapps_view := "seaf.ta.reverse.general".config.entities.vmwareonprem.vapps.view;
+          $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
-          $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
-          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcgroups.model;
+          $vdcgroups_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcgroups.model;
       
           $vapps_menu_generator := function($prefix, $domain){(
-    
+      
               $domain_matcher := $eval('/^' & $domain & '.*/');
-          
+      
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vapps := $lookup($, $vapps_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $orgs := $lookup($, $org_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-          
+      
               $menu := $vapps.$spread().(
                   $id := $keys();
                   $title := $.*.title;
                   $vdc_id := $.*.vdc;
-                  $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
-                  $org_id := $vdcs.$spread()[$keys() = $vdc_id].*.org;
-                  $org := $orgs.$spread()[$keys() = $org_id];
-                  $orgtitle := $org.*.title;
-                  $dc := $dcs.$spread()[$keys() = $org.*.dc];
+                  $vdc := $vdcs.$spread()[$keys() = $vdc_id];
+                  $vdctitle := $vdc.*.title;
+                  $dcid := $vdc.*.dc;
+                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   $vdc_id in $vdcgroups.*.vdcs.id ? (
                       $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
                       $vdcgroup.$spread().(
                           [
                               {
                                   'domain': $domain,
-                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps/' & $title,
+                                  'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $.*.title & '/' & $vdctitle & '/vApps/' & $title,
                                   'link': 'entities/' & $vapps_view & '/card?id=' & $id
                               },
                               {
                                   'domain': $domain,
-                                  'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $vdctitle & '/vApps',
+                                  'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $.*.title & '/' & $vdctitle & '/vApps',
                                   'link': 'entities/' & $vapps_view & '/list?vdc_id=' & $vdc_id
                               }
                           ]
@@ -49,12 +45,12 @@ entities:
                       [
                           {
                               'domain': $domain,
-                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps/' & $title,
+                              'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/vApps/' & $title,
                               'link': 'entities/' & $vapps_view & '/card?id=' & $id
                           },
                           {
                               'domain': $domain,
-                              'location': $prefix & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $vdctitle & '/vApps',
+                              'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/vApps',
                               'link': 'entities/' & $vapps_view & '/list?vdc_id=' & $vdc_id
                           }
                       ]

@@ -20,7 +20,7 @@ entities:
                   $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix  & '/' & $dctitle & '/Реестры/Серверы',
+                      'location': $prefix  & '/Реестры/Серверы VMware On-Prem',
                       'link': 'entities/' & $vm_view & '/list?domain=' & $domain
                   }
               )];
