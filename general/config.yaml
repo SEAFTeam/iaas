@@ -36,7 +36,7 @@ seaf.ta.reverse.general:
           model: seaf.ta.services.network
           view: seaf.ta.reverse.vmwarecloud.vappnets
         egws:
-          model: seaf.ta.components.network
+          model: seaf.ta.reverse.vmwarecloud.egws
           view: seaf.ta.reverse.vmwarecloud.egws
         egws_nat:
           model: seaf.ta.reverse.vmwarecloud.egws_nat
