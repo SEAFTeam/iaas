@@ -17,12 +17,13 @@ entities:
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
       
               $lists := [$vdcs.$spread().(
+                  $id := $keys();
                   $dcid := $.*.dc;
-                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  $dctitle := $dcs[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix & '/Реестры/Сети VMware Om-Prem',
-                      'link': 'entities/' & $networks_view & '/list?domain=' & $domain
+                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $.*.title & '/Реестры/Сети VMware Om-Prem',
+                      'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&vdc=' & $id
                   }
               )];
       
@@ -30,12 +31,12 @@ entities:
                   $id := $keys()[0];
                   $title := $replace($.*.title, '/', ' ');
                   $dcids := $.*.dc_id;
-                  $dctitle := $dcs.$spread()[$keys() in $dcids].*.title;
+                  $dctitle := $dcs[$keys() in $dcids].*.title;
                   $nw := $;
                   $dctitle.(
                       $dctitle := $;
                       $vdc_id := $nw.*.reverse.vdc;
-                      $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
+                      $vdctitle := $vdcs[$keys() = $vdc_id].*.title;
                       (
                           [
                               {
