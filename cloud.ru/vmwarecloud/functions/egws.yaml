@@ -30,7 +30,7 @@ functions:
             $orgs_view := dataset."seaf.ta.reverse.general".config.entities.orgs.view;
             $dcs_entity := dataset."seaf.ta.reverse.general".config.entities.dc.model;
             
-            $egws := ($lookup(dataset, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+            $egws := ($lookup(dataset, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}));
             $egws_nat := $lookup(dataset, $egws_nat_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $egws_fw := $lookup(dataset, $egws_fw_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $vdcs := $lookup(dataset, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});

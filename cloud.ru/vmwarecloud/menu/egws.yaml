@@ -2,7 +2,6 @@ entities:
   seaf.ta.reverse.vmwarecloud.egws:
     menu: >
       (
-      
           $egws_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.model;
           $egws_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.egws.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
@@ -14,7 +13,7 @@ entities:
 
               $domain_matcher := $eval('/^' & $domain & '.*/');
           
-              $egws := ($lookup($, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud"];
+              $egws := ($lookup($, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}));
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
@@ -35,12 +34,12 @@ entities:
                       'link': 'entities/' & $egws_view & '/list?domain=' & $domain
                   }
               ];*/
-              $dynamic_vdc := $egws.$spread()[*.reverse.vdcgroup = null].(
+              $dynamic_vdc := $egws.$spread()[*.vdcgroup = null].(
                   $id := $keys()[0];
                   $title := $.*.title;
-                  $vdctitle := $.*.reverse.vdc_title;
-                  $vdc_id := $.*.reverse.vdc;
-                  $org_id := $.*.reverse.org;
+                  $vdctitle := $.*.vdc_title;
+                  $vdc_id := $.*.vdc;
+                  $org_id := $.*.org;
                   $vdcgroup := $vdcgroups.$spread()[$vdc_id in *.vdcs.id];
                   $vdcgrouptitle := $vdcgroup.*.title;
                   $org := $orgs.$spread()[$keys() = $org_id];
@@ -73,12 +72,12 @@ entities:
                               }     
                           ]
               );
-              $dynamic_vdcgroup := $egws.$spread()[*.reverse.vdc = null].(
+              $dynamic_vdcgroup := $egws.$spread()[*.vdc = null].(
                   $id := $keys()[0];
                   $title := $.*.title;
-                  $vdcgrouptitle := $.*.reverse.vdcgroup_title;
-                  $vdcgroup_id := $.*.reverse.vdcgroup;
-                  $org_id := $.*.reverse.org;
+                  $vdcgrouptitle := $.*.vdcgroup_title;
+                  $vdcgroup_id := $.*.vdcgroup;
+                  $org_id := $.*.org;
                   $org := $orgs.$spread()[$keys() = $org_id];
                   $orgtitle := $org.*.title;
                   $dc := $dcs.$spread()[$keys() = $org.*.dc];
