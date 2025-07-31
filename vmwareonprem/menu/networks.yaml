@@ -22,7 +22,7 @@ entities:
                   $dctitle := $dcs[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $.*.title & '/Реестры/Сети VMware Om-Prem',
+                      'location': $prefix & '/' & $dctitle & '/Реестры/Сети VMware Om-Prem',
                       'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&vdc=' & $id
                   }
               )];
