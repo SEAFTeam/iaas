@@ -19,13 +19,14 @@ entities:
               $lists := [$vdcs.$spread().(
                   $id := $keys();
                   $dcids := $.*.dc;
-                  $dctitles := $dcs[$keys() = $dcids].*.title;
-                  $dctitles.(
-                      $dctitle := $;
+                  $dcs := $dcs[$keys() = $dcids];
+                  $dcs.(
+                      $dctitle := $.*.title;
+                      $id := $keys();
                       {
                           'domain': $domain,
                           'location': $prefix & '/' & $dctitle & '/Реестры/Сети VMware Om-Prem',
-                          'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&vdc=' & $id
+                          'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&dc=' & $id
                       }
                   )
                   
@@ -35,10 +36,11 @@ entities:
                   $id := $keys()[0];
                   $title := $replace($.*.title, '/', ' ');
                   $dcids := $.*.dc;
-                  $dctitles := $dcs[$keys() in $dcids].*.title;
+                  $dcs := $dcs[$keys() in $dcids];
                   $nw := $;
-                  $dctitles.(
-                      $dctitle := $;
+                  $dcs.(
+                      $dctitle := $.*.title;
+                      $id := $keys();
                       $vdc_id := $nw.*.reverse.vdc;
                       $vdctitle := $vdcs[$keys() = $vdc_id].*.title;
                       $dctitles.(
