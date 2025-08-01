@@ -43,24 +43,20 @@ entities:
                       $dcid := $keys();
                       $vdc_id := $nw.*.reverse.vdc;
                       $vdctitle := $vdcs[$keys() = $vdc_id].*.title;
-                      $dctitles.(
-                          $dctitle := $;
                           (
                               [
                                   {
                                       'domain': $domain,
-                                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети организации/' & $title,
+                                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети/' & $title,
                                       'link': 'entities/' & $networks_view & '/schema?id=' & $id
                                   },
                                   {
                                       'domain': $domain,
-                                      'location': $prefix  & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети организации',
+                                      'location': $prefix  & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети',
                                       'link': 'entities/' & $networks_view & '/list?vdc=' & $vdc_id
                                   }
                               ]
                           )
-                      )
-                      
                   )
               );
               $append($lists, $dynamic_vdc)
