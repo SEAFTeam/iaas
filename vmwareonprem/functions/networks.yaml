@@ -30,7 +30,7 @@ functions:
                 'net': *
             }].(
                 $orngetId := id;
-                $dc := net.dc.($id := $; $lookup($dcs, $id));
+                $dc := net.dc.($id := $; $tmp := $lookup($dcs, $id); {$id: {"title": $tmp.title}});
                 {
                     'id': id,
                     'short_id': net.id,
@@ -53,7 +53,7 @@ functions:
                     'entity': $networks_view,
                     'entity_type': 'VMware On-Premise',
                     'entity_title': 'Сети в локальном кластере VMware',
-                    'dc': $join(net.dc),
+                    'dc': $dc,
                     'dc_title': $dc.title
                 }
             )]

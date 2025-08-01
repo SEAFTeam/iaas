@@ -163,7 +163,8 @@ entities:
           (
               $domain := $params.domain;
               $vdc := $params.vdc;
+              $dc := $params.dc;
               $tmp := $exists($vdc) ? (
                   [$reverse_vmwareonprem_networks($, $domain)[vdc = $vdc]]
-              ) : ($reverse_vmwareonprem_networks($, $domain))
+              ) : $exists($dc) ? ([$reverse_vmwareonprem_networks($, $domain)[dc.$keys() in $dc]]) : ([$reverse_vmwareonprem_networks($, $domain)])
           )
