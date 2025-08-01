@@ -1,5 +1,5 @@
 functions:
-  reverse_advanced_vms:
+  reverse_advanced_ecss:
     title: Список виртуальных машин Advanced
     params:
       - alias: dataset
