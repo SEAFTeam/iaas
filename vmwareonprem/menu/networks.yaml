@@ -32,15 +32,15 @@ entities:
                   
               )];
       
-              $dynamic_vdc := $networks.$spread().(
-                  $id := $keys()[0];
+              $dynamic_vdc := $networks.(
+                  $id := $keys();
                   $title := $replace($.*.title, '/', ' ');
                   $dcids := $.*.dc;
                   $dcs := $dcs[$keys() in $dcids];
                   $nw := $;
                   $dcs.(
                       $dctitle := $.*.title;
-                      $id := $keys();
+                      $dcid := $keys();
                       $vdc_id := $nw.*.reverse.vdc;
                       $vdctitle := $vdcs[$keys() = $vdc_id].*.title;
                       $dctitles.(
@@ -55,7 +55,7 @@ entities:
                                   {
                                       'domain': $domain,
                                       'location': $prefix  & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети организации',
-                                      'link': 'entities/' & $networks_view & '/list?vdc_id=' & $vdc_id
+                                      'link': 'entities/' & $networks_view & '/list?vdc=' & $vdc_id
                                   }
                               ]
                           )
