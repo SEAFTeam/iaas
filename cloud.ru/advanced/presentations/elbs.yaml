@@ -43,7 +43,7 @@ entities:
                   $listeners := $join(elb.listeners.($.name & '-' & $.protocol & $.protocol_port),'\n');
                   $pools := $join(elb.pools.($.name & ' (' & $join($.members.address, ', ') & ')'), '\n');
                   $elb_dc := elb.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $elb_dc].*.dc_name;
+                  $dc := $cdcs.$spread()[$keys()[0] = $elb_dc].*.title;
                   {
                       'name': elb.name,
                       'address': elb.address,
