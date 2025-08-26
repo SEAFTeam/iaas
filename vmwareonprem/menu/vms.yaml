@@ -14,7 +14,8 @@ entities:
           
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-          
+              $vms := ($lookup($, $vms_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}))[*.reverse.reverse_type = "VMwareOnprem"];
+      
               $lists := [$vdcs.$spread().(
                   $dcid := $.*.dc;
                   $dctitle := $dcs[$keys() = $dcid].*.title;
@@ -26,7 +27,7 @@ entities:
               )];
               $dynamic_vdc := $vdcs.$spread().(
                   $id := $keys()[0];
-                  $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id];
+                  /* $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id]; */
                   $title := $.*.title;
                   $dcid := $.*.dc;
                   $dctitle := $dcs[$keys() = $dcid].*.title;
