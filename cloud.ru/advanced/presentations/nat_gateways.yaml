@@ -6,26 +6,27 @@ entities:
         headers:
           - value: name
             text: Название
-            width: 200
+            width: 20%
             sortable: true
             link: link
           - value: address
             text: IP адрес
+            width: 20%
           - value: snat_rules_qty
             text: Кол-во SNAT правил
-            width: 200
+            width: 20%
           - value: dnat_rules_qty
             text: Кол-во DNAT правил
-            width: 200
+            width: 20%
           - value: subnet
             text: Подсеть
-            width: 200
+            width: 20%
           - value: vpc
             text: VPC
-            width: 150
+            width: 20%
           - value: dc
             text: DC/IaaS
-            width: 150
+            width: 20%
         source: >
           (
               $ctx := $params;
@@ -40,7 +41,7 @@ entities:
                   $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
                   $id := $keys()[0];
                   $natgw_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $natgw_dc].*.dc_name;
+                  $dc := $cdcs.$spread()[$keys()[0] = $natgw_dc].*.title;
                   {
                       'name': $.*.name,
                       'address': $.*.address,
@@ -68,7 +69,7 @@ entities:
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id];
               $vpc := $cvpcs.$spread()[$.*.id = $subnet.*.vpc].*.name;
               $array := $natgw.$spread().($.*);
-              $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $natgw.*.DC].*.dc_name;
+              $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $natgw.*.DC].*.title;
               $array := $array ~> | $ | {'DC': $dc, 'vpc': $vpc, 'subnet': $subnet.*.name, 'domain': $ctx.domain}|;
           
           )

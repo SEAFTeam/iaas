@@ -6,6 +6,7 @@
 |----------|--------------|-------------|----------|------------|
 | {{name}} | {{address}}  | {{subnet}}  |  {{vpc}} | {{DC}}     |
 
+
 ## SNAT Rules
 ![Получаем SNAT правила](@entity/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_snat?id={{id}}&domain={{domain}})
 
