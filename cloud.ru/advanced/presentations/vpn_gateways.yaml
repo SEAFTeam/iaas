@@ -35,7 +35,7 @@ entities:
                   $vpc := $cvpcs.$spread()[$.*.id = $self.*.vpc_id].*.name;
                   $connections := $cvpnconn.$spread()[*.gw_id = $self.$keys()];
                   $vpngw_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $vpngw_dc].*.dc_name;
+                  $dc := $cdcs.$spread()[$keys()[0] = $vpngw_dc].*.title;
                   {
                       'name': $self.*.name,
                       'ip': $self.*.ip_address,
@@ -62,7 +62,7 @@ entities:
              $vpc := $cvpcs.$spread()[$.*.id = $cvpngw.*.vpc_id].*.name;
              $cdcs := $."seaf.ta.services.dc";
              $vpngw_dc := $cvpngw.*.DC;
-             $dc := $cdcs.$spread()[$keys()[0] = $vpngw_dc].*.dc_name;
+             $dc := $cdcs.$spread()[$keys()[0] = $vpngw_dc].*.title;
              {
                  'name': $cvpngw.*.name,
                  'ip': $cvpngw.*.ip_address,

@@ -4,20 +4,29 @@ entities:
       table_view:
         type: table
         headers:
-          - value: id
-            text: ID сущности
-            width: 200
-            sortable: true
           - value: name
-            text: Наименование сущности
+            text: Наименование сети
+            width: 200
+            link: link
+            sortable: true
+          - value: description
+            text: Описание
             width: 200
             sortable: true
-          - value: type
-            text: Тип сущности
+          - value: cidr
+            text: CIDR
             width: 200
             sortable: true
-          - value: subnetname
-            text: Наименование подсети
+          - value: gateway
+            text: Gateway
+            width: 200
+            sortable: true
+          - value: vpc
+            text: VPC
+            width: 200
+            sortable: true
+          - value: dc
+            text: DC/IaaS
             width: 200
             sortable: true
         source: >
@@ -25,10 +34,48 @@ entities:
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $csubnets.$spread().(
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets.(
+                  $id := $keys();
+                  $vpc_id := $.*.vpc;
+                  $dc_id := $.*.DC;
+                  $vpc := $cvpcs ~> $filter(function($v){$v.*.id = $vpc_id});
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
+                  $.* ~> | $ | {"vpc": $vpc.*.name, "dc": $dc.*.title, "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.subnets/list_of_objects?id=" & $id & "&domain=" & $ctx.domain} |
+              )
+          )
+      list_of_objects:
+        type: table
+        headers:
+          - value: name
+            text: Объект подсети
+            width: 200
+            sortable: true
+          - value: type
+            text: Тип объекта
+            width: 200
+            sortable: true
+          - value: subnetname
+            text: Наименование подсети
+            width: 200
+            sortable: true
+          - value: dc
+            text: DC/IaaS
+            width: 200
+            sortable: true
+        source: >
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $csubnet := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnet.(
                   $subnetid := $.*.id;
                   $subnetname := $.*.name;
+                  $dc_id := $.*.DC;
                   $subnetentities := $$.$spread()[$split($keys()[0], '.')[-2] = "advanced"];
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
                   $subnetobjects := $subnetentities.(
                           $entity := $keys()[0];
                           $type := $$.entities.$spread()[$keys()[0] = $entity].*.title;
@@ -38,7 +85,8 @@ entities:
                                   'id': $entityid,
                                   'name': $.*.name,
                                   'type': $type,
-                                  'subnetname': $subnetname
+                                  'subnetname': $subnetname,
+                                  'dc': $dc.*.title
                               }
                           )
                   )
