@@ -1,6 +1,55 @@
 entities:
   seaf.ta.reverse.cloud_ru.advanced.vpcs:
     presentations:
+      card:
+        type: markdown
+        template: templates/vpc.md
+        source: >
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) and $ctx.id = $k ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpc.(
+                  $id := $keys();
+                  $dc_id := $.*.DC;
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
+                  $.* ~> | $ | {"dc": $dc.*.title} |
+              )
+          )
+      table_view:
+        type: table
+        headers:
+          - value: name
+            text: Наименование VPC
+            width: 200
+            link: link
+            sortable: true
+          - value: description
+            text: Описание
+            width: 200
+            sortable: true
+          - value: cidr
+            text: CIDR
+            width: 200
+            sortable: true
+          - value: dc
+            text: DC/IaaS
+            width: 200
+            sortable: true
+        source: >
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs.(
+                  $id := $keys();
+                  $dc_id := $.*.DC;
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
+                  $.* ~> | $ | {"dc": $dc.*.title, 'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/card?id=' & $id} |
+              )
+          )
       vpcs_diagram:
         type: smartants
         source: >
@@ -21,6 +70,7 @@ entities:
                                 $vpcid = $id ?
                                 {
                                   'id': $subnetid,
+                                  'full_id': $keys(),
                                   'title': *.name & ' - ' & *.cidr
                                 }
                               );
@@ -91,7 +141,7 @@ entities:
                                 & "<rect width=\"" & $width & "\" height=" & $height & " fill=\"#eee\" stroke=\"#222\" rx=3 />"
                                 /* Заполняем аспектами */
                                 & $join($map(*.subnets, function($v, $i) {
-                                    "<a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.subnets/table_view?domain=" & $ctx.domain & "\">"
+                                    "<a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.subnets/list_of_objects?id=" & $v.full_id & "&domain=" & $ctx.domain & "\">"
                                     & "<text x=6 y=" & ($i * $rowHeight + $padding + $rowHeight) & " style=\"font-size:" & $fontHeight & "\" fill=\"blue\">" & $v.title & "</text>"
                                     & "</a>"
                                 }))

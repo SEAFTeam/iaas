@@ -17,6 +17,12 @@ entities:
                       "location": $prefix & "/Cloud.ru/Advanced/Схемы/Network Schema",
                       /* URI представления context см. ниже.*/
                       "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram_full?domain=" & $domain
+                  },
+                  {
+                      /* Размещение в пользовательском меню */
+                      "location": $prefix & "/Cloud.ru/Advanced/Реестры/VPCs",
+                      /* URI представления context см. ниже.*/
+                      "link": "entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/table_view?domain=" & $domain
                   }
               ];
           )};

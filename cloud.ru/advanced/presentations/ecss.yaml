@@ -7,7 +7,12 @@ entities:
           (
             $ctx := $params;
             $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cservers := $ctx.vpc_id ? (
+                $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) and $ctx.vpc_id = $v.vpc_id ? {$k:$v}})
+            ) : (
+                $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})
+            );
+            /* $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}); */
             $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $arr1 := $merge($cvpcs.$spread().(
                       $id := $.*.id;

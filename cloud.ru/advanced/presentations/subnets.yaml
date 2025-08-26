@@ -33,7 +33,11 @@ entities:
           (   
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $ctx.vpc_id ? (
+                  $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) and $ctx.vpc_id = $v.vpc ? {$k:$v}})
+              ) : (
+                  $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})
+              );
               $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $csubnets.(
