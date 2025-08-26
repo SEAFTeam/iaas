@@ -64,13 +64,12 @@ entities:
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $security_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($security_groups.$spread().(
-                $security_groups_table := (
-                  [$security_groups.$spread().{
-                              "id": $keys()[0],
-                              "security_groups": $.*
-                          }]
-              )).security_groups)]
+              [$distinct($security_groups.(
+                  {
+                      "id": $keys()[0],
+                      "security_groups": $.*
+                  }
+              ).security_groups)]
           )
       list_for_servers:
         type: table
