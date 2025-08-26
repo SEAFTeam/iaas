@@ -87,7 +87,7 @@ entities:
                       }
                   );
                   $elb_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $elb_dc].*.dc_name;
+                  $dc := $cdcs.$spread()[$keys()[0] = $elb_dc].*.title;
                   {
                       'id': $id,
                       'name': $.*.name,
