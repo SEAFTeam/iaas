@@ -43,13 +43,9 @@ entities:
                   $tp := $reverse_entities.(
                       $lookup($$, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? $v.**.tags[$keys() in $tags].*.$split(", ")}) 
                   ).($append($tp, $.$split(", "))) ~> $distinct();
-                  $log($domain, 'domain');
-                  $log($tags, 'tags');
-                  $log($tp, 'tp');
                   $direct_systems := $tp.(
                       $id := $;
                       $any_sys := $append($systems, $kb_systems);
-                      $log($any_sys, 'anysys');
                       $any_sys[$keys() = $id]
                   ) ~> $distinct();
                   $tech_params := $tp.(

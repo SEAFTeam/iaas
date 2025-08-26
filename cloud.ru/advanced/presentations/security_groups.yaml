@@ -52,7 +52,7 @@ entities:
             width: 200
             sortable: true
           - value: tenant
-            text: Тенант(Project) в облаке
+            text: Тенант
             width: 200
             sortable: true
           - value: id
@@ -71,4 +71,52 @@ entities:
                               "security_groups": $.*
                           }]
               )).security_groups)]
+          )
+      list_for_servers:
+        type: table
+        headers:
+          - value: name
+            text: Наименование
+            width: 200
+          - value: description
+            text: Описание
+            width: 300
+          - value: direction
+            text: Направление
+          - value: ethertype
+            text: Протокол l3
+          - value: protocol
+            text: Протокол l4
+          - value: protocol_port
+            text: Порт
+          - value: remote
+            text: Партнер
+        source: >
+          (
+              $ctx := $params;
+              $manifest := $;
+              $domain_matcher := $eval('/^' & $.domain & '.*/');
+              $cserver := $manifest."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $csecurity_groups := $manifest."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $security_groups := $cserver.*.security_groups.($id := $; $csecurity_groups.$spread()[*.id = $id]);
+              $security_groups.$spread().(
+                  $name := $.*.name;
+                  $.*.rules.(
+                      $rgid := $.remote_group_id;
+                      $remote := (
+                          $.remote_group_id != null ? $csecurity_groups.$spread()[$keys()[0] = $rgid].*.name :
+                              $.remote_address_group_id != null ? $.remote_address_group_id : 
+                                  $.remote_ip_prefix != null ? $.remote_ip_prefix;
+                      );
+                      {
+                          'name': $name,
+                          'description': $.description,
+                          'direction': $.direction,
+                          'ethertype': $.ethertype,
+                          'protocol': $.protocol,
+                          'protocol_port': $.protocol_port,
+                          'remote': $remote
+                      }
+                  )
+              )
           )

@@ -22,12 +22,13 @@ datasets:
                         )
                      );
               $srv_dc := server.DC;
-              $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.dc_name;
+              $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.title;
               {
               "id": id,
               "name": server.name,
               "status": server.status,
               "os_type": server.os.type,
+              "image": server.image,
               "os_bit": server.os.bit,
               "cpu_qty": server.cpu.cores,
               "ram":  (server.ram / 1024),

@@ -32,3 +32,103 @@ datasets:
       (
         $
       )
+
+  seaf.ta.reverse.general.servers2systems:
+    origin:
+      allobjects: seaf.ta.reverse.general.allobjects
+      manifest: "($)"
+      kadzo_objects: kadzo.v2023.objects_by_domains
+    source: >
+      (
+          $entities := allobjects;
+          $manifest := manifest;
+          $kadzo_objects := kadzo_objects;
+          $domains := $manifest.sber.domains;
+          $config := $manifest."seaf.ta.reverse.general".config;
+          $reverse_entities := $distinct($config.entities.**.model);
+          $domains.$spread().(
+              $domain := $keys();
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $systems := $manifest."kadzo.v2023.systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $kb_systems := $manifest."kadzo.v2023.kb_systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tech_params := $manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tech_services := $manifest."kadzo.v2023.tech_services" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tags := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.*;
+              $tags_tp := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.tech_params;
+              $tags_systems := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.systems;
+              $tags_tech_services := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.tech_services;
+              $tags_hash_table := {"systems": $tags_systems, "tech_services": $tags_tech_services, "tech_params": $tags_tp};
+              
+              /* Здесь мы получаем список всех компонентов реверса в которых есть тэги соответсвующие тэгам в конфиге   */
+              $components := $reverse_entities.(
+                  $lookup($manifest, $) ~> $each(function($v, $k){$v.**.tags[$keys() in $tags] ? {$k: $v}})
+              ) ~> $distinct();
+              /* Получили */
+              
+              $systems_link := $components.(
+                  $id := $keys();
+                  $card_systems := "/entities/kadzo.v2023.systems/card?id=";
+                  $card_kb_systems := "/entities/kadzo.v2023.kb_systems/card?id=";
+                  $kb_matcher := $eval('/.*\\.kb\\..*|.*kb_systems.*/');
+                  $.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_systems ? (
+                          $any_sys := $append($systems, $kb_systems);
+                          $system := $any_sys[$keys() = $value];
+                          {
+                              $id: {
+                                  "id": $system.$keys(),
+                                  "description": $system.*.description,
+                                  "title": $system.*.title,
+                                  "link": $kb_matcher($system.$keys()) ? $card_kb_systems & $system.$keys() : $card_systems & $system.$keys(),
+                                  "link_type": $kb_matcher($system.$keys()) ? "kb_systems" : "systems"
+                              }
+                          }
+                      )
+                  )
+              );
+              $result := $append($result, $systems_link);
+              $tech_params_link := $components.(
+                  $id := $keys();
+                  $link_type := "tech_params";
+                  $card := "/entities/kadzo.v2023.tech_params/card?id=";
+                  $.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_tp ? (      
+                          $tech_param := $tech_params[$keys() = $value];
+                          {
+                              $id: {
+                                  "id": $tech_param.$keys(),
+                                  "description": $tech_param.*.description,
+                                  "title": $tech_param.*.title,
+                                  "link": $card & $tech_param.$keys(),
+                                  "link_type": $link_type
+                              }
+                          }
+                      )
+                  )
+              );
+              $result := $append($result, $tech_params_link);
+              $tech_services_link := $components.(
+                  $id := $keys();
+                  $link_type := "tech_services";
+                  $card := "/entities/kadzo.v2023.tech_services/card?id=";
+                  $.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_tp ? (      
+                          $tech_service := $tech_services[$keys() = $value];
+                          {
+                              $id: {
+                                  "id": $tech_service.$keys(),
+                                  "description": $tech_service.*.description,
+                                  "title": $tech_service.*.title,
+                                  "link": $card & $tech_service.$keys(),
+                                  "link_type": $link_type
+                              }
+                          }
+                      )
+                  )
+              );
+              $result := $merge($append($result, $tech_services_link));
+          )
+      )

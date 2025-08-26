@@ -96,37 +96,42 @@ entities:
       server_md:
         type: markdown
         template: templates/server.md
+        origin:
+          manifest: '($)'
+          servers2systems: seaf.ta.reverse.general.servers2systems
         source: >
           (
               $ctx := $params;
               $id := $ctx.id;
+              $manifest := manifest;
+              $servers2systems := servers2systems;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $cserver := $."seaf.ta.reverse.cloud_ru.advanced.ecss".$spread()[$keys()[0] = $ctx.id];
-              $csecurity_groups := $."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cserver := $manifest."seaf.ta.reverse.cloud_ru.advanced.ecss".$spread()[$keys()[0] = $ctx.id];
+              /* $csecurity_groups := $manifest."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}); */
+              $cvpc := $manifest."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $cvpc := $cvpc[$.*.id = $cserver.*.vpc_id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $manifest."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $csubnets := $csubnets[$.*.id in $cserver.*.subnets].*.name;
-              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $dc := $dc[$keys()[0] = $cserver.*.DC].*.dc_name;
-              $sg := $cserver.*.security_groups.($id := $; $name := $csecurity_groups.$spread()[$keys()[0] = $id].*.name; {'name': $name, 'sg_id': $id});
+              $dc := $manifest."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dc := $dc[$keys()[0] = $cserver.*.DC].*.title;
+              /* $sg := $cserver.*.security_groups.($id := $; $name := $csecurity_groups.$spread()[$keys()[0] = $id].*.name; {'name': $name, 'sg_id': $id}); */
+              $log($sg, 'sg');
+              $system := $lookup($servers2systems, $id);
               {
                 'id': $id,
                 'name': $cserver.*.name,
                 'status': $cserver.*.status,
                 'description': $cserver.*.description,
-                'system': $system.*.title,
-                'system_id': $system.$keys()[0],
-                'system_description': $system.*.description,
-                'system_cc': $system.*.sber.criticality,
-                'system_ls': $system.*.sber."live-stage",
-                'iaas_provider': $cserver.*.iaas_provider,
                 'ip_addresses': $cserver.*.addresses.{'address': $},
-                'sg': $sg,
+                /* 'sg': $sg, */
                 'vpc': $cvpc.*.name,
                 'subnet': $csubnets,
-                'DC': $dc,
-                'domain': $ctx.domain
+                'dc': $dc,
+                'domain': $ctx.domain,
+                'system_title': $system.title,
+                'system_link': $system.link,
+                'system_id': $system.id,
+                'system_description': $system.description
               }
           )
 
@@ -145,6 +150,10 @@ entities:
             align: center
           - value: os_type
             text: ОС
+            sortable: true
+            align: center
+          - value: image
+            text: Образ
             sortable: true
             align: center
           - value: os_bit
@@ -187,17 +196,25 @@ entities:
             text: Теги
             align: left
             width: 300
+          - value: system
+            text: Система
+            align: left
+            width: 300
+            link: system_link
           - value: type
             text: Тип сервера
           - value: tenant
             text: Тенант
           - value: dc
             text: Датацентр
-        origin: seaf.ta.reverse.servers_list
+        origin:
+          servers: seaf.ta.reverse.servers_list
+          servers2systems: seaf.ta.reverse.general.servers2systems
         source: >
           (
               $domain := $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
-              $data := $ ~> $filter(function($v){$domain_matcher($v.id)});
-              $data ~> | $ | {'domain': $domain, 'link': link & '&domain=' & $domain } |;
+              $data := servers ~> $filter(function($v){$domain_matcher($v.id)});
+              $servers2systems := servers2systems;
+              $data ~> | $ | ($id := $.id; $system := $lookup($servers2systems, $id);  {'domain': $domain, 'link': link & '&domain=' & $domain, 'system': $system.title, 'system_link': $system.link }) |;
           )
