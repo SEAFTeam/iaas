@@ -7,6 +7,7 @@ entities:
           (
             $ctx := $params;
             $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $svg_vm := $.icons."reverse.general".svg_vm;
             $cservers := $ctx.vpc_id ? (
                 $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) and $ctx.vpc_id = $v.vpc_id ? {$k:$v}})
             ) : (
@@ -14,6 +15,7 @@ entities:
             );
             /* $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}); */
             $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $arr1 := $merge($cvpcs.$spread().(
                       $id := $.*.id;
                       $name := *.name;
@@ -26,16 +28,44 @@ entities:
                       }
               )
             );
-            $arr2 := $merge($cservers.$spread().(
+            $arr2 := $merge($csubnets.$spread().(
+                      $id := $.*.id;
+                      $name := *.name;
+                      $domain := $.*.vpc & '.' & $id;
+                      $id in $cservers.*.subnets ?
+                      {
+                          $domain: {
+                              'title': $name & ' - ' & *.cidr,
+                              'description': *.cidr
+                          }
+                      }
+              )
+            );
+            $arr3 := $mergedeep($cservers.$spread().(
+                  $key := $keys();
                   $id := $.*.id;
                   $vpcid := *.vpc_id;
-                  $domain := $vpcid & '.' & $id;
-                  {
-                      $domain: {
-                              'title': *.name,
-                              'symbol': 'server'
+                  $addresses := '  Addresses: ' & $join($.*.addresses, ", ");
+                  $name := $.*.name;
+                  $cpu := $.*.cpu;
+                  $ram := $.*.ram;
+                  $link := '/entities/seaf.ta.reverse.cloud_ru.advanced.ecss/server_md?id=' & $key;
+                  $.*.subnets.(
+                      $domain := $vpcid & '.' & $ & '.' & $id;
+                      $symbol := $eval($svg_vm, {'title': $name, 'ip': $addresses, 'href': $link});
+                      {
+                          'nodes': {
+                              $domain: {
+                                'title': $name,
+                                'symbol': 'server-' & $id,
+                                'hideTitle': true
+                              }
+                          },
+                          'symbols': {
+                              'server-' & $id: $symbol
+                          }   
                       }
-                  }
+                  )
               )
             );
             $links := $cvpcs.$spread().(
@@ -56,9 +86,10 @@ entities:
                                        )
             );
             {
-            "nodes": $merge($append($arr1, $arr2)),
+            "nodes": $merge($append($append($arr1, $arr2), $arr3.nodes)),
             "links": null,
-            "symbols":{
+            "symbols": $arr3.symbols
+            /* "symbols":{
                   "server":
                               "<g xmlns=\"http://www.w3.org/2000/svg\">" &
                               "<g>" &
@@ -94,7 +125,7 @@ entities:
                                 "<circle fill=\"#F9EBB2\" cx=\"40\" cy=\"55\" r=\"1\"/>" &
                                 "</g>" &
                               "</g>"
-                  }
+                  } */
             }
           )
 

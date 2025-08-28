@@ -343,7 +343,7 @@ entities:
                 $cvpcname := $.*.name;
                 $tenant := $.*.tenant;
                 $vpc_dc := $.*.DC;
-                $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name;
+                $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title;
                 $subnet_grid := $map($subnets, function ($v, $i){(
                     $subnet_id := $v.*.id;
                     $subnet_name := $v.*.name;
@@ -583,19 +583,19 @@ entities:
                   $id := $keys()[0];
                   $vpn := $cvpnconn.*[branch_id=$id];
                   $vpn ? (
-                        $param := {"name": $.*.dc_name, "location": $.*.dc_address, "city": $.*.dc_address, 'cidr': $join($vpn.remote_subnets, ", ")};
+                        $param := {"name": $.*.title, "location": $.*.address, "city": $.*.address, 'cidr': $join($vpn.remote_subnets, ", ")};
                         $symbol := $eval($svg_dc, $param);
                         $links := {
-                          "from": $.*.dc_name,
+                          "from": $.*.title,
                           "to": "internet",
                           "title": "vpn from " & $vpn.remote_gw_ip,
                           "style": "<-[#2A9D8F]->"
                         };
                         {
                           "nodes":{
-                            $.*.dc_name:{
-                              "title": $.*.dc_name,
-                              "symbol": $.*.dc_name
+                            $.*.title:{
+                              "title": $.*.title,
+                              "symbol": $.*.title
                             }
                           },
                           "symbols": $symbol,
@@ -609,12 +609,12 @@ entities:
                 $dstid := $.*.accept_vpc;
                 $from := $cvpcs.$spread()[$.*.id = $srcid].(
                   $vpc_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                   $dc & "." & $.*.tenant & "." & $.*.name
                 );
                 $to := $cvpcs.$spread()[$.*.id = $dstid].(
                   $vpc_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                   $dc & "." & $.*.tenant & "." & $.*.name
                 );
                 $from in $nodes.$keys() and $to in $nodes.$keys() ? (
@@ -633,7 +633,7 @@ entities:
                       $vpc := $.vpc;
                       $from := $cvpcs.$spread()[*.name=$vpc].(
                           $vpc_dc := $.*.DC;
-                          $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                          $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                           $dc & '.' & $.*.tenant & '.' & $.*.name
                     );
                       {
