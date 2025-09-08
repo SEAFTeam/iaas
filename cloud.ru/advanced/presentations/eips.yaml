@@ -6,34 +6,34 @@ entities:
         headers:
           - value: ext_address
             text: Внешний адрес
-            width: 200
+            width: 20%
             sortable: true
           - value: int_address
             text: Внутренний адрес
-            width: 200
+            width: 20%
             sortable: true
           - value: type
             text: Производетельность
-            width: 200
+            width: 20%
             sortable: true
           - value: port_id
             text: Идентификатор порта для которого привязан IP
-            width: 200
+            width: 20%
             sortable: true
           - value: tenant
             text: Тенант(Project) в облаке
-            width: 200
+            width: 20%
             sortable: true
           - value: id
-            text: ID сущности
-            width: 200
+            text: Идентификатор объекта
+            width: 20%
             sortable: true
         source: >
           (    
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($eips.$spread().(
+              [$distinct($eips.(
                 $eips_table := (
                   [$eips.$spread().{
                               "id": $keys()[0],

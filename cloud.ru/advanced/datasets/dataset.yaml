@@ -42,7 +42,7 @@ datasets:
               "subnet_array": $subnet,
               "az": server.az,
               "flavor": server.flavor,
-              "tags": $join(server.tags.($.key & ': ' & $.value), "\n"),
+              "tags": server.tags,
               "type": server.type,
               "iaas_provider": server.iaas_provider,
               "tenant": server.tenant,

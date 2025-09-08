@@ -167,7 +167,8 @@ entities:
                 'system_title': $system.title,
                 'system_link': $system.link,
                 'system_id': $system.id,
-                'system_description': $system.description
+                'system_description': $system.description,
+                'image': $cserver.*.image
               }
           )
 
@@ -180,6 +181,11 @@ entities:
             align: left
             link: link
             width: 150
+          - value: system
+            text: Система
+            align: left
+            width: 300
+            link: system_link
           - value: status
             text: Статус
             sortable: true
@@ -232,11 +238,6 @@ entities:
             text: Теги
             align: left
             width: 300
-          - value: system
-            text: Система
-            align: left
-            width: 300
-            link: system_link
           - value: type
             text: Тип сервера
           - value: tenant
@@ -252,5 +253,5 @@ entities:
               $domain_matcher := $eval('/^' & $domain & '.*/');
               $data := servers ~> $filter(function($v){$domain_matcher($v.id)});
               $servers2systems := servers2systems;
-              $data ~> | $ | ($id := $.id; $system := $lookup($servers2systems, $id);  {'domain': $domain, 'link': link & '&domain=' & $domain, 'system': $system.title, 'system_link': $system.link }) |;
+              $data ~> | $ | ($id := $.id; $system := $lookup($servers2systems, $id); $tags := $join($.tags.($key := $keys(); $var := $key & ": " & $.*), "\n");  {'domain': $domain, 'link': link & '&domain=' & $domain, 'system': $system.title, 'system_link': $system.link, "tags": $tags  }) |;
           )

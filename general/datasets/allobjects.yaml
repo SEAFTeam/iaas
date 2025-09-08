@@ -91,16 +91,19 @@ datasets:
               $tech_params_link := $components.(
                   $id := $keys();
                   $link_type := "tech_params";
-                  $card := "/entities/kadzo.v2023.tech_params/card?id=";
+                  $card := "/entities/kadzo.v2023.systems/card?id=";
                   $.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tp ? (      
                           $tech_param := $tech_params[$keys() = $value];
+                          $log($tech_param, "tp");
+                          $system := $systems ~> $filter(function($v){$v.$keys() = $tech_param.*.system});
+                          $log($system, 'system');
                           {
                               $id: {
-                                  "id": $tech_param.$keys(),
-                                  "description": $tech_param.*.description,
-                                  "title": $tech_param.*.title,
+                                  "id": $system.$keys(),
+                                  "description": $system.*.description,
+                                  "title": $system.*.title,
                                   "link": $card & $tech_param.$keys(),
                                   "link_type": $link_type
                               }
@@ -115,7 +118,7 @@ datasets:
                   $card := "/entities/kadzo.v2023.tech_services/card?id=";
                   $.**.tags.(
                       $value := $.*;
-                      $keys() in $tags_tp ? (      
+                      $keys() in $tags_tech_services ? (      
                           $tech_service := $tech_services[$keys() = $value];
                           {
                               $id: {

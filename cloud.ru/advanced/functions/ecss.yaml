@@ -40,7 +40,6 @@ functions:
               $av := vm.name in $avs.**.hosts ? true : false;
               $edr := vm.name in $edrs.**.hosts ? true : false;
               $dc := $dcs.$spread()[$keys() = $vpc.*.DC];
-              $tags := $join(vm.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
               {
                   'id': id,
                   'short_id': vm.id,
@@ -58,7 +57,7 @@ functions:
                   'edr': $edr,
                   'subnet_ids': vm.subnets,
                   'az': vm.az,
-                  'tags': $tags,
+                  'tags': vm.tags,
                   'tenant': vm.tenant,
                   'vpc_id': vm.vpc_id,
                   'vpc_name': $vpc.*.name,

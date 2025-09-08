@@ -1,7 +1,7 @@
 entities:
   kadzo.v2023.systems:
     presentations:
-      app_landscape:
+      tech_landscape:
         widgets:
           reverse:
             title: Компоненты инфраструктуры

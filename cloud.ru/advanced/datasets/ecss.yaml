@@ -27,7 +27,6 @@ functions:
               $disks := $join(vm.disks.(*.device & ' - ' & *.type & ' - ' & *.size & 'Gb'), '\n');
               $addresses := $count(vm.addresses) > 1 ? $join(vm.addresses.($ != null ? $), ', ') : vm.addresses;
               $subnets := $count(vm.subnets) > 1 ? $join(vm.subnets.($ != null ? $), ', ') : vm.subnets;
-              $tags := $join(vm.tags.($ != null and $.key != null and $.value != null ? ($.key & ': ' & $.value)), "\n");
               {
                   'id': id,
                   'short_id': vm.id,
@@ -43,7 +42,7 @@ functions:
                   'addresses': $addresses,
                   'subnet_ids': $subnets,
                   'az': vm.az,
-                  'tags': $tags,
+                  'tags': vm.tags,
                   'vpc': vm.vpc_id,
                   'tenant': vm.tenant,
                   'link': '/entities/' & $vms_view & '/card?id=' & id & '&domain=' & $domain,
