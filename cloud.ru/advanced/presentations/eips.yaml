@@ -21,13 +21,13 @@ entities:
             width: 20%
             sortable: true
           - value: type
-            text: Производительность
+            text: Тип услуги
             width: 20%
             sortable: true
-          - value: port_id
-            text: Идентификатор порта для которого привязан IP
-            width: 20%
-            sortable: true
+#          - value: port_id
+#            text: Идентификатор порта для которого привязан IP
+#            width: 20%
+#            sortable: true
           - value: tenant
             text: Тенант
             width: 20%
