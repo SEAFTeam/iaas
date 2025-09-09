@@ -111,7 +111,7 @@ entities:
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$backup_policies.$spread().(
+              [$backup_policies.(
                   $wide_id := $keys();
                   {
                       "id": $keys()[0],
