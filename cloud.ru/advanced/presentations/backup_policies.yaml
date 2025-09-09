@@ -108,20 +108,17 @@ entities:
             sortable: true
         source: >
           (
-            $ctx := $params;
-            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($backup_policies.(
-                $backup_policies_table := (
-                  [$backup_policies.$spread().(
-                      $wide_id := $keys();
-                      {
-                                  "id": $keys()[0],
-                                  "backup_policies": $.*
-                      } ~> | $.* | enabled  = true ? {"enabled": "Да"} : {"enabled": "Нет"}| 
-                          ~> | $.* | {"link": "/entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/backup_policies_md?id=" & $wide_id}|)
-                  ]
-              )).backup_policies)]
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              [$backup_policies.$spread().(
+                  $wide_id := $keys();
+                  {
+                      "id": $keys()[0],
+                      "backup_policies": $.*
+                  } ~> | $.* | enabled  = true ? {"enabled": "Да"} : {"enabled": "Нет"}| 
+                      ~> | $.* | {"link": "/entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/backup_policies_md?id=" & $wide_id}|
+              ).backup_policies]
           )
       backup_policies_md:
         type: markdown
