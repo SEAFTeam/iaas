@@ -74,7 +74,8 @@ datasets:
                       $value := $.*;
                       $keys() in $tags_systems ? (
                           $any_sys := $append($systems, $kb_systems);
-                          $system := $any_sys[$keys() = $value];
+                          $system := $any_sys ~> $filter(function($v) {$v.$keys() = $value});
+                          $system ?
                           {
                               $id: {
                                   "id": $system.$keys(),
@@ -96,9 +97,8 @@ datasets:
                       $value := $.*;
                       $keys() in $tags_tp ? (      
                           $tech_param := $tech_params[$keys() = $value];
-                          $log($tech_param, "tp");
                           $system := $systems ~> $filter(function($v){$v.$keys() = $tech_param.*.system});
-                          $log($system, 'system');
+                          $system ?
                           {
                               $id: {
                                   "id": $system.$keys(),
@@ -119,7 +119,8 @@ datasets:
                   $.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tech_services ? (      
-                          $tech_service := $tech_services[$keys() = $value];
+                          $tech_service := $tech_services ~> $filter(function($v){$v.$keys() = $value});
+                          $tech_service ?
                           {
                               $id: {
                                   "id": $tech_service.$keys(),
@@ -132,6 +133,6 @@ datasets:
                       )
                   )
               );
-              $result := $merge($append($result, $tech_services_link));
+              $result := $mergedeep($append($result, $tech_services_link));
           )
       )
