@@ -12,8 +12,16 @@ entities:
             text: Внутренний адрес
             width: 20%
             sortable: true
+          - value: throughput
+            text: Пропускная способность (Мб/с)
+            width: 20%
+            sortable: true
+          - value: rule_name
+            text: Имя правила
+            width: 20%
+            sortable: true
           - value: type
-            text: Производетельность
+            text: Производительность
             width: 20%
             sortable: true
           - value: port_id
@@ -21,25 +29,24 @@ entities:
             width: 20%
             sortable: true
           - value: tenant
-            text: Тенант(Project) в облаке
+            text: Тенант
             width: 20%
             sortable: true
-          - value: id
-            text: Идентификатор объекта
-            width: 20%
-            sortable: true
+#          - value: id
+#            text: Идентификатор объекта
+#            width: 20%
+#            sortable: true
         source: >
           (    
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($eips.(
-                $eips_table := (
-                  [$eips.$spread().{
-                              "id": $keys()[0],
-                              "eip": $.*
-                          }]
-              )).eip)]
+              [$eips.(
+                  {
+                    "id": $keys()[0],
+                    "eip": $.*
+                  }
+              ).eip ~> | $ | {'rule_name': limit.rule_name, 'throughput': limit.throughput } |]
           )
       eip_md:
         type: markdown
@@ -49,11 +56,10 @@ entities:
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($eips.$spread().(
-                $eips_table := (
-                  [$eips.$spread().{
-                              "id": $keys()[0],
-                              "eip": $.*
-                          }]
-              )).eip)]
+              [$eips.(
+                  {
+                    "id": $keys()[0],
+                    "eip": $.*
+                  }
+              ).eip ~> | $ | {'rule_name': limit.rule_name, 'throughput': limit.throughput } |]
           )
