@@ -70,7 +70,7 @@ datasets:
                                         )
                               );
                               $rdb_dc := rdb.DC;
-                              $dc := $cdcs.$spread()[$keys()[0] = $rdb_dc].*.dc_name;
+                              $dc := $cdcs.$spread()[$keys()[0] = $rdb_dc].*.title;
                             {
                               "id": id,
                               "name": rdb.name,

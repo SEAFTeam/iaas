@@ -2,16 +2,18 @@
 ***  
 **Наименование**: {{name}}
 
-| Наименование | Статус     | IP адреса                                       | Описание | Subnet     | VPC     | DC/IaaS |
-|--------------|------------|-------------------------------------------------|----------|------------|---------|---------|
-| {{name}}     | {{status}} | {{#ip_addresses}}{{address}}  {{/ip_addresses}} |  {{description}}        | {{subnet}} | {{vpc}} | {{dc}}  |
+| Наименование | Статус     | IP адреса                                       | Описание | Subnet     | VPC     | Датацентр |
+|--------------|------------|-------------------------------------------------|----------|------------|---------|-----------|
+| {{name}}     | {{status}} | {{#ip_addresses}}{{address}}  {{/ip_addresses}} |  {{description}}        | {{subnet}} | {{vpc}} | {{dc}}    |
 
-{{#system_title}}
-## Система
-**Наименование**: [{{system_title}}]({{system_link}})   
-**Идентификатор**: {{system_id}}   
-**Описание**: {{system_description}}    
-{{/system_title}}
+{{#system_exists}}
+## Система, система КБ или технический сервис
+|Наименование| Тип |Идентификатор|Описание|
+|------------|-----|-------------|--------|
+{{/system_exists}}
+{{#systems}}
+|[{{title}}]({{link}})|{{link_type}}|{{id}}|{{description}}|
+{{/systems}}
 
 ## Backup Policies
 ![Получаем данные о резервном копировании](@entity/seaf.ta.reverse.cloud_ru.advanced.backup_policies/server_backup?id={{id}}&domain={{domain}})

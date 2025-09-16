@@ -96,8 +96,11 @@ entities:
               $manifest := $;
               $domain_matcher := $eval('/^' & $.domain & '.*/');
               $cserver := $manifest."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $ccce := $manifest."seaf.ta.reverse.cloud_ru.advanced.cces" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $cdmss := $manifest."seaf.ta.reverse.cloud_ru.advanced.dmss" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $cobjects := $append($cdmss, $append($cserver, $ccce));
               $csecurity_groups := $manifest."seaf.ta.reverse.cloud_ru.advanced.security_groups" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $security_groups := $cserver.*.security_groups.($id := $; $csecurity_groups.$spread()[*.id = $id]);
+              $security_groups := $cobjects.*.security_groups.($id := $; $csecurity_groups.$spread()[*.id = $id]);
               $security_groups.$spread().(
                   $name := $.*.name;
                   $.*.rules.(

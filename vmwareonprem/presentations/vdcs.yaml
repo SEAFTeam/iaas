@@ -9,16 +9,19 @@ entities:
             sortable: true
             align: left
             link: link
-            width: 300
+            width: 20%
           - value: vapp_titles
             text: vApps
             align: left
+            width: 20%
           - value: availablenetwork_titles
             text: Сети
             align: left
+            width: 20%
           - value: dc_title
-            text: ЦОД/Офис
+            text: Датацентр
             align: left
+            width: 20%
         source: >
           (
               $domain := $params.domain;

@@ -5,21 +5,22 @@ entities:
         type: table
         headers:
           - value: name
-            text: Gateway name
-            width: 200
+            text: Наименование шлюза
+            width: 20%
             sortable: true
             link: link
           - value: ip
             text: IP адрес
+            width: 20%
           - value: subnet
             text: Подсеть
-            width: 150
+            width: 20%
           - value: vpc
             text: VPC
-            width: 150
+            width: 20%
           - value: dc
-            text: DC/IaaS
-            width: 150
+            text: Датацентр
+            width: 20%
         source: >
           (
               $ctx := $params;
@@ -88,9 +89,9 @@ entities:
           (
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $realty := $."seaf.ta.services.dc".$spread().($);
-              $realty := $append($realty, $."seaf.ta.services.office".$spread().($));
-              $realty := $merge($realty) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $realty := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $realty := $append($realty, $."seaf.ta.services.office" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}));
+              /* $realty := $merge($realty) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}); */
               /* $realty := $.$spread()[$keys()[0] = "seaf.ta.services.dc" or $keys()[0] = "seaf.ta.services.office"]; */
               $cvpngw := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $cvpngw := $cvpngw[$keys() = $ctx.id];
@@ -99,12 +100,12 @@ entities:
               $connections.$spread().(
                   $self := $;
                   $matcher := /\.*name$/;
-                  $branch := $realty.$spread().*.$spread()[$keys()[0] = $self.*.branch_id].*.$spread()[$matcher($keys()[0])].*;
+                  $branch := $realty ~> $filter(function($v, $i){$v.$keys() = $self.*.branch_id});
                   {
                       'name': $self.*.name,
                       'remote_gw_ip': $self.*.remote_gw_ip,
                       'remote_subnets': $join($self.*.remote_subnets, ', '),
-                      'branch': $branch
+                      'branch': $branch.*.title
                   }
               )
           )

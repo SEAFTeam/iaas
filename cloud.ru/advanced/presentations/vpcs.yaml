@@ -22,20 +22,20 @@ entities:
         headers:
           - value: name
             text: Наименование VPC
-            width: 200
+            width: 20%
             link: link
             sortable: true
           - value: description
             text: Описание
-            width: 200
+            width: 20%
             sortable: true
           - value: cidr
             text: CIDR
-            width: 200
+            width: 20%
             sortable: true
           - value: dc
-            text: DC/IaaS
-            width: 200
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (   
@@ -150,6 +150,9 @@ entities:
                 ));
             /* $links ? $nodes := $merge($append($nodes, {'internet':{'title': 'internet', 'symbol': 'cloud'}})) : $nodes := $nodes; */
             {
+              "config": {
+                  "distance": 150
+              }, 
               "nodes": $merge($nodes),
               "symbols": $symbols,
               "links": $links

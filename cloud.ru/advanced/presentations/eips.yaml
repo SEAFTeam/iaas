@@ -7,6 +7,7 @@ entities:
           - value: ext_address
             text: Внешний адрес
             width: 20%
+            link: link
             sortable: true
           - value: int_address
             text: Внутренний адрес
@@ -24,42 +25,42 @@ entities:
             text: Тип услуги
             width: 20%
             sortable: true
-#          - value: port_id
-#            text: Идентификатор порта для которого привязан IP
-#            width: 20%
-#            sortable: true
           - value: tenant
             text: Тенант
             width: 20%
             sortable: true
-#          - value: id
-#            text: Идентификатор объекта
-#            width: 20%
-#            sortable: true
+          - value: dc
+            text: Датацентр
+            width: 20%
+            sortable: true
         source: >
           (    
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$eips.(
-                  {
-                    "id": $keys()[0],
-                    "eip": $.*
-                  }
-              ).eip ~> | $ | {'rule_name': limit.rule_name, 'throughput': limit.throughput } |]
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $eips := [$eips.( 
+                  $id := $keys();
+                  $dc := $dcs ~> $filter(function($v, $i){$v.$keys() = $.*.DC});
+                  $ ~> | $.* | (
+                  {   
+                      'rule_name': limit.rule_name, 
+                      'throughput': limit.throughput, 
+                      'dc': $dc.*.title,
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.eips/card?id=' & $id & '&domain=' & $ctx.domain
+                  } 
+              )|)];
+              $eips.*
           )
-      eip_md:
+      card:
         type: markdown
         template: templates/eip.md
         source: >
           (
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$eips.(
-                  {
-                    "id": $keys()[0],
-                    "eip": $.*
-                  }
-              ).eip ~> | $ | {'rule_name': limit.rule_name, 'throughput': limit.throughput } |]
+              $eip := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) and $k = $ctx.id ? {$k:$v}});
+              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) and $k = $eip.*.DC ? {$k:$v}});
+              $tmp := $eip ~> | $.* | {'rule_name': limit.rule_name, 'throughput': limit.throughput, 'DC': $dc.*.title } |;
+              $tmp.*
           )

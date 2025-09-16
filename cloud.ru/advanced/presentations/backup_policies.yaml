@@ -8,24 +8,31 @@ entities:
             text: Наименование ресурса
             sortable: true
             align: left
-            width: 200
+            width: 20%
           - value: type
             text: Тип ресурса
+            width: 20%
           - value: backup_vault
             text: Хранилище РК
-            width: 200
+            width: 20%
           - value: backup_schedule
             text: Расписание РК
+            width: 20%
           - value: backup_retention
             text: Длительность хранения РК
+            width: 20%
           - value: backup_schedule_status
             text: Статус расписания РК
+            width: 20%
           - value: backup_state
             text: Статус резервной копии
+            width: 20%
           - value: tenant
             text: Тенант
+            width: 20%
           - value: dc
             text: Датацентр
+            width: 20%
         source: >
           (
             $ctx := $params;
@@ -87,38 +94,42 @@ entities:
         headers:
           - value: name
             text: Название политики РК
-            width: 300
+            width: 20%
             sortable: true
             link: link
           - value: operation_type
             text: Назначение политики РК
-            width: 200
+            width: 20%
             sortable: true
           - value: enabled
             text: Включена
-            width: 200
+            width: 20%
             sortable: true
           - value: tenant
             text: Тенант
-            width: 200
+            width: 20%
             sortable: true
           - value: id
             text: Идентификатор политики РК
-            width: 200
+            width: 20%
+            sortable: true
+          - value: dc
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (
               $ctx := $params;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$backup_policies.(
-                    $wide_id := $keys();
-                    {
-                        "id": $keys()[0],
-                        "backup_policies": $.*
-                    }
-                  ).backup_policies  ~> | $ | (enabled  = true ? {"enabled": "Да"} : {"enabled": "Нет"})| 
-                      ~> | $ | {"link": "/entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/backup_policies_md?id=" & $wide_id}|
+                $id := $keys();
+                $dcid := $.*.DC;
+                $dc := $dcs ~> $filter(function($v, $i){ $v.$keys() = $dcid });
+                $ ~> | $.* | (enabled  = true ? {"enabled": "Да"} : {"enabled": "Нет"})| 
+                ~> | $.* | {"link": "/entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/backup_policies_md?id=" & $id & "&domain=" & $ctx.domain, "dc": $dc.*.title}|
+                ).*
               ]
           )
       backup_policies_md:
@@ -127,6 +138,11 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $backup_policy := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$ctx.id = $k ? {$k:$v}});
-              $backup_policy.*
+              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) and $k = $backup_policy.*.DC ? {$k:$v}});
+              $backup_policy.* ~> | $ | (
+                  $enabled := enabled  = true ? "Да" : "Нет";
+                  {"DC": $dc.*.title, "enabled": $enabled}
+              ) |
           )

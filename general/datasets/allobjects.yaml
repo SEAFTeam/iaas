@@ -37,12 +37,12 @@ datasets:
     origin:
       allobjects: seaf.ta.reverse.general.allobjects
       manifest: "($)"
-      kadzo_objects: kadzo.v2023.objects_by_domains
+#      kadzo_objects: kadzo.v2023.objects_by_domains
     source: >
       (
           $entities := allobjects;
           $manifest := manifest;
-          $kadzo_objects := kadzo_objects;
+          /* $kadzo_objects := kadzo_objects; */
           $domains := $manifest.sber.domains;
           $config := $manifest."seaf.ta.reverse.general".config;
           $reverse_entities := $distinct($config.entities.**.model);
@@ -70,68 +70,65 @@ datasets:
                   $card_systems := "/entities/kadzo.v2023.systems/card?id=";
                   $card_kb_systems := "/entities/kadzo.v2023.kb_systems/card?id=";
                   $kb_matcher := $eval('/.*\\.kb\\..*|.*kb_systems.*/');
-                  $.**.tags.(
+                  $vmsystems := [$.**.tags.(
                       $value := $.*;
                       $keys() in $tags_systems ? (
                           $any_sys := $append($systems, $kb_systems);
-                          $system := $any_sys ~> $filter(function($v) {$v.$keys() = $value});
-                          $system ?
+                          $vmsystem := $any_sys ~> $filter(function($v) {$v.$keys() in $value});
+                          $vmsystem ?
                           {
-                              $id: {
-                                  "id": $system.$keys(),
-                                  "description": $system.*.description,
-                                  "title": $system.*.title,
-                                  "link": $kb_matcher($system.$keys()) ? $card_kb_systems & $system.$keys() : $card_systems & $system.$keys(),
-                                  "link_type": $kb_matcher($system.$keys()) ? "kb_systems" : "systems"
-                              }
+                              "id": $vmsystem.$keys(),
+                              "description": $vmsystem.*.description,
+                              "title": $vmsystem.*.title,
+                              "link": $kb_matcher($vmsystem.$keys()) ? $card_kb_systems & $vmsystem.$keys() : $card_systems & $vmsystem.$keys(),
+                              "link_type": $kb_matcher($vmsystem.$keys()) ? "kb_systems" : "systems"
                           }
                       )
-                  )
+                  )];
+                  $vmsystems ? {$id: $vmsystems}
               );
               $result := $append($result, $systems_link);
               $tech_params_link := $components.(
                   $id := $keys();
                   $link_type := "tech_params";
                   $card := "/entities/kadzo.v2023.systems/card?id=";
-                  $.**.tags.(
+                  $vmtechparams := [$.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tp ? (      
                           $tech_param := $tech_params[$keys() = $value];
                           $system := $systems ~> $filter(function($v){$v.$keys() = $tech_param.*.system});
                           $system ?
                           {
-                              $id: {
-                                  "id": $system.$keys(),
-                                  "description": $system.*.description,
-                                  "title": $system.*.title,
-                                  "link": $card & $tech_param.$keys(),
-                                  "link_type": $link_type
-                              }
+                              "id": $system.$keys(),
+                              "description": $system.*.description,
+                              "title": $system.*.title,
+                              "link": $card & $tech_param.$keys(),
+                              "link_type": $link_type
                           }
                       )
-                  )
+                  )];
+                  $vmtechparams ? {$id: $vmtechparams}
               );
               $result := $append($result, $tech_params_link);
               $tech_services_link := $components.(
                   $id := $keys();
                   $link_type := "tech_services";
                   $card := "/entities/kadzo.v2023.tech_services/card?id=";
-                  $.**.tags.(
+                  $vmtechservices := [$.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tech_services ? (      
                           $tech_service := $tech_services ~> $filter(function($v){$v.$keys() = $value});
                           $tech_service ?
                           {
-                              $id: {
-                                  "id": $tech_service.$keys(),
-                                  "description": $tech_service.*.description,
-                                  "title": $tech_service.*.title,
-                                  "link": $card & $tech_service.$keys(),
-                                  "link_type": $link_type
-                              }
+                              "id": $tech_service.$keys(),
+                              "description": $tech_service.*.description,
+                              "title": $tech_service.*.title,
+                              "link": $card & $tech_service.$keys(),
+                              "link_type": $link_type
                           }
                       )
-                  )
+                  )];
+                  $vmtechservices ? {$id: $vmtechservices}
               );
               $result := $mergedeep($append($result, $tech_services_link));
           )

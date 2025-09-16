@@ -123,41 +123,47 @@ entities:
             sortable: true
             align: left
             link: link
-            width: 300
+            width: 20%
           - value: description
             text: Описание
             align: left
-            width: 300
+            width: 20%
           - value: type
             text: Тип сети
             sortable: true
             align: left
+            width: 20%
           - value: gateway
             text: Адрес шлюза
             align: left
+            width: 20%
           - value: netmask
             text: Маска подсети
             align: left
+            width: 20%
           - value: fencemode
             text: Fence Mode
             align: left
+            width: 20%
           - value: connected
             text: Статус подключения
             align: left
+            width: 20%
           - value: addresses
             text: Диапазоны адресов
             align: left
+            width: 20%
           - value: vdc_title
             text: VDC
             align: left
             sortable: true
-            width: 200
+            width: 20%
             link: vdc_link
           - value: org_title
             text: Организация
             align: left
             sortable: true
-            width: 200
+            width: 20%
             link: org_link
         source: >
           (

@@ -6,28 +6,28 @@ entities:
         headers:
           - value: name
             text: Наименование сети
-            width: 200
+            width: 20%
             link: link
             sortable: true
           - value: description
             text: Описание
-            width: 200
+            width: 20%
             sortable: true
           - value: cidr
             text: CIDR
-            width: 200
+            width: 20%
             sortable: true
           - value: gateway
             text: Gateway
-            width: 200
+            width: 20%
             sortable: true
           - value: vpc
             text: VPC
-            width: 200
+            width: 20%
             sortable: true
           - value: dc
-            text: DC/IaaS
-            width: 200
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (   
@@ -54,19 +54,19 @@ entities:
         headers:
           - value: name
             text: Объект подсети
-            width: 200
+            width: 20%
             sortable: true
           - value: type
             text: Тип объекта
-            width: 200
+            width: 20%
             sortable: true
           - value: subnetname
             text: Наименование подсети
-            width: 200
+            width: 20%
             sortable: true
           - value: dc
-            text: DC/IaaS
-            width: 200
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (   

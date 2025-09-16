@@ -8,23 +8,25 @@ entities:
             text: Название
             sortable: true
             link: link
-            width: 200
+            width: 20%
           - value: address
             text: IP адрес
+            width: 20%
           - value: listeners
             text: Listeners
-            width: 250
+            width: 20%
           - value: pools
             text: Пулы
+            width: 20%
           - value: subnet
             text: Подсеть
-            width: 200
+            width: 20%
           - value: vpc
             text: VPC
-            width: 150
+            width: 20%
           - value: dc
-            text: DC/IaaS
-            width: 150
+            text: Датацентр
+            width: 20%
         source: >
           (
               $ctx := $params;

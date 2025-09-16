@@ -6,31 +6,31 @@ entities:
         headers:
           - value: name
             text:  Название пиринга
-            width: 200
+            width: 20%
             sortable: true
           - value: request_vpc
             text: Источник VPC
-            width: 200
+            width: 20%
             sortable: true
           - value: accept_vpc
             text: Назначение VPC
-            width: 200
+            width: 20%
             sortable: true
           - value: description
             text: Описание
-            width: 200
+            width: 20%
             sortable: true
           - value: status
             text: Состояние
-            width: 200
+            width: 20%
             sortable: true
           - value: tenant
             text: Тенант
-            width: 200
+            width: 20%
             sortable: true
-          - value: DC
-            text: DC/IaaS
-            width: 200
+          - value: dc
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (   
@@ -39,20 +39,14 @@ entities:
               $peerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              [$distinct($peerings.$spread().(
-                $peerings_table := (
-                  [$peerings.$spread().{
-                              "id": $keys()[0],
-                              "peerings": $.*
-                          }]
-              )).peerings).(
-                      $rvpc_id := $.request_vpc;
-                      $avpc_id := $.accept_vpc;
-                      $dc_id := $.DC;
+              [$peerings.(
+                      $rvpc_id := $.*.request_vpc;
+                      $avpc_id := $.*.accept_vpc;
+                      $dc_id := $.*.DC;
                       $request_vpc := $vpcs ~> $filter(function($v){$v.*.id = $rvpc_id});
                       $accept_vpc := $vpcs ~> $filter(function($v){$v.*.id = $avpc_id});
                       $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
-                      $ ~> | $ | {'request_vpc': $request_vpc.*.name, 'accept_vpc': $accept_vpc.*.name, 'DC':$dc.*.title} |
-                  )
+                      $ ~> | $.* | {'request_vpc': $request_vpc.*.name, 'accept_vpc': $accept_vpc.*.name, 'dc':$dc.*.title} |
+                  ).*
               ]
           )

@@ -152,7 +152,7 @@ entities:
               $dc := $dc[$keys()[0] = $cserver.*.DC].*.title;
               /* $sg := $cserver.*.security_groups.($id := $; $name := $csecurity_groups.$spread()[$keys()[0] = $id].*.name; {'name': $name, 'sg_id': $id}); */
               $log($sg, 'sg');
-              $system := $lookup($servers2systems, $id);
+              $systems := $lookup($servers2systems, $id);
               {
                 'id': $id,
                 'name': $cserver.*.name,
@@ -164,10 +164,8 @@ entities:
                 'subnet': $csubnets,
                 'dc': $dc,
                 'domain': $ctx.domain,
-                'system_title': $system.title,
-                'system_link': $system.link,
-                'system_id': $system.id,
-                'system_description': $system.description,
+                'systems': $systems,
+                'system_exists': $systems ? true : false,
                 'image': $cserver.*.image
               }
           )
@@ -180,70 +178,82 @@ entities:
             sortable: true
             align: left
             link: link
-            width: 150
+            width: 20%
           - value: system
             text: Система
             align: left
-            width: 300
+            width: 20%
             link: system_link
           - value: status
             text: Статус
             sortable: true
             align: center
+            width: 20%
           - value: os_type
             text: ОС
             sortable: true
             align: center
+            width: 20%
           - value: image
             text: Образ
             sortable: true
             align: center
+            width: 20%
           - value: os_bit
             text: Разрядность
             sortable: true
             align: left
+            width: 20%
           - value: cpu_qty
             text: Процессор (ядра)
             align: left
+            width: 20%
           - value: ram
             text: ОЗУ (Гб)
             align: left
             sortable: true
+            width: 20%
           - value: disks
             text: Диски
             align: left
-            width: 300
+            width: 20%
           - value: nic_qty
             text: Сетевые адаптеры
             align: left
+            width: 20%
           - value: addresses
             text: IP адреса
             align: left
+            width: 20%
           - value: vpc
             text: VPC
             align: left
-            width: 200
+            width: 20%
           - value: subnet
             text: Subnet
             align: left
-            width: 200
+            width: 20%
           - value: az
             text: Зона доступности
             align: left
-            width: 200
+            width: 20%
           - value: flavor
             text: Спецификация
             align: left
+            width: 20%
           - value: tags
             text: Теги
             align: left
-            width: 300
+            width: 20%
           - value: type
             text: Тип сервера
+            width: 20%
           - value: tenant
             text: Тенант
+            width: 20%
           - value: dc
             text: Датацентр
+            width: 20%
         origin:
           servers: seaf.ta.reverse.servers_list
           servers2systems: seaf.ta.reverse.general.servers2systems
@@ -253,5 +263,5 @@ entities:
               $domain_matcher := $eval('/^' & $domain & '.*/');
               $data := servers ~> $filter(function($v){$domain_matcher($v.id)});
               $servers2systems := servers2systems;
-              $data ~> | $ | ($id := $.id; $system := $lookup($servers2systems, $id); $tags := $join($.tags.($key := $keys(); $var := $key & ": " & $.*), "\n");  {'domain': $domain, 'link': link & '&domain=' & $domain, 'system': $system.title, 'system_link': $system.link, "tags": $tags  }) |;
+              $data ~> | $ | ($id := $.id; $system := $lookup($servers2systems, $id); $tags := $join($.tags.($key := $keys(); $var := $key & ": " & $.*), "\n");  {'domain': $domain, 'link': link & '&domain=' & $domain, 'system': $system[0].title, 'system_link': $system[0].link, "tags": $tags  }) |;
           )

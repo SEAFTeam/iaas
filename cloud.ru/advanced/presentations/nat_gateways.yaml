@@ -25,7 +25,7 @@ entities:
             text: VPC
             width: 20%
           - value: dc
-            text: DC/IaaS
+            text: Датацентр
             width: 20%
         source: >
           (
