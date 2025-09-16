@@ -593,7 +593,8 @@ if serversExport == True:
             for tag in server['tags']:
                 key = tag.split("=",1)[0]
                 value = tag.split("=",1)[1]
-                yaml_tags.append({'key': key, 'value': value})
+                yaml_tags.append({key: value})
+
             
             yaml_structure['security_groups'] = yaml_secgroups
             yaml_structure['nic_qty'] = nic_count

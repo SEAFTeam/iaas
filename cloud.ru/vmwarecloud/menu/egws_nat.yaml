@@ -16,7 +16,7 @@ entities:
       
               $domain_matcher := $eval('/^' & $domain & '.*/');
           
-              $egws := ($lookup($, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).$spread()[*.reverse.reverse_type = "VMwareCloud" and *.reverse.type = "NSXT_BACKED" ];
+              $egws := ($lookup($, $egws_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}));
               $egws_nat := $lookup($, $egws_nat_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
@@ -28,10 +28,10 @@ entities:
                   $gw := $.*.gw;
                   $egw := $egws.$spread()[$keys() = $gw];
                   $egwtitle := $egw.*.title;
-                  $egw.*.reverse.vdcgroup != null ? (
-                      $vdcgrouptitle := $egw.*.reverse.vdcgroup_title;
-                      $vdcgroup_id := $egw.*.reverse.vdcgroup;
-                      $org_id := $egw.*.reverse.org;
+                  $egw.*.vdcgroup != null ? (
+                      $vdcgrouptitle := $egw.*.vdcgroup_title;
+                      $vdcgroup_id := $egw.*.vdcgroup;
+                      $org_id := $egw.*.org;
                       $org := $orgs.$spread()[$keys() = $org_id];
                       $orgtitle := $org.*.title;
                       $dc := $dcs.$spread()[$keys() = $org.*.dc];
@@ -41,9 +41,9 @@ entities:
                           'link': 'entities/' & $egws_nat_entity & '/' & $lowercase($.*.type) & '_schema?id=' & $id
                       }
                   ) : (
-                      $vdctitle := $egw.*.reverse.vdc_title;
-                      $vdc_id := $egw.*.reverse.vdc;
-                      $org_id := $egw.*.reverse.org;
+                      $vdctitle := $egw.*.vdc_title;
+                      $vdc_id := $egw.*.vdc;
+                      $org_id := $egw.*.org;
                       $org := $orgs.$spread()[$keys() = $org_id];
                       $orgtitle := $org.*.title;
                       $dc := $dcs.$spread()[$keys() = $org.*.dc];

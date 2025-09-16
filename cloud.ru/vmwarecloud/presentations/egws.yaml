@@ -480,7 +480,7 @@ entities:
           (
               $id := $params.id;
               $egw := $reverse_vmwarecloud_egws($)[id = $id];
-              $orgnets := $reverse_vmwarecloud_orgnets[id in $egw.gatewayinterfaces.network];
+              $orgnets := $reverse_vmwarecloud_orgnets($)[id in $egw.gatewayinterfaces.network];
               [$egw.gatewayinterfaces ~> | $ | (
                   $id := network;
                   $orgnet := $orgnets[id = $id];

@@ -8,30 +8,39 @@ entities:
             text: Наименование ресурса
             sortable: true
             align: left
-            width: 200
+            width: 20%
           - value: type
             text: Тип ресурса
+            width: 20%
           - value: backup_vault
             text: Хранилище РК
-            width: 200
+            width: 20%
           - value: backup_schedule
             text: Расписание РК
+            width: 20%
           - value: backup_retention
             text: Длительность хранения РК
+            width: 20%
           - value: backup_schedule_status
             text: Статус расписания РК
+            width: 20%
           - value: backup_state
             text: Статус резервной копии
+            width: 20%
           - value: tenant
             text: Тенант
+            width: 20%
           - value: dc
             text: Датацентр
+            width: 20%
         source: >
           (
             $ctx := $params;
-            $servers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-            $vaults := $."seaf.ta.reverse.cloud_ru.advanced.vaults";
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $servers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $vaults := $."seaf.ta.reverse.cloud_ru.advanced.vaults" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $bkp_server := $servers.$spread()[$keys()[0] = $ctx.id];
             $disks := $bkp_server.*.disks.$keys();
             $bkp_server.(
@@ -47,14 +56,14 @@ entities:
                         $vid := $.*.id;
                         $schedule := $backup_policies.$spread()[$vid in *.associated_vaults.vault_id];
                         $dc_id := $server.*.DC;
-                        $dc := $cdcs.$spread()[$keys()[0] = $dc_id].*.dc_name;
+                        $dc := $cdcs.$spread()[$keys()[0] = $dc_id].*.title;
                         [{
                             'name': $server.*.name & ' - ' & $disk.*.device,
                             'type': 'volume',
                             'backup_vault': $.*.name,
                             'backup_schedule': $join($schedule.*.trigger.properties.pattern, '\n'),
                             'backup_retention': $schedule.*.operation_definition.retention_duration_days,
-                            'backup_schedule_status': $schedule.*.enabled,
+                            'backup_schedule_status': $schedule.*.enabled = true ? "Да" : "Нет",
                             'backup_state': $.*.resources[id=$diskid].protect_status,
                             'dc': $dc,
                             'tenant': $server.*.tenant
@@ -63,18 +72,20 @@ entities:
                 );
                 $schedule_srv := $srv_vault.($vids := $.*.id; $backup_policies.$spread()[$vids in *.associated_vaults.vault_id]);
                 $dc_id := $.*.DC;
-                $dc := $cdcs.$spread()[$keys()[0] = $dc_id].*.dc_name;
-                $srv_backup := [{
+                $dc := $cdcs.$spread()[$keys()[0] = $dc_id].*.title;
+                $srv_backup := $schedule_srv.(
+                $assc_vaults := $.*.associated_vaults;
+                {
                     'name': $name,
-                    'type': $.type,
-                    'backup_vault': $join($srv_vault.*.name, '\n'),
-                    'backup_schedule': $join($schedule_srv.*.trigger.properties.pattern, '\n'),
-                    'backup_retention': $schedule_srv.*.operation_definition.retention_duration_days,
-                    'backup_schedule_status': $schedule_srv.*.enabled,
-                    'backup_state': $srv_vault.*.resources[id=$id].protect_status,
+                    'type': 'vm',
+                    'backup_vault': $.*.name,
+                    'backup_schedule': $.*.trigger.properties.pattern,
+                    'backup_retention': $.*.operation_definition.retention_duration_days,
+                    'backup_schedule_status': $.*.enabled  = true ? "Да" : "Нет",
+                    'backup_state': $srv_vault[*.id in $assc_vaults.vault_id].*.resources[id=$id].protect_status,
                     'dc': $dc,
                     'tenant': $.*.tenant
-                }];
+                });
                 $append($srv_backup, $disk_vault);
             );
           )
@@ -83,50 +94,55 @@ entities:
         headers:
           - value: name
             text: Название политики РК
-            width: 300
+            width: 20%
             sortable: true
-          - value: description
-            text: Описание Security Group
-            width: 200
-            sortable: true
+            link: link
           - value: operation_type
             text: Назначение политики РК
-            width: 200
+            width: 20%
             sortable: true
           - value: enabled
-            text: Статус политики РК
-            width: 200
+            text: Включена
+            width: 20%
             sortable: true
           - value: tenant
-            text: Тенант(Project) в облаке
-            width: 200
+            text: Тенант
+            width: 20%
             sortable: true
           - value: id
             text: Идентификатор политики РК
-            width: 200
+            width: 20%
+            sortable: true
+          - value: dc
+            text: Датацентр
+            width: 20%
             sortable: true
         source: >
           (
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
-              [$distinct($backup_policies.$spread().(
-                $backup_policies_table := (
-                  [$backup_policies.$spread().{
-                              "id": $keys()[0],
-                              "backup_policies": $.*
-                          }]
-              )).backup_policies)]
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              [$backup_policies.(
+                $id := $keys();
+                $dcid := $.*.DC;
+                $dc := $dcs ~> $filter(function($v, $i){ $v.$keys() = $dcid });
+                $ ~> | $.* | (enabled  = true ? {"enabled": "Да"} : {"enabled": "Нет"})| 
+                ~> | $.* | {"link": "/entities/seaf.ta.reverse.cloud_ru.advanced.backup_policies/backup_policies_md?id=" & $id & "&domain=" & $ctx.domain, "dc": $dc.*.title}|
+                ).*
+              ]
           )
       backup_policies_md:
         type: markdown
         template: templates/backup_policy.md
         source: >
           (
-            $backup_policies := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies";
-              [$distinct($backup_policies.$spread().(
-                $backup_policies_table := (
-                  [$backup_policies.$spread().{
-                              "id": $keys()[0],
-                              "backup_policies": $.*
-                          }]
-              )).backup_policies)]
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $backup_policy := $."seaf.ta.reverse.cloud_ru.advanced.backup_policies" ~> $each(function($v, $k){$ctx.id = $k ? {$k:$v}});
+              $dc := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) and $k = $backup_policy.*.DC ? {$k:$v}});
+              $backup_policy.* ~> | $ | (
+                  $enabled := enabled  = true ? "Да" : "Нет";
+                  {"DC": $dc.*.title, "enabled": $enabled}
+              ) |
           )

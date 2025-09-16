@@ -98,12 +98,12 @@ entities:
         headers:
           - value: title
             text: Наименование
-            width: 200
+            width: 20%
             sortable: true
             link: link
           - value: description
             text: Описание
-            width: 400
+            width: 20%
         source: >
           (
               $id := $params.id;
@@ -118,22 +118,22 @@ entities:
             sortable: true
             align: left
             link: link
-            width: 300
+            width: 20%
           - value: description
             text: Описание
             align: left
-            width: 300
+            width: 20%
           - value: vdc_title
             text: VDC
             align: left
             sortable: true
-            width: 200
+            width: 20%
             link: vdc_link
           - value: org_title
             text: Организация
             align: left
             sortable: true
-            width: 200
+            width: 20%
             link: org_link
         source: >
           (

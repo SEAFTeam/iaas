@@ -9,7 +9,7 @@ icons:
       $href := $.href;
       $internet := $internet ? '<rect fill="#D90000" x="10" y="5" width="10" height="10" rx="5" stroke="#D90000"/>';
       $not($x and $y) ? ($x := 0; $y := 0);
-      $ipstring := $ip ? '<text fill="#333333" width="200" x="50" y="100" text-anchor="middle" font-size="12" stroke="#000" stroke-width="0">' & $ip & '</text>';
+      $ipstring := $ip ? '<text fill="#333333" width="200" x="100" y="100" text-anchor="middle" font-size="12" stroke="#000" stroke-width="0">' & $ip & '</text>';
       $symbol := '<svg width="200" height="120" fill="#000000" x="' & $x & '" y="' & $y & '" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                   & '<rect width="200" height="120" x="0" y="0" stroke="#fff" fill-opacity="0"/>'
                   & $internet

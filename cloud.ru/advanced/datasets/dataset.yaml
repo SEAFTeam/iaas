@@ -22,11 +22,13 @@ datasets:
                         )
                      );
               $srv_dc := server.DC;
-              $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.dc_name;
+              $dc := $cdcs.$spread()[$keys()[0] = $srv_dc].*.title;
               {
+              "id": id,
               "name": server.name,
               "status": server.status,
               "os_type": server.os.type,
+              "image": server.image,
               "os_bit": server.os.bit,
               "cpu_qty": server.cpu.cores,
               "ram":  (server.ram / 1024),
@@ -40,7 +42,7 @@ datasets:
               "subnet_array": $subnet,
               "az": server.az,
               "flavor": server.flavor,
-              "tags": $join(server.tags.($.key & ': ' & $.value), "\n"),
+              "tags": server.tags,
               "type": server.type,
               "iaas_provider": server.iaas_provider,
               "tenant": server.tenant,
@@ -68,8 +70,9 @@ datasets:
                                         )
                               );
                               $rdb_dc := rdb.DC;
-                              $dc := $cdcs.$spread()[$keys()[0] = $rdb_dc].*.dc_name;
+                              $dc := $cdcs.$spread()[$keys()[0] = $rdb_dc].*.title;
                             {
+                              "id": id,
                               "name": rdb.name,
                               "status": rdb.status,
                               "vpc_id": rdb.vpc_id,

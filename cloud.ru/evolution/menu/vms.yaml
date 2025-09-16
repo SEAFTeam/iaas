@@ -1,13 +1,13 @@
 entities:
-  seaf.ta.reverse.vmwarecloud.vms:
+  seaf.ta.reverse.evo.vms:
     menu: >
       (
           $dataset := $;
           $domain := '';
           $domain_matcher := $eval('/^' & $domain & '.*/');
           
-          $vms_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.model;
-          $vm_view := "seaf.ta.reverse.general".config.entities.vmwarecloud.vms.view;
+          $vms_entity := "seaf.ta.reverse.general".config.entities.evo.vms.model;
+          $vm_view := "seaf.ta.reverse.general".config.entities.evo.vms.view;
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $org_entity := "seaf.ta.reverse.general".config.entities.vmwarecloud.orgs.model;
@@ -24,7 +24,7 @@ entities:
               $dcid := $.*.dc;
               $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
               {
-                  'location': $config.arch_menu & '/' & $dctitle & '/Облако VMware/Реестры/Серверы',
+                  'location': $config.arch_menu & '/' & $dctitle & '/Evolution/Реестры/Серверы',
                   'link': 'entities/' & $vm_view & '/list?domain=' & $domain
               }
           )];
@@ -38,7 +38,7 @@ entities:
               $dc := $dcs.$spread()[$keys() = $org.*.dc];
               $exists($vms) ? (
                   {
-                      'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $title & '/VMs',
+                      'location': $config.arch_menu & '/' & $dc.*.title & '/Evolution/Организации/' & $orgtitle & '/' & $title & '/VMs',
                       'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
                   }
               )
@@ -55,7 +55,7 @@ entities:
               $exists($vms) ? (
                   $vdcgroup.$spread().(
                       {
-                          'location': $config.arch_menu & '/' & $dc.*.title & '/Облако VMware/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title & '/VMs',
+                          'location': $config.arch_menu & '/' & $dc.*.title & '/Evolution/Организации/' & $orgtitle & '/' & $.*.title & '/' & $title & '/VMs',
                           'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
                       }
                   )

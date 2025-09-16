@@ -362,7 +362,7 @@ def get_dvportgroup(content, dc):
             vlan_id = [str(vlan_info.vlanId)]
 
         id = prefix + "dvportgroups." + json_pg.get("_vimid")
-        dc_id = prefix + "vdc." + dc._moId
+        dc_id = prefix + "vdcs." + dc._moId
         yaml_structure = {
             'id': json_pg.get("_vimid"),
             'original_id': json_pg.get("_vimref"),

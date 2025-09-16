@@ -1,5 +1,5 @@
 entities:
-  seaf.ta.reverse.vmwarecloud.orgs:
+  seaf.ta.reverse.evo.orgs:
     presentations:
       card:
         type: markdown
