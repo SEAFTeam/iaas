@@ -9,7 +9,7 @@ datasets:
           $dcs_entity_matcher := /.*\.services\.dc$/;
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          $advs := $$.$spread()[$adv_entity_matcher($keys())];
+          /*    $advs := $$.$spread()[$adv_entity_matcher($keys())];  */
           $enterprise := $append($enterprise, $reverse_vmwarecloud_egws($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgnets($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgs($));
@@ -22,7 +22,8 @@ datasets:
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_hosts($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vdcs($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vms($));
-          $allobjects := $append($advs, $enterprise);
+          $advanced := $append($advanced, $reverse_advanced_ecss($));
+          $allobjects := $append($advanced, $enterprise);
           $allobjects := $append($allobjects, $vmwareonprem)
       )
   all:
@@ -30,4 +31,105 @@ datasets:
     source: >
       (
         $
+      )
+
+  seaf.ta.reverse.general.servers2systems:
+    origin:
+      allobjects: seaf.ta.reverse.general.allobjects
+      manifest: "($)"
+#      kadzo_objects: kadzo.v2023.objects_by_domains
+    source: >
+      (
+          $entities := allobjects;
+          $manifest := manifest;
+          /* $kadzo_objects := kadzo_objects; */
+          $domains := $manifest.sber.domains;
+          $config := $manifest."seaf.ta.reverse.general".config;
+          $reverse_entities := $distinct($config.entities.**.model);
+          $domains.$spread().(
+              $domain := $keys();
+              $domain_matcher := $eval('/^' & $domain & '.*/');
+              $systems := $manifest."kadzo.v2023.systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $kb_systems := $manifest."kadzo.v2023.kb_systems" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tech_params := $manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tech_services := $manifest."kadzo.v2023.tech_services" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $tags := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.*;
+              $tags_tp := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.tech_params;
+              $tags_systems := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.systems;
+              $tags_tech_services := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.tech_services;
+              $tags_hash_table := {"systems": $tags_systems, "tech_services": $tags_tech_services, "tech_params": $tags_tp};
+              
+              /* Здесь мы получаем список всех компонентов реверса в которых есть тэги соответсвующие тэгам в конфиге   */
+              $components := $reverse_entities.(
+                  $lookup($manifest, $) ~> $each(function($v, $k){$v.**.tags[$keys() in $tags] ? {$k: $v}})
+              ) ~> $distinct();
+              /* Получили */
+              
+              $systems_link := $components.(
+                  $id := $keys();
+                  $card_systems := "/entities/kadzo.v2023.systems/card?id=";
+                  $card_kb_systems := "/entities/kadzo.v2023.kb_systems/card?id=";
+                  $kb_matcher := $eval('/.*\\.kb\\..*|.*kb_systems.*/');
+                  $vmsystems := [$.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_systems ? (
+                          $any_sys := $append($systems, $kb_systems);
+                          $vmsystem := $any_sys ~> $filter(function($v) {$v.$keys() in $value});
+                          $vmsystem ?
+                          {
+                              "id": $vmsystem.$keys(),
+                              "description": $vmsystem.*.description,
+                              "title": $vmsystem.*.title,
+                              "link": $kb_matcher($vmsystem.$keys()) ? $card_kb_systems & $vmsystem.$keys() : $card_systems & $vmsystem.$keys(),
+                              "link_type": $kb_matcher($vmsystem.$keys()) ? "kb_systems" : "systems"
+                          }
+                      )
+                  )];
+                  $vmsystems ? {$id: $vmsystems}
+              );
+              $result := $append($result, $systems_link);
+              $tech_params_link := $components.(
+                  $id := $keys();
+                  $link_type := "tech_params";
+                  $card := "/entities/kadzo.v2023.systems/card?id=";
+                  $vmtechparams := [$.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_tp ? (      
+                          $tech_param := $tech_params[$keys() = $value];
+                          $system := $systems ~> $filter(function($v){$v.$keys() = $tech_param.*.system});
+                          $system ?
+                          {
+                              "id": $system.$keys(),
+                              "description": $system.*.description,
+                              "title": $system.*.title,
+                              "link": $card & $tech_param.$keys(),
+                              "link_type": $link_type
+                          }
+                      )
+                  )];
+                  $vmtechparams ? {$id: $vmtechparams}
+              );
+              $result := $append($result, $tech_params_link);
+              $tech_services_link := $components.(
+                  $id := $keys();
+                  $link_type := "tech_services";
+                  $card := "/entities/kadzo.v2023.tech_services/card?id=";
+                  $vmtechservices := [$.**.tags.(
+                      $value := $.*;
+                      $keys() in $tags_tech_services ? (      
+                          $tech_service := $tech_services ~> $filter(function($v){$v.$keys() = $value});
+                          $tech_service ?
+                          {
+                              "id": $tech_service.$keys(),
+                              "description": $tech_service.*.description,
+                              "title": $tech_service.*.title,
+                              "link": $card & $tech_service.$keys(),
+                              "link_type": $link_type
+                          }
+                      )
+                  )];
+                  $vmtechservices ? {$id: $vmtechservices}
+              );
+              $result := $mergedeep($append($result, $tech_services_link));
+          )
       )

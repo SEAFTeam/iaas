@@ -1,15 +1,66 @@
 entities:
   seaf.ta.reverse.cloud_ru.advanced.vpcs:
     presentations:
+      card:
+        type: markdown
+        template: templates/vpc.md
+        source: >
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cvpc := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) and $ctx.id = $k ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpc.(
+                  $id := $keys();
+                  $dc_id := $.*.DC;
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
+                  $.* ~> | $ | {"dc": $dc.*.title} |
+              )
+          )
+      table_view:
+        type: table
+        headers:
+          - value: name
+            text: Наименование VPC
+            width: 20%
+            link: link
+            sortable: true
+          - value: description
+            text: Описание
+            width: 20%
+            sortable: true
+          - value: cidr
+            text: CIDR
+            width: 20%
+            sortable: true
+          - value: dc
+            text: Датацентр
+            width: 20%
+            sortable: true
+        source: >
+          (   
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $dcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs.(
+                  $id := $keys();
+                  $dc_id := $.*.DC;
+                  $dc := $dcs ~> $filter(function($v){$v.$keys() = $dc_id});
+                  $.* ~> | $ | {"dc": $dc.*.title, 'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/card?id=' & $id} |
+              )
+          )
       vpcs_diagram:
         type: smartants
         source: >
           (
-            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-            $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-            $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
-            $cpeerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings";
+            $ctx := $params;
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $eips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cpeerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $arr := $merge($cvpcs.$spread().(
                       $id := $.*.id;
                       $name := $.*.name;
@@ -19,6 +70,7 @@ entities:
                                 $vpcid = $id ?
                                 {
                                   'id': $subnetid,
+                                  'full_id': $keys(),
                                   'title': *.name & ' - ' & *.cidr
                                 }
                               );
@@ -89,7 +141,7 @@ entities:
                                 & "<rect width=\"" & $width & "\" height=" & $height & " fill=\"#eee\" stroke=\"#222\" rx=3 />"
                                 /* Заполняем аспектами */
                                 & $join($map(*.subnets, function($v, $i) {
-                                    "<a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.subnets/table_view\">"
+                                    "<a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.subnets/list_of_objects?id=" & $v.full_id & "&domain=" & $ctx.domain & "\">"
                                     & "<text x=6 y=" & ($i * $rowHeight + $padding + $rowHeight) & " style=\"font-size:" & $fontHeight & "\" fill=\"blue\">" & $v.title & "</text>"
                                     & "</a>"
                                 }))
@@ -98,6 +150,9 @@ entities:
                 ));
             /* $links ? $nodes := $merge($append($nodes, {'internet':{'title': 'internet', 'symbol': 'cloud'}})) : $nodes := $nodes; */
             {
+              "config": {
+                  "distance": 150
+              }, 
               "nodes": $merge($nodes),
               "symbols": $symbols,
               "links": $links
@@ -108,21 +163,23 @@ entities:
         type: smartants
         source: >
           (
-            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-            $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss";
-            $ceips := $."seaf.ta.reverse.cloud_ru.advanced.eips";
-            $cpeerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings";
-            $crdbs := $."seaf.ta.reverse.cloud_ru.advanced.rdss";
-            $cvpngws := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways";
-            $cvpnconn := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections";
-            $cnatgws := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways";
-            $celbs := $."seaf.ta.reverse.cloud_ru.advanced.elbs";
-            $cces := $."seaf.ta.reverse.cloud_ru.advanced.cces";
-            $cdmss := $."seaf.ta.reverse.cloud_ru.advanced.dmss";
+            $ctx := $params;
+            $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+            $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cservers := $."seaf.ta.reverse.cloud_ru.advanced.ecss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $ceips := $."seaf.ta.reverse.cloud_ru.advanced.eips" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cpeerings := $."seaf.ta.reverse.cloud_ru.advanced.peerings" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $crdbs := $."seaf.ta.reverse.cloud_ru.advanced.rdss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cvpngws := $."seaf.ta.reverse.cloud_ru.advanced.vpn_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cvpnconn := $."seaf.ta.reverse.cloud_ru.advanced.vpn_connections" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cnatgws := $."seaf.ta.reverse.cloud_ru.advanced.nat_gateways" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $celbs := $."seaf.ta.reverse.cloud_ru.advanced.elbs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cces := $."seaf.ta.reverse.cloud_ru.advanced.cces" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cdmss := $."seaf.ta.reverse.cloud_ru.advanced.dmss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             /*$cbranches := $."seaf.ta.reverse.cloud_ru.advanced.branches";*/
-            $coffices := $."seaf.ta.services.office";
-            $cdcs := $."seaf.ta.services.dc";
+            $coffices := $."seaf.ta.services.office" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+            $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
             $matchfunc := $.functions."seaf.ta.reverse".match_ip_to_subnet;
             $svg_vm := $.functions."seaf.ta.reverse".svg_vm;
             $svg_vm_internet := $.functions."seaf.ta.reverse".svg_vm_internet;
@@ -193,7 +250,7 @@ entities:
                     "iaas_provider": rdb.iaas_provider,
                     "tenant": rdb.tenant,
                     "dc": rdb.DC,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.rdss/rds_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.rdss/rds_md?id=" & id & '&domain=' & $ctx.domain
                   }
                 )]
             );
@@ -208,7 +265,7 @@ entities:
                     "vpc_id": gw.vpc_id,
                     "subnet_id": gw.subnet_id,
                     "ip_address": gw.ip_address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.vpn_gateways/vpngw_md?id=" & id & '&domain=' & $ctx.domain
                   }
                 )]
             );
@@ -226,7 +283,7 @@ entities:
                     "vpc_id": $vpc.*.id,
                     "subnet_id": gw.subnet_id,
                     "ip_address": gw.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.nat_gateways/natgw_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -244,7 +301,7 @@ entities:
                     "vpc_id": $vpc.*.id,
                     "subnet_id": elb.subnet_id,
                     "ip_address": elb.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.elbs/elb_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -262,7 +319,7 @@ entities:
                     "vpc_id": $vpc_id,
                     "subnet_id": $subnet_id,
                     "ip_addresses": cce.addresses,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );
@@ -277,7 +334,7 @@ entities:
                     "vpc_id": dms.vpc_id,
                     "subnet_id": dms.subnet_id,
                     "ip_addresses": dms.address,
-                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=" & id
+                    "link": "/entities/seaf.ta.reverse.cloud_ru.advanced.dmss/dms_md?id=" & id & '&domain=' & $ctx.domain
                   };
               )]
             );   
@@ -289,7 +346,7 @@ entities:
                 $cvpcname := $.*.name;
                 $tenant := $.*.tenant;
                 $vpc_dc := $.*.DC;
-                $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name;
+                $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title;
                 $subnet_grid := $map($subnets, function ($v, $i){(
                     $subnet_id := $v.*.id;
                     $subnet_name := $v.*.name;
@@ -423,7 +480,7 @@ entities:
                 }
 
             );
-            $log($vpc_grid, 'VPC-GRID');
+            /* $log($vpc_grid, 'VPC-GRID'); */
             $symbols := $vpc_grid.$spread().(
                       $count($.*.subnets.objects) >= 1 ? ( /* Берем только объекты с содержимым */
                       $subnets_qty := $count($.*.subnets[objects_qty >= 1]);
@@ -432,7 +489,7 @@ entities:
                       $vpcobj := $;
                       $svg_vpc_bound_start := "<svg id=\"" & $.*.vpc_name & "\" width=\"" & $vwidth & "\" height=\"" & $vheight & "\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
                                                      & "<rect fill=\"#AED9E0\" x=\"0\" y=\"0\" width=\"" & $vwidth & "\" height=\"" & $vheight & "\" rx=\"10\" stroke=\"#000\"/>"
-                                                     & "<text fill=\"#000000\" x=\"15\" y=\"20\" text-anchor=\"start\" font-size=\"14\" stroke=\"#000\" stroke-width=\"0\"><tspan font-weight=\"bold\">VPC</tspan>:&nbsp;<tspan fill=\"#0000FF\"><a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram\">" & $.*.vpc_name & "</a></tspan></text>"
+                                                     & "<text fill=\"#000000\" x=\"15\" y=\"20\" text-anchor=\"start\" font-size=\"14\" stroke=\"#000\" stroke-width=\"0\"><tspan font-weight=\"bold\">VPC</tspan>:&nbsp;<tspan fill=\"#0000FF\"><a href=\"/entities/seaf.ta.reverse.cloud_ru.advanced.vpcs/vpcs_diagram?domain=" & $ctx.domain & "\">" & $.*.vpc_name & "</a></tspan></text>"
                                                      & "<text fill=\"#000000\" x=\"15\" y=\"35\" text-anchor=\"start\" font-size=\"14\" stroke=\"#000\" stroke-width=\"0\"><tspan font-weight=\"bold\">Desc</tspan>:&nbsp;" & $.*.vpc_desc & "</text>";
                       { $.*.vpc_name: $svg_vpc_bound_start & $join($map($.*.subnets[objects_qty >= 1], function($v, $i, $m) {(
                                                               $index := $i;
@@ -529,19 +586,19 @@ entities:
                   $id := $keys()[0];
                   $vpn := $cvpnconn.*[branch_id=$id];
                   $vpn ? (
-                        $param := {"name": $.*.dc_name, "location": $.*.dc_address, "city": $.*.dc_address, 'cidr': $join($vpn.remote_subnets, ", ")};
+                        $param := {"name": $.*.title, "location": $.*.address, "city": $.*.address, 'cidr': $join($vpn.remote_subnets, ", ")};
                         $symbol := $eval($svg_dc, $param);
                         $links := {
-                          "from": $.*.dc_name,
+                          "from": $.*.title,
                           "to": "internet",
                           "title": "vpn from " & $vpn.remote_gw_ip,
                           "style": "<-[#2A9D8F]->"
                         };
                         {
                           "nodes":{
-                            $.*.dc_name:{
-                              "title": $.*.dc_name,
-                              "symbol": $.*.dc_name
+                            $.*.title:{
+                              "title": $.*.title,
+                              "symbol": $.*.title
                             }
                           },
                           "symbols": $symbol,
@@ -555,12 +612,12 @@ entities:
                 $dstid := $.*.accept_vpc;
                 $from := $cvpcs.$spread()[$.*.id = $srcid].(
                   $vpc_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                   $dc & "." & $.*.tenant & "." & $.*.name
                 );
                 $to := $cvpcs.$spread()[$.*.id = $dstid].(
                   $vpc_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                  $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                   $dc & "." & $.*.tenant & "." & $.*.name
                 );
                 $from in $nodes.$keys() and $to in $nodes.$keys() ? (
@@ -579,7 +636,7 @@ entities:
                       $vpc := $.vpc;
                       $from := $cvpcs.$spread()[*.name=$vpc].(
                           $vpc_dc := $.*.DC;
-                          $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.dc_name; 
+                          $dc := $cdcs.$spread()[$keys()[0] = $vpc_dc].*.title; 
                           $dc & '.' & $.*.tenant & '.' & $.*.name
                     );
                       {

@@ -6,9 +6,11 @@ entities:
         template: ../templates/systems_kadzo.md
         source: >
           (
-              $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k}|}});
-              $systems.*
-              
+              $systems := $."kadzo.v2023.systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k, "domain": $params.domain, 'obj_type': "Система" }|}});
+              $kb_systems := $."kadzo.v2023.kb_systems" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k, "domain": $params.domain, 'obj_type': "Система КБ" }|}});
+              $tech_services := $."kadzo.v2023.tech_services" ~> $each(function($v, $k){$k = $params.id ? {$k:$v ~> | $ | {"id": $k, "domain": $params.domain, 'obj_type': "Технический сервис" }|}});
+              $result := $append($append($systems, $kb_systems), $tech_services);
+              $result.*
           )
 
       components:
@@ -45,24 +47,28 @@ entities:
         origin:
           allobjects: seaf.ta.reverse.general.allobjects
           manifest: "($)"
+          kadzo_objects: kadzo.v2023.objects_by_domains
         source: >
           (
               $entities := allobjects;
               $manifest := manifest;
-              $domain := $params.domain;
-              $tech_params := manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
+              $kadzo_objects := kadzo_objects;
+              $domain := $exists($kadzo_objects) and $count($kadzo_objects) > 0 ? $lookup($merge($kadzo_objects.*), $params.id).domain  : $params.domain;
               $domain_matcher := $eval('/^' & $domain & '.*/');
+              $tech_params := $manifest."kadzo.v2023.tech_params" ~> $each(function($v, $k){$v.system = $params.id ? {$k:$v}});
               $config := $manifest."seaf.ta.reverse.general".config;
               $reverse_entities := $config.entities.**.model;
-              $tags := $config.entities.**.tags.*;
+              $tags := $config.entities.$spread()[$keys() = $domain].**.tags.*;
+              $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.tech_params;
+              $tags_systems := $config.entities.$spread()[$keys() = $domain].**.tags.systems;
+              $tags_tech_services := $config.entities.$spread()[$keys() = $domain].**.tags.tech_services;
               $components := $reverse_entities.(
                   $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? {$k: $v}})
               ) ~> $distinct();
               $tech_components := $tech_params.$spread().(
                   $tech_param_id := $keys()[0];
                   $tech_param := $;
-                  $filtered_components := $components.($tech_param_id in $.**.tags[$keys() in $tags].*.$split(", ") ? $);
-                  $log($filtered_components, 'components');
+                  $filtered_components := $components.($tech_param_id in $.**.tags[$keys() in $tags_tp].*.$split(", ") ? $);
                   $filtered_components.(
                       {
                           'id': $keys()[0],
@@ -72,7 +78,30 @@ entities:
                       }
                   )
               );
-              [$tech_components.(
+              $direct_systems_links := (
+                  $filtered_components := $components.($params.id in $.**.tags[$keys() in $tags_systems].*.$split(", ") ? $);
+                  $filtered_components.(
+                      {
+                          'id': $keys()[0],
+                          'component_name': 'Нет привязки к техпараметру',
+                          'component_type': 'Нет привязки к техпараметру',
+                          'component_vendor': 'Нет привязки к техпараметру'
+                      }
+                  )
+              );
+              $direct_tech_services_links := (
+                  $filtered_components := $components.($params.id in $.**.tags[$keys() in $tags_tech_services].*.$split(", ") ? $);
+                  $filtered_components.(
+                      {
+                          'id': $keys()[0],
+                          'component_name': 'Нет привязки к техпараметру',
+                          'component_type': 'Нет привязки к техпараметру',
+                          'component_vendor': 'Нет привязки к техпараметру'
+                      }
+                  )
+              );
+              $sum := $append($append($tech_components, $direct_systems_links), $direct_tech_services_links);
+              [$sum.(
                   $iter := $;
                   $entities[id = $iter.id].(
                       $entity := $;

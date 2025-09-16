@@ -2,22 +2,22 @@ entities:
     seaf.ta.services.k8s:
         menu: >
             (
-                $menu := function($prefix, $domain) {
-                    (
-                        $kube_config := entities."seaf.ta.reverse.k8s".config;
-                        /*
-                        $config := "seaf.ta.reverse.general".config;
-                        $kube_config := entities."seaf.ta.reverse.k8s".config;
-                        $prefix := $config.arch_menu;
-                        */
-                        [
-                            {
-                                'location': $prefix & '/Kubernetes/Кластера',
-                                'link': 'entities/' & $kube_config.cluster.entity & '/' & $kube_config.cluster.view & "?domain=" & $domain
-                            }
-                        ]
-                    )
-                };
+                $menu := function($prefix, $domain) {(
+                    $kube_config := entities."seaf.ta.reverse.k8s".config;
+                    $domain_matcher := $eval('/^' & $domain & '.*/');
+                    $count($$."seaf.ta.reverse.k8s" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})) > 0 ? 
+                    
+                    /*
+                    $config := "seaf.ta.reverse.general".config;
+                    $kube_config := entities."seaf.ta.reverse.k8s".config;
+                    $prefix := $config.arch_menu;
+                    */
+            
+                    [{
+                            'location': $prefix & '/Kubernetes/Кластера',
+                            'link': 'entities/' & $kube_config.cluster.entity & '/' & $kube_config.cluster.view & "?domain=" & $domain
+                    }]
+                )};
             
                 $k8s_menu_generator := function($prefix, $domain, $type) {
                   (
@@ -29,7 +29,7 @@ entities:
                     );
                   )
                 };
-            
+                $count($$."seaf.ta.reverse.k8s") > 0 ?
                 sber.kadzo ? (
                     sber.kadzo.enterprise_mode ? /* если работа в режиме Enterprise */
                         sber.domains.$spread().( /* для каждого домена */
@@ -49,7 +49,7 @@ entities:
                 ) : (
                     $config := "seaf.ta.reverse.general".config;
                     $prefix := $config.arch_menu;
-                    $domain := "midworld.npc";
+                    $domain := "";
                     $k8s_menu_generator($prefix, $domain, "seaf")
                 );            
             )

@@ -9,74 +9,103 @@ entities:
             sortable: true
             align: left
             link: link
-            width: 300
+            width: 20%
+          - value: system
+            text: Система
+            sortable: true
+            align: left
+            link: system_link
+            width: 20%
           - value: os_type
             text: ОС
             sortable: true
             align: center
-            width: 200
+            width: 20%
           - value: os_bit
             text: Разрядность
             sortable: true
             align: left
-          - value: av
-            text: Наличие антивируса
-            sortable: true
-            align: left
-          - value: edr
-            text: Наличие EDR агента
-            sortable: true
-            align: left
+            width: 20%
+#          - value: av
+#            text: Наличие антивируса
+#            sortable: true
+#            align: left
+#          - value: edr
+#            text: Наличие EDR агента
+#            sortable: true
+#            align: left
           - value: cpu_qty
             text: Процессор (ядра)
             align: left
+            width: 20%
           - value: ram
             text: ОЗУ (Гб)
             align: left
             sortable: true
+            width: 20%
           - value: disks
             text: Диски
             align: left
-            width: 200
+            width: 20%
           - value: nic_qty
             text: Сетевые адаптеры
             align: left
+            width: 20%
           - value: addresses
             text: IP адреса
             align: left
+            width: 20%
           - value: vapp
             text: vApp
             align: left
-            width: 200
+            width: 20%
             link: vapp_link
           - value: subnets
             text: Subnet
             align: left
-            width: 200
+            width: 20%
           - value: tags
             text: Теги
             align: left
-            width: 300
-          - value: vdc
+            width: 20%
+          - value: vdc_title
             text: VDC
             link: vdc_link
+            width: 20%
           - value: dc_title
             text: Датацентр
+            width: 20%
+        origin:
+          manifest: "($)"
+          servers2systems: seaf.ta.reverse.general.servers2systems
         source: > 
           (
               $domain := $params.domain;
               $vdc := $params.vdc;
-              $dataset := $$;
+              $dataset := manifest;
+              $servers2systems := servers2systems;
               $tmp := $exists($vdc) ? [$reverse_vmwareonprem_vms($dataset, $domain)[vdc = $vdc]] : [$reverse_vmwareonprem_vms($dataset, $domain)];
-              $tmp ~> | $ | {'edr': (edr = true ? '✅' : '❌'), 'av': (av = true ? '✅' : '❌')  } |
+              $tmp := $tmp ~> | $ | {'edr': (edr = true ? '✅' : '❌'), 'av': (av = true ? '✅' : '❌')  } |;
+              $tmp.(
+                  $id := id;
+                  $systems := $lookup($servers2systems, $id);
+                  $ ~> | $ |  {'domain': $params.domain, 'link': link & '&domain=' & $params.domain, 'system': $systems[0].title, 'system_link': $systems[0].link } |
+              )
           )
 
       card:
         type: markdown
         template: templates/vm_card.md
+        origin:
+          manifest: '($)'
+          servers2systems: seaf.ta.reverse.general.servers2systems
         source: >
           (
               $id := $params.id;
-              $dataset := $$;
-              $reverse_vmwareonprem_vms($dataset)[id = $id]
+              $dataset := manifest;
+              $servers2systems := servers2systems;
+              $server := $reverse_vmwareonprem_vms($dataset)[id = $id];
+              $systems := $lookup($servers2systems, $id);
+              $server ~> | $ | {"system_exists": $systems ? true : false, "systems": $systems} |
+              
           )

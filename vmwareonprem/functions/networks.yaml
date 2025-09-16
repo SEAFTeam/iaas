@@ -30,15 +30,14 @@ functions:
                 'net': *
             }].(
                 $orngetId := id;
-                $org_id := net.reverse.org;
-                $dc := net.dc_id.($id := $; $lookup($dcs, $id));
+                $dc := net.dc.($id := $; $tmp := $lookup($dcs, $id); {$id: {"title": $tmp.title}});
                 {
                     'id': id,
                     'short_id': net.id,
                     'title': net.title,
                     'description': net.description,
                     'type': net.reverse.type,
-                    'ipnetwork': net.iptework,
+                    'ipnetwork': net.ipnetwork,
                     'gateway': net.reverse.gateway,
                     'netmask': net.reverse.netmask,
                     'fencemode': net.reverse.fencemode,
@@ -49,14 +48,12 @@ functions:
                     'vdc_title': net.reverse.vdc_title,
                     'vdc': net.reverse.vdc,
                     'dns': net.reverse.dns,
-                    'org_title': $org.*.title,
-                    'org': net.reverse.org,
                     'link': '/entities/' & $networks_view & '/card?id=' & id,
                     'vdc_link': '/entities/' & $vdcs_view & '/card?id=' & net.reverse.vdc,
                     'entity': $networks_view,
                     'entity_type': 'VMware On-Premise',
                     'entity_title': 'Сети в локальном кластере VMware',
-                    'dc': $join(net.dc_id),
+                    'dc': $dc,
                     'dc_title': $dc.title
                 }
             )]

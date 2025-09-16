@@ -1,8 +1,8 @@
 entities:
-  seaf.ta.reverse.vmwarecloud.orgnets:
+  seaf.ta.reverse.vmwareonprem.orgnets:
     menu: >
       (
-    
+      
           $vdcs_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.vdcs.model;
           $dcs_entity := "seaf.ta.reverse.general".config.entities.dc.model;
           $networks_entity := "seaf.ta.reverse.general".config.entities.vmwareonprem.networks.model;
@@ -15,41 +15,48 @@ entities:
               $networks := ($lookup($, $networks_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});).$spread()[*.reverse.reverse_type = "VMwareOnprem" and *.reverse.type = "vmwarenetwork"];
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-          
+      
               $lists := [$vdcs.$spread().(
-                  $dcid := $.*.dc;
-                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
-                  {
-                      'domain': $domain,
-                      'location': $prefix & '/' & $dctitle & '/Реестры/Сети',
-                      'link': 'entities/' & $networks_view & '/list?domain=' & $domain
-                  }
+                  $id := $keys();
+                  $dcids := $.*.dc;
+                  $dcs := $dcs[$keys() = $dcids];
+                  $dcs.(
+                      $dctitle := $.*.title;
+                      $id := $keys();
+                      {
+                          'domain': $domain,
+                          'location': $prefix & '/' & $dctitle & '/Реестры/Сети VMware Om-Prem',
+                          'link': 'entities/' & $networks_view & '/list?domain=' & $domain & '&dc=' & $id
+                      }
+                  )
+                  
               )];
-          
-              $dynamic_vdc := $networks.$spread().(
-                  $id := $keys()[0];
+      
+              $dynamic_vdc := $networks.(
+                  $id := $keys();
                   $title := $replace($.*.title, '/', ' ');
-                  $dcids := $.*.dc_id;
-                  $dctitle := $dcs.$spread()[$keys() in $dcids].*.title;
+                  $dcids := $.*.dc;
+                  $dcs := $dcs[$keys() in $dcids];
                   $nw := $;
-                  $dctitle.(
-                      $dctitle := $;
+                  $dcs.(
+                      $dctitle := $.*.title;
+                      $dcid := $keys();
                       $vdc_id := $nw.*.reverse.vdc;
-                      $vdctitle := $vdcs.$spread()[$keys() = $vdc_id].*.title;
-                      (
-                          [
-                              {
-                                  'domain': $domain,
-                                  'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети организации/' & $title,
-                                  'link': 'entities/' & $networks_view & '/schema?id=' & $id
-                              },
-                              {
-                                  'domain': $domain,
-                                  'location': $prefix  & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети организации',
-                                  'link': 'entities/' & $networks_view & '/list?vdc_id=' & $vdc_id
-                              }
-                          ]
-                      )
+                      $vdctitle := $vdcs[$keys() = $vdc_id].*.title;
+                          (
+                              [
+                                  {
+                                      'domain': $domain,
+                                      'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети/' & $title,
+                                      'link': 'entities/' & $networks_view & '/schema?id=' & $id
+                                  },
+                                  {
+                                      'domain': $domain,
+                                      'location': $prefix  & '/' & $dctitle & '/Виртуальные Датацентры/' & $vdctitle & '/Сети',
+                                      'link': 'entities/' & $networks_view & '/list?vdc=' & $vdc_id
+                                  }
+                              ]
+                          )
                   )
               );
               $append($lists, $dynamic_vdc)

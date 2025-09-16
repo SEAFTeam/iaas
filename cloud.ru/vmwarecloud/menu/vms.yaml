@@ -16,7 +16,7 @@ entities:
               $domain_matcher := $eval('/^' & $domain & '.*/');
           
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              /*$vms := $lookup($, $vms_entity)[$domain_matcher($keys())].$spread()[*.reverse.reverse_type = "VMwareCloud"];*/
+              $vms := ($lookup($, $vms_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}))[*.reverse.reverse_type = "VMwareCloud"];
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcgroups := $lookup($, $vdcgroups_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $orgs := $lookup($, $org_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});

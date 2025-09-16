@@ -1,0 +1,13 @@
+entities:
+  kadzo.v2023.systems:
+    presentations:
+      tech_landscape:
+        widgets:
+          reverse:
+            title: Компоненты инфраструктуры
+            entity: seaf.ta.reverse.general.systems_kadzo
+            presentation: components
+            order: 50
+            style:
+              margin: 4px
+              border: true

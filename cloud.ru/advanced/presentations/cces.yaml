@@ -6,51 +6,62 @@ entities:
         headers:
           - value: name
             text: Наименование кластера
-            width: 200
+            width: 20%
             sortable: true
             link: link
           - value: flavor
             text: Flavor
+            width: 20%
           - value: ha
             text: Высокая досуптность
+            width: 20%
           - value: addresses
             text: IP адреса
+            width: 20%
           - value: container_network
             text: Сеть контейнеров
+            width: 20%
           - value: service_network
             text: Сервисная сеть
+            width: 20%
           - value: authentication
             text: Аутентификация
+            width: 20%
           - value: endpoints
             text: Endpoints
+            width: 20%
           - value: supportistio
             text: Support Istio
+            width: 20%
           - value: subnet
             text: Подсеть
-            width: 200
+            width: 20%
           - value: vpc
             text: VPC
-            width: 150
+            width: 20%
           - value: masters_az
             text: Зоны доступности
-            width: 200
+            width: 20%
           - value: dc
-            text: DC/IaaS
-            width: 150
+            text: Датацентр
+            width: 20%
         source: >
           (
-              $ccces := $."seaf.ta.reverse.cloud_ru.advanced.cces";
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
-              $cdcs := $."seaf.ta.services.dc";
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $ccces := $."seaf.ta.reverse.cloud_ru.advanced.cces" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc"  ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$ccces.$spread().(
                   $ha := $count($.*.masters_az) > 1 ? 'Да' : 'Нет';
                   $subnet_id := $.*.subnet_id;
                   $vpc_id := $.*.vpc_id;
                   $id := $keys()[0];
                   $cce_dc := $.*.DC;
-                  $dc := $cdcs.$spread()[$keys()[0] = $cce_dc].*.dc_name;
+                  $dc := $cdcs.$spread()[$keys()[0] = $cce_dc].*.title;
                   {
+                      'id': $id,
                       'name': $.*.name,
                       'flavor': $.*.flavor,
                       'ha': $ha,
@@ -64,7 +75,8 @@ entities:
                       'masters_az': $join($.*.masters_az, ', '),
                       'supportistio': $.*.supportistio,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=' & $id
+                      'domain': $ctx.domain,
+                      'link': '/entities/seaf.ta.reverse.cloud_ru.advanced.cces/cce_md?id=' & $id & '&domain=' & $ctx.domain
                   }
               )]
           )
@@ -74,15 +86,16 @@ entities:
         source: >
           (
               $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
               $cce := $."seaf.ta.reverse.cloud_ru.advanced.cces".$spread()[$keys()[0] = $ctx.id];
-              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets";
-              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs";
+              $csubnets := $."seaf.ta.reverse.cloud_ru.advanced.subnets" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cvpcs := $."seaf.ta.reverse.cloud_ru.advanced.vpcs" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $subnet_id := $cce.*.subnet_id;
               $vpc_id := $cce.*.vpc_id;
               $subnet := $csubnets.$spread()[$.*.id = $subnet_id].*.name;
               $vpc := $csubnets.$spread()[$.*.id = $subnet_id].*.name;
               $ha := $count($cce.*.masters_az);
-              $array := $cce.$spread().($.*);
-              $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $cce.*.DC].*.dc_name;
-              $array := $array ~> | $ |{'DC': $dc, 'subnet': $subnet, 'vpc': $vpc, 'ha': $ha}|;
+              $array := $cce.*;
+              $dc := $."seaf.ta.services.dc".$spread()[$keys()[0] = $cce.*.DC].*.title;
+              $array := $array ~> | $ | {'id': $cce.$keys(), 'domain': $ctx.domain, 'DC': $dc, 'subnet': $subnet, 'vpc': $vpc, 'ha': $ha}|;
           )

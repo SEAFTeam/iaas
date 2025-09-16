@@ -14,27 +14,28 @@ entities:
           
               $dcs := $lookup($, $dcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               $vdcs := $lookup($, $vdcs_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-          
+              $vms := ($lookup($, $vms_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}))[*.reverse.reverse_type = "VMwareOnprem"];
+      
               $lists := [$vdcs.$spread().(
                   $dcid := $.*.dc;
-                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  $dctitle := $dcs[$keys() = $dcid].*.title;
                   {
                       'domain': $domain,
-                      'location': $prefix  & '/' & $dctitle & '/Реестры/Серверы',
+                      'location': $prefix & '/' & $dctitle &  '/Реестры/Серверы VMware On-Prem',
                       'link': 'entities/' & $vm_view & '/list?domain=' & $domain
                   }
               )];
               $dynamic_vdc := $vdcs.$spread().(
                   $id := $keys()[0];
-                  $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id];
+                  /* $vms := $reverse_vmwareonprem_vms($dataset, $domain)[vdc = $id]; */
                   $title := $.*.title;
                   $dcid := $.*.dc;
-                  $dctitle := $dcs.$spread()[$keys() = $dcid].*.title;
+                  $dctitle := $dcs[$keys() = $dcid].*.title;
                   $exists($vms) ? (
                       {
                           'domain': $domain,
                           'location': $prefix & '/' & $dctitle & '/Виртуальные Датацентры/' & $title & '/VMs',
-                          'link': 'entities/' & $vm_view & '/list?vdc_id=' & $id
+                          'link': 'entities/' & $vm_view & '/list?vdc=' & $id
                       }
                   )
               );
