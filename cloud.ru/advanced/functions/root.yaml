@@ -1,9 +1,5 @@
 imports:
   - functions.yaml
-  - cces.yaml
-  - dmss.yaml
   - ecss.yaml
-  - eips.yaml
-  - elbs.yaml
   - rdss.yaml
   - vpcs.yaml
