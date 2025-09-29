@@ -1,5 +1,3 @@
 imports:
   - functions.yaml
   - ecss.yaml
-  - rdss.yaml
-  - vpcs.yaml
