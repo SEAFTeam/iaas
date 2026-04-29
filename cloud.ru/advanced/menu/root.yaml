@@ -12,3 +12,4 @@ imports:
   - subnets.yaml
   - vpcs.yaml
   - vpn_gateways.yaml
+  - obss.yaml

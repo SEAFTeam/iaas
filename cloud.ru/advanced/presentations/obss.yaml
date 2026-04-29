@@ -1,0 +1,64 @@
+entities:
+  seaf.ta.reverse.general.obss:
+    presentations:
+      table_view:
+        type: table
+        headers:
+          - value: name
+            text: Название бакета
+            sortable: true
+            align: left
+            link: link
+            width: 20%
+          - value: type
+            text: Тип
+            width: 20%
+          - value: created
+            text: Дата создания
+            width: 20%
+          - value: storage_class
+            text: Класс хранилища
+            width: 20%
+          - value: bucket_location
+            text: Зона доступности
+            width: 20%
+          - value: storage_size
+            text: Объем хранилища
+            width: 20%
+          - value: object_count
+            text: Количество объектов
+            width: 20%
+          - value: quota
+            text: Квота
+            width: 20%
+          - value: versioning
+            text: Версионирование
+            width: 20%
+          - value: dc
+            text: Датацентр
+            width: 20%
+        source: >
+          (
+              $ctx := $params;
+              $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
+              $cobss := $."seaf.ta.reverse.general.obss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              [$cobss.$spread().(
+                  $id := $keys()[0];
+                  $dms_dc := $.*.DC;
+                  $dc := $cdcs.$spread()[$keys()[0] = $dms_dc].*.title;
+                  {
+                      'name': $.*.title,
+                      'type': $.*.type,
+                      'created': $.*.created,
+                      'storage_class': $.*.storage_class,
+                      'bucket_location': $.*.bucket_location,
+                      'storage_size': $.*.storage_size,
+                      'object_count': $.*.object_count,
+                      'quota': $.*.quota,
+                      'versioning': $.*.versioning,
+                      'dc': $dc,
+                      'link': '/entities/seaf.ta.reverse.general.obss/table_view?domain=' & $ctx.domain
+                  }
+              )]
+          )
