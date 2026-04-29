@@ -12,7 +12,7 @@ left to right direction
 !endfunction
 
 ' сам кластер
-rectangle "=={{cluster.id}}" <<cluster>> {
+rectangle "=={{{cluster_id}}}" <<cluster>> {
     {{#services}}
         {{#ports}}
             interface "{{port}}\n{{protocol}}" as $safeID("if_{{ref}}")
@@ -21,7 +21,7 @@ rectangle "=={{cluster.id}}" <<cluster>> {
     {{/services}}
 
     ' целевой namespace в кластере
-    frame "{{namespace.title}}" as $safeID("{{namespace.id}}") {
+    frame "{{namespace_name}}" as $safeID("{{namespace.id}}") {
         ' порты, входящие в NS
         {{#services}}
             '{{#ports}}

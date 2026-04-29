@@ -93,7 +93,7 @@ entities:
         type: table
         headers:
           - value: name
-            text: Название политики РК
+            text: Политика РК
             width: 20%
             sortable: true
             link: link

@@ -87,11 +87,11 @@ entities:
                 template: templates/namespace-v2.puml
                 source: >
                     (
+                        $log($params, "params");
                         $kube_config := entities."seaf.ta.reverse.k8s".config;
                         $namespace  := $lookup($.*, $params.id);
                         $cluster    := $lookup($.*, $namespace.k8s_cluster_id);
-                    
-                        $log($namespace, "NAMESPACE");
+                                        
                         $services       := $lookup($, $kube_config.service.entity).*[namespace_id = $params.id];
                         $deployments    := $lookup($, $kube_config.deployment.entity).*[namespace_id = $params.id];
 
@@ -166,7 +166,7 @@ entities:
                             }   
                         );
                         
-                        $log($deployment_ports, "deployment ports");
+                        /*$log($deployment_ports, "deployment ports");*/
                     
                         $port_dictionary := $service_links.(
                             $service := $; /* сохраняем контекст */
@@ -181,7 +181,7 @@ entities:
                             $service;
                         );
                     
-                        $log($services, "services");
+                        /*$log($services, "services");*/
                     
                         $deployments := $deployments.(
                             $deployment := $;
@@ -221,8 +221,14 @@ entities:
                             "port_links"        : $port_links
                             "namespace_ports"   : $cluster_ips,
                         */
+                        $log($cluster, "cluster");
+                        $cluster.aaa = "bbb";
+                        $log($namespace, "namespace");
+                    
                         {
                             "cluster"           : $cluster,
+                            "cluster_id"        : $cluster.id,
+                            "namespace_name"    : $namespace.title,
                             "namespace"         : $namespace,
                             "services"          : $services,
                             "deployments"       : $deployments

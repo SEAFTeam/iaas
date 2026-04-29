@@ -87,7 +87,7 @@ datasets:
                   )];
                   $vmsystems ? {$id: $vmsystems}
               );
-              $result := $append($result, $systems_link);
+              $result := $systems_link ? $append($result, $systems_link) : $result;
               $tech_params_link := $components.(
                   $id := $keys();
                   $link_type := "tech_params";
@@ -109,7 +109,7 @@ datasets:
                   )];
                   $vmtechparams ? {$id: $vmtechparams}
               );
-              $result := $append($result, $tech_params_link);
+              $result := $tech_params_link ? $append($result, $tech_params_link) : $result;
               $tech_services_link := $components.(
                   $id := $keys();
                   $link_type := "tech_services";
@@ -130,6 +130,7 @@ datasets:
                   )];
                   $vmtechservices ? {$id: $vmtechservices}
               );
-              $result := $mergedeep($append($result, $tech_services_link));
+              $result := $tech_services_link ? $append($result, $tech_services_link) : $result;
+              $result := $result ? $mergedeep($result);
           )
       )
