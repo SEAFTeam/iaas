@@ -1,0 +1,163 @@
+# OBS: список бакетов и метаданные по API OBS (например, obs_04_0005 — перечисление бакетов;
+# детали — HEAD bucket, quota, policy, lifecycle и др.). Источник данных: Airflow advanced_dag.export_obss.
+# Справка: https://support.hc.sbercloud.ru/api/obs/obs_04_0005.html
+entities:
+  seaf.ta.reverse.general.obss:
+    title: OBS (Object Storage Service)
+    description: >
+      Реверс-инжиниринг бакетов SberCloud / OBS. Корневой запрос — GET ListBuckets (XML);
+      дополнительные атрибуты собираются отдельными запросами к бакету (см. mle-airflow export_obss).
+    objects:
+      bucket:
+        route: "/"
+        title: Бакет OBS
+    schema:
+      type: object
+      patternProperties:
+        "^[a-zA-Z][a-zA-Z0-9_-]*(\\.[a-zA-Z][a-zA-Z0-9_-]*)*$":
+          type: object
+          properties:
+            title:
+              title: Имя бакета
+              type: string
+            created:
+              title: Дата создания (экспорт в формате ДД.ММ.ГГГГ)
+              type: string
+            type:
+              title: Тип бакета (например, OBJECT из ответа ListBuckets)
+              type: string
+            storage_class:
+              title: Класс хранения (заголовок x-obs-storage-class / аналог)
+              type: string
+            version:
+              title: Версия OBS API / заголовок x-obs-version
+              oneOf:
+                - type: string
+                - type: number
+            encryption:
+              title: Шифрование на стороне сервера (x-obs-server-side-encryption)
+              type: string
+            bucket_location:
+              title: Регион размещения бакета
+              type: string
+            quota:
+              title: Квота хранилища бакета (XML StorageQuota)
+              oneOf:
+                - type: integer
+                - type: string
+            storage_policy:
+              title: Политика класса хранения (storage policy XML)
+              type: string
+            storage_size:
+              title: Занятый объём (storageinfo, байты)
+              oneOf:
+                - type: integer
+                - type: string
+            object_count:
+              title: Количество объектов (storageinfo)
+              oneOf:
+                - type: integer
+                - type: string
+            policies:
+              title: Политика доступа (Statement из JSON policy)
+              oneOf:
+                - type: string
+                  description: Пустая строка, если политики нет или не получены
+                - type: array
+                  items:
+                    type: object
+                    description: Элемент Statement (ключи в snake_case после экспорта)
+                    additionalProperties: true
+            lifecycle:
+              title: Правила жизненного цикла
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            cors:
+              title: Правила CORS
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            logging:
+              title: Конфигурация логирования доступа к бакету
+              oneOf:
+                - type: string
+                - type: object
+                  additionalProperties: true
+            versioning:
+              title: Версионирование объектов (Status или объект полей)
+              oneOf:
+                - type: string
+                - type: object
+                  additionalProperties: true
+            website:
+              title: Статический веб-хостинг бакета
+              oneOf:
+                - type: string
+                - type: object
+                  additionalProperties: true
+            tags:
+              title: "Теги бакета (список объектов {имя_тега: значение})"
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            notification:
+              title: Уведомления (TopicConfiguration)
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            replication:
+              title: Правила межрегиональной репликации
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            inventory:
+              title: Конфигурации инвентаризации
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    additionalProperties: true
+            encryption_config:
+              title: Расширенная конфигурация шифрования бакета
+              oneOf:
+                - type: string
+                - type: object
+                  additionalProperties: true
+            custom_domain:
+              title: Пользовательские домены
+              oneOf:
+                - type: string
+                - type: array
+                  items:
+                    type: object
+                    properties:
+                      domain_name:
+                        title: Доменное имя
+                        type: string
+                      create_time:
+                        title: Время привязки (экспорт ДД.ММ.ГГГГ)
+                        type: string
+                    additionalProperties: true
+            tenant:
+              title: Идентификатор тенанта (проекта) в облаке
+              type: string
+            DC:
+              title: Датацентр / IaaS-провайдер
+              $ref: "#/$rels/seaf.ta.services.dc.dc"
