@@ -23,19 +23,19 @@ entities:
             text: Зона доступности
             width: 20%
           - value: storage_size
-            text: Объем хранилища
+            text: Объем хранилища, ГБ
             width: 20%
           - value: object_count
             text: Количество объектов
+            width: 20%
+          - value: dc
+            text: Датацентр
             width: 20%
           - value: quota
             text: Квота
             width: 20%
           - value: versioning
             text: Версионирование
-            width: 20%
-          - value: dc
-            text: Датацентр
             width: 20%
         source: >
           (
@@ -53,9 +53,9 @@ entities:
                       'created': $.*.created,
                       'storage_class': $.*.storage_class,
                       'bucket_location': $.*.bucket_location,
-                      'storage_size': $.*.storage_size,
+                      'storage_size': $.*.storage_size / (1024 * 1024 * 1024) ~> $floor() ~> $string(),
                       'object_count': $.*.object_count,
-                      'quota': $.*.quota,
+                      'quota': $.*.quota / (1024 * 1024 * 1024) ~> $string(),
                       'versioning': $.*.versioning,
                       'dc': $dc,
                       'link': '/entities/seaf.ta.reverse.general.obss/table_view?domain=' & $ctx.domain
