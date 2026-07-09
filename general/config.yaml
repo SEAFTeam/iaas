@@ -51,6 +51,10 @@ seaf.ta.reverse.general:
         ecss:
           model: seaf.ta.reverse.cloud_ru.advanced.ecss
           view: seaf.ta.reverse.cloud_ru.advanced.ecss
+      general:
+        obss:
+          model: seaf.ta.reverse.general.obss
+          view: seaf.ta.reverse.general.obss
       vmwareonprem:
         vms:
           model: seaf.ta.components.server

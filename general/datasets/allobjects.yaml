@@ -9,7 +9,6 @@ datasets:
           $dcs_entity_matcher := /.*\.services\.dc$/;
           $dcs_entity := $$.entities.$spread()[$dcs_entity_matcher($keys())].$keys()[0];
           $dcs := $$.$spread()[$dcs_entity_matcher($keys())].*;
-          /*    $advs := $$.$spread()[$adv_entity_matcher($keys())];  */
           $enterprise := $append($enterprise, $reverse_vmwarecloud_egws($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgnets($));
           $enterprise := $append($enterprise, $reverse_vmwarecloud_orgs($));
@@ -23,6 +22,7 @@ datasets:
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vdcs($));
           $vmwareonprem := $append($vmwareonprem, $reverse_vmwareonprem_vms($));
           $advanced := $append($advanced, $reverse_advanced_ecss($));
+          $advanced := $append($advanced, $reverse_general_obss($));
           $allobjects := $append($advanced, $enterprise);
           $allobjects := $append($allobjects, $vmwareonprem)
       )
@@ -58,6 +58,16 @@ datasets:
               $tags_systems := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.systems;
               $tags_tech_services := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).**.tags.tech_services;
               $tags_hash_table := {"systems": $tags_systems, "tech_services": $tags_tech_services, "tech_params": $tags_tp};
+              $domain_cfg := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).*;
+              $replace_rules := {
+                "obss": $domain_cfg.general.obss.tag_id_replace
+              };
+              $denorm_tag := function($obj_id, $tag_value, $rules) {(
+                $rule := $match($obj_id, /\.obss\./) ? $rules.obss;
+                $exists($rule) and $rule.from and $rule.to
+                  ? $replace($tag_value, $rule.to, $rule.from)
+                  : $tag_value
+              )};
               
               /* Здесь мы получаем список всех компонентов реверса в которых есть тэги соответсвующие тэгам в конфиге   */
               $components := $reverse_entities.(
@@ -74,7 +84,8 @@ datasets:
                       $value := $.*;
                       $keys() in $tags_systems ? (
                           $any_sys := $append($systems, $kb_systems);
-                          $vmsystem := $any_sys ~> $filter(function($v) {$v.$keys() in $value});
+                          $norm := $denorm_tag($id, $value, $replace_rules);
+                          $vmsystem := $any_sys ~> $filter(function($v) {$v.$keys() in $value or $v.$keys() in $norm});
                           $vmsystem ?
                           {
                               "id": $vmsystem.$keys(),
@@ -95,14 +106,15 @@ datasets:
                   $vmtechparams := [$.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tp ? (      
-                          $tech_param := $tech_params[$keys() = $value];
+                          $tp_id := $denorm_tag($id, $value, $replace_rules);
+                          $tech_param := $tech_params[$keys() = $value] ? $tech_params[$keys() = $value] : $tech_params[$keys() = $tp_id];
                           $system := $systems ~> $filter(function($v){$v.$keys() = $tech_param.*.system});
                           $system ?
                           {
                               "id": $system.$keys(),
                               "description": $system.*.description,
                               "title": $system.*.title,
-                              "link": $card & $tech_param.$keys(),
+                              "link": $card & $system.$keys(),
                               "link_type": $link_type
                           }
                       )
@@ -117,7 +129,8 @@ datasets:
                   $vmtechservices := [$.**.tags.(
                       $value := $.*;
                       $keys() in $tags_tech_services ? (      
-                          $tech_service := $tech_services ~> $filter(function($v){$v.$keys() = $value});
+                          $ts_id := $denorm_tag($id, $value, $replace_rules);
+                          $tech_service := $tech_services ~> $filter(function($v){$v.$keys() = $value or $v.$keys() = $ts_id});
                           $tech_service ?
                           {
                               "id": $tech_service.$keys(),

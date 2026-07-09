@@ -62,13 +62,28 @@ entities:
               $tags_tp := $config.entities.$spread()[$keys() = $domain].**.tags.tech_params;
               $tags_systems := $config.entities.$spread()[$keys() = $domain].**.tags.systems;
               $tags_tech_services := $config.entities.$spread()[$keys() = $domain].**.tags.tech_services;
+              $domain_cfg := ($config.entities ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}})).*;
+              $replace_rules := {
+                "obss": $domain_cfg.general.obss.tag_id_replace
+              };
+              $denorm_tag := function($obj_id, $tag_value, $rules) {(
+                $rule := $match($obj_id, /\.obss\./) ? $rules.obss;
+                $exists($rule) and $rule.from and $rule.to
+                  ? $replace($tag_value, $rule.to, $rule.from)
+                  : $tag_value
+              )};
               $components := $reverse_entities.(
                   $lookup($manifest, $) ~> $each(function($v, $k){$domain_matcher($k) and $v.**.tags[$keys() in $tags] ? {$k: $v}})
               ) ~> $distinct();
               $tech_components := $tech_params.$spread().(
                   $tech_param_id := $keys()[0];
                   $tech_param := $;
-                  $filtered_components := $components.($tech_param_id in $.**.tags[$keys() in $tags_tp].*.$split(", ") ? $);
+                  $filtered_components := $components.(
+                      $comp_id := $keys()[0];
+                      $tag_vals := $.**.tags[$keys() in $tags_tp].*.$split(", ");
+                      $norm_vals := $tag_vals.($denorm_tag($comp_id, $, $replace_rules));
+                      $tech_param_id in $tag_vals or $tech_param_id in $norm_vals ? $
+                  );
                   $filtered_components.(
                       {
                           'id': $keys()[0],
@@ -79,7 +94,12 @@ entities:
                   )
               );
               $direct_systems_links := (
-                  $filtered_components := $components.($params.id in $.**.tags[$keys() in $tags_systems].*.$split(", ") ? $);
+                  $filtered_components := $components.(
+                      $comp_id := $keys()[0];
+                      $tag_vals := $.**.tags[$keys() in $tags_systems].*.$split(", ");
+                      $norm_vals := $tag_vals.($denorm_tag($comp_id, $, $replace_rules));
+                      $params.id in $tag_vals or $params.id in $norm_vals ? $
+                  );
                   $filtered_components.(
                       {
                           'id': $keys()[0],
@@ -90,7 +110,12 @@ entities:
                   )
               );
               $direct_tech_services_links := (
-                  $filtered_components := $components.($params.id in $.**.tags[$keys() in $tags_tech_services].*.$split(", ") ? $);
+                  $filtered_components := $components.(
+                      $comp_id := $keys()[0];
+                      $tag_vals := $.**.tags[$keys() in $tags_tech_services].*.$split(", ");
+                      $norm_vals := $tag_vals.($denorm_tag($comp_id, $, $replace_rules));
+                      $params.id in $tag_vals or $params.id in $norm_vals ? $
+                  );
                   $filtered_components.(
                       {
                           'id': $keys()[0],

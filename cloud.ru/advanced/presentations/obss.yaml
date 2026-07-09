@@ -10,6 +10,11 @@ entities:
             align: left
             link: link
             width: 20%
+          - value: system
+            text: Система
+            align: left
+            link: system_link
+            width: 20%
           - value: type
             text: Тип
             width: 20%
@@ -37,14 +42,24 @@ entities:
           - value: versioning
             text: Версионирование
             width: 20%
+          - value: tags
+            text: Теги
+            align: left
+            width: 20%
+        origin:
+          servers2systems: seaf.ta.reverse.general.servers2systems
+          manifest: ($)
         source: >
           (
               $ctx := $params;
+              $servers2systems := servers2systems;
               $domain_matcher := $eval('/^' & $ctx.domain & '.*/');
-              $cobss := $."seaf.ta.reverse.general.obss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
-              $cdcs := $."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cobss := manifest."seaf.ta.reverse.general.obss" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
+              $cdcs := manifest."seaf.ta.services.dc" ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}});
               [$cobss.$spread().(
                   $id := $keys()[0];
+                  $systems := $lookup($servers2systems, $id);
+                  $tags := $join($.*.tags.($key := $keys(); $key & ": " & $.*), "\n");
                   $dms_dc := $.*.DC;
                   $dc := $cdcs.$spread()[$keys()[0] = $dms_dc].*.title;
                   {
@@ -58,7 +73,10 @@ entities:
                       'quota': $.*.quota / (1024 * 1024 * 1024) ~> $string(),
                       'versioning': $.*.versioning,
                       'dc': $dc,
-                      'link': '/entities/seaf.ta.reverse.general.obss/table_view?domain=' & $ctx.domain
+                      'link': '/entities/seaf.ta.reverse.general.obss/table_view?domain=' & $ctx.domain,
+                      'system': $systems[0].title,
+                      'system_link': $systems[0].link,
+                      'tags': $tags
                   }
               )]
           )

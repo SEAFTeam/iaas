@@ -1,0 +1,37 @@
+functions:
+  reverse_general_obss:
+    title: Список бакетов OBS
+    params:
+      - alias: dataset
+        type: object
+        title: Озеро данных
+        required: true  # Признак обязательности параметра функции
+      - alias: domain
+        type: string
+        title: Домен организации
+        required: false  # Признак обязательности параметра функции
+    code: >
+      (
+          $domain := domain;
+          $domain_matcher := $eval('/^' & $domain & '.*/');
+
+          $obss_entity := dataset."seaf.ta.reverse.general".config.entities.general.obss.model;
+          $obss_view := dataset."seaf.ta.reverse.general".config.entities.general.obss.view;
+
+          $obss := ($lookup(dataset, $obss_entity) ~> $each(function($v, $k){$domain_matcher($k) ? {$k:$v}}));
+
+          [[$obss.$spread().{
+              'id': $keys(),
+              'bucket': *
+          }].(
+              {
+                  'id': id,
+                  'title': bucket.title,
+                  'link': '/entities/' & $obss_view & '/table_view?domain=' & $domain,
+                  'entity': $obss_view,
+                  'entity_type': 'Cloud.ru Advanced',
+                  'entity_title': "Бакет OBS",
+                  'dc': bucket.DC
+              }
+          )]
+      )
